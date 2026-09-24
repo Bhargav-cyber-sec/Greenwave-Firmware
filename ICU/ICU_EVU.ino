@@ -769,6 +769,29 @@ void gwEvuOnRelay(const LoRaEventFrame &f, bool directToIcu) {
         return;
     }
 
+    // ---- v7: GEOFENCE PROVENANCE ----
+    //
+    // Recorded on every accepted frame, before the evidence class is set.
+    // This does not gate ingest and does not alter the track in any other
+    // way: a bypassed report is still authenticated, still tracked, still
+    // displayed, still arbitrated. Only its ability to reach COMMIT on its
+    // own is affected, in gwBuildDemand().
+    t->geofenceEnforced = (f.flags & EVF_GEOFENCE_ENFORCED) != 0;
+    t->geofencePassed   = (f.flags & EVF_GEOFENCE_PASS)     != 0;
+    t->geofenceBypassed = (f.flags & EVF_GEOFENCE_BYPASS)   != 0;
+
+    if (!t->geofenceEnforced || !t->geofencePassed) {
+        if (!t->everUnenforced) {
+            Serial.printf("[EVU] %s reported by L%uN%u with the geofence NOT "
+                          "ENFORCED (bypass=%u pass=%u) -- track marked "
+                          "reduced-trust for its lifetime\n",
+                          id, (unsigned)f.hdr.lane_id, (unsigned)f.hdr.node_id,
+                          t->geofenceBypassed ? 1u : 0u,
+                          t->geofencePassed   ? 1u : 0u);
+        }
+        t->everUnenforced = true;   // sticky, deliberately
+    }
+
     // ---- ACTIVE ----
     t->state          = EVU_ACTIVE;
     t->directReceived = directToIcu;
@@ -953,6 +976,39 @@ bool gwEvuIsReceding(int lane) {
 }
 
 // Strongest live EVU demand on an approach.
+/***********************************************************************
+ * v7 : does this approach's strongest demand rest on a report whose
+ * geofence was not enforced?
+ *
+ * Mirrors gwEvuIsReceding() exactly -- same signature shape, same
+ * lane-scoped read, same use as a STAGE CAP rather than as a filter.
+ * The decision layer asks a yes/no question through an accessor and
+ * never touches EvuTrack itself.
+ *
+ * Scans the same track set and applies the same eligibility conditions
+ * as gwEvuDemand(), so the two cannot disagree about which track they
+ * are describing. Returns false when there is no eligible track, which
+ * makes the cap a no-op rather than a fail-closed on an empty approach.
+ ***********************************************************************/
+bool gwEvuLaneUnenforced(int lane) {
+    uint8_t bestPri = 255;
+    bool    result  = false;
+
+    for (int i = 0; i < MAX_EVU_TRACKS; i++) {
+        EvuTrack &t = evuTracks[i];
+        if (!t.inUse) continue;
+        if (t.lane != lane) continue;
+        if (t.evidence == LE_NONE) continue;
+        if (t.state != EVU_ACTIVE && t.state != EVU_DEGRADED) continue;
+
+        if (t.priority < bestPri) {
+            bestPri = t.priority;
+            result  = t.everUnenforced;
+        }
+    }
+    return result;
+}
+
 bool gwEvuDemand(int lane, uint8_t *priority, uint8_t *evidence, int16_t *etaS) {
     bool found = false;
     uint8_t bestPri = 255;

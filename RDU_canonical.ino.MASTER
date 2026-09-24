@@ -980,9 +980,55 @@ bool icuSlotOpen(unsigned long txAirtimeMs, bool bypass) {
 //
 // At 6000UL: ~12.8s worst spacing, 3.1 clean misses against 40000ms.
 //
-// PAIRED WITH HEARTBEAT_TIMEOUT_MS IN ICU.ino (40000, derived from this).
+// PAIRED WITH HEARTBEAT_TIMEOUT_MS IN ICU.ino (60000, derived from this).
 // Change one, recompute the other -- and recompute the SUM, not the term.
+//
+// v7 CORRECTION. This comment said 40000 and the ICU has been running
+// 60000. The ICU value is the correct one and is NOT changed here; only
+// this documentation was stale. ICU.ino records the reasoning:
+//
+//   "Raised 40000 -> 60000 alongside NODE_FAILED_MS in ICU_Geometry.ino.
+//    The RDU heartbeat interval doubled to 10 s as part of the
+//    duty-cycle fix, so worst-case spacing from a healthy node is now
+//    17.5 s. Leaving this at 40 s would have marked nodes offline here
+//    while the geometry layer still considered them merely SUSPECT --
+//    two subsystems disagreeing about whether the same node is alive."
+//
+// That reasoning is verifiable from this file: HEARTBEAT_BASE_MS is
+// 10000, not the 5000 the derivation block above was written against.
+// The 40000 figure predates the duty-cycle change. 60000 is right, and
+// it matches NODE_FAILED_MS (60000UL, ICU_Geometry.ino) exactly, which
+// is the consistency that mattered.
+//
+// Recomputed margin at the current constants:
+//   10000 + 1500 + 6000 + 130 = 17630 ms worst spacing
+//   60000 / 17630 = 3.4 clean misses.
 #define HEARTBEAT_MAX_DEFER_MS 6000UL
+
+/***********************************************************************
+ * v7 : ICU CONSTANTS THIS NODE IS BUILT AGAINST
+ *
+ * These are NOT this node's settings. They are the ICU values that this
+ * node's own timing was derived from, declared here so the boot banner
+ * can print them as constants instead of as string literals.
+ *
+ * That distinction is the whole point. The banner used to say
+ * "(ICU expects hbTimeout=40000)" as a hardcoded literal inside a
+ * printf. When the ICU moved to 60000 nothing in this sketch had to
+ * change for it to keep compiling, so the literal silently became
+ * wrong -- and the banner whose entire job is catching a mismatched
+ * flash started asserting one.
+ *
+ * ICU.ino hit precisely this defect in v3.7 and fixed it the same way:
+ * "a banner that lies is worse than no banner, because it converts
+ * 'unknown' into 'confidently wrong'."
+ *
+ * Still not compiler-checkable across two sketch folders. But
+ * verify_rdu_tree.py now parses BOTH sides and fails if they disagree,
+ * so the pairing is checked by something other than a pair of eyes.
+ ***********************************************************************/
+#define EXPECTED_ICU_HB_TIMEOUT_MS     60000UL   // ICU.ino HEARTBEAT_TIMEOUT_MS
+#define EXPECTED_ICU_EVENT_TIMEOUT_MS  20000UL   // ICU.ino EVENT_TIMEOUT_MS
 // v4: 28 -> 32 bytes (session_epoch). 271 -> 296 ms. Under-reserving the
 // gap is precisely the drift class that caused TC-LN-001.
 // v5: HeartbeatFrame grew 32 -> 42 bytes (surveyed geometry + self-test).
@@ -1151,7 +1197,8 @@ float snrFloorForSF(int sf) {
 //   motion_state[16], signature_status[16], vehicle_id[32] -> enums / char[8]
 LoRaEventFrame buildLoRaEvent(const char *vehicleID, int rssi, float snr, uint32_t txSeq,
                               bool emergencyFlag, uint8_t priorityValue, bool gpsValidFlag,
-                              uint8_t sigStatus, uint32_t gpsEpoch, bool geofencePass) {
+                              uint8_t sigStatus, uint32_t gpsEpoch, bool geofencePass,
+                              bool geofenceEnforced) {
     LoRaEventFrame f;
     memset(&f, 0, sizeof(f));
 
@@ -1167,6 +1214,15 @@ LoRaEventFrame buildLoRaEvent(const char *vehicleID, int rssi, float snr, uint32
     if (gpsValidFlag)             f.flags |= EVF_GPS_VALID;
     if (geofencePass)             f.flags |= EVF_GEOFENCE_PASS;
     if (GEOFENCE_BYPASSED_FOR_SOP) f.flags |= EVF_GEOFENCE_BYPASS;
+    // v7: bit 5. Set when the geofence acted as a real admission gate for
+    // this packet. PASS without ENFORCED means "the check would have
+    // passed it, but nothing was riding on that" -- which is what every
+    // frame from this build has silently meant since the bypass went in.
+    //
+    // Wire-compatible: bit 5 of an existing uint8_t that was previously
+    // always zero. An ICU that does not know the bit ignores it and
+    // behaves exactly as it does today.
+    if (geofenceEnforced)         f.flags |= EVF_GEOFENCE_ENFORCED;
 
     f.sig_status   = sigStatus;
     f.priority     = priorityValue;
@@ -1719,12 +1775,47 @@ void processLoRaPacket(uint8_t *rxBuffer, size_t len, int rssi, float snr, bool 
         return;
     }
 
-    bool accepted = GEOFENCE_BYPASSED_FOR_SOP
-        ? true
-        : smartGeofenceDecision(vehicleLatitude, vehicleLongitude, vehicleSpeed, vehicleHeading);
+    // v7: ALWAYS EVALUATE. See the block comment above this function's
+    // caller. Previously the bypass short-circuited the call entirely,
+    // so the check never ran and its result was reported as "pass"
+    // anyway. The ICU was being told the geofence passed about a
+    // computation that did not happen.
+    //
+    // smartGeofenceDecision() is pure apart from its Serial line: three
+    // comparisons over a fixed roadPath array. Running it while bypassed
+    // costs microseconds and buys the ICU an honest input.
+    bool geofenceResult =
+        smartGeofenceDecision(vehicleLatitude, vehicleLongitude,
+                              vehicleSpeed, vehicleHeading);
+
+    // Was the geofence actually acting as an admission gate for this
+    // packet? Two independent ways for the answer to be no:
+    //
+    //   GEOFENCE_BYPASSED_FOR_SOP   -- deliberately disabled for SOP
+    //   !LANE_NODE_POSITION_KNOWN   -- node not surveyed, so the check
+    //                                  fails OPEN and its "pass" is
+    //                                  vacuous rather than earned
+    //
+    // Both must be false for this node's geofence verdict to mean
+    // anything. Collapsing them into one bit here rather than at the ICU
+    // keeps the ICU free of node-configuration knowledge.
+    const bool geofenceEnforced =
+        (!GEOFENCE_BYPASSED_FOR_SOP) && LANE_NODE_POSITION_KNOWN;
+
+    // ADMISSION IS UNCHANGED. This is the same expression as before,
+    // written out rather than folded into the evaluation.
+    bool accepted = GEOFENCE_BYPASSED_FOR_SOP ? true : geofenceResult;
 
     Serial.print("Geofence result: ");
-    Serial.println(GEOFENCE_BYPASSED_FOR_SOP ? "BYPASSED_FOR_SOP" : (accepted ? "ACCEPTED" : "REJECTED"));
+    if (GEOFENCE_BYPASSED_FOR_SOP) {
+        // v7: report what the check WOULD have said. A run in which every
+        // line reads BYPASSED_FOR_SOP tells you nothing about whether the
+        // geofence would have worked; this one does.
+        Serial.printf("BYPASSED_FOR_SOP (shadow verdict: %s)\n",
+                      geofenceResult ? "would ACCEPT" : "would REJECT");
+    } else {
+        Serial.println(accepted ? "ACCEPTED" : "REJECTED");
+    }
 
     if(!accepted) {
         Serial.println("[SMART GEO REJECT]");
@@ -1829,8 +1920,17 @@ void processLoRaPacket(uint8_t *rxBuffer, size_t len, int rssi, float snr, bool 
 
     lastEventSent = millis();
 
+    // v7: `geofenceResult`, not `accepted`. These were the same variable
+    // and are now deliberately different:
+    //
+    //   accepted        -- "was this packet admitted"   (bypass-dependent)
+    //   geofenceResult  -- "would the geofence pass it" (bypass-independent)
+    //
+    // EVF_GEOFENCE_PASS must carry the second. Carrying the first is what
+    // made the flag untrue while the bypass was on.
     LoRaEventFrame event = buildLoRaEvent(vehicleID, rssi, snr, seq, emergency, priority,
-                                          gpsValid, securityStatus, timestamp, accepted);
+                                          gpsValid, securityStatus, timestamp,
+                                          geofenceResult, geofenceEnforced);
     queueFrame(&event, sizeof(event));
     Serial.println("[GREENWAVE EVENT CREATED]");
 }
@@ -3625,8 +3725,8 @@ void printAirtimeBudget() {
     // across two sketch folders. Printing both ends makes a mismatched
     // flash visible in the first ten lines of each log instead of showing
     // up later as intermittent missed preemptions.
-    Serial.printf("  Acoustic re-assert  %lu ms  (ICU expects eventTimeout=20000)\n",
-                  ACOUSTIC_REASSERT_MS);
+    Serial.printf("  Acoustic re-assert  %lu ms  (ICU expects eventTimeout=%lu)\n",
+                  ACOUSTIC_REASSERT_MS, EXPECTED_ICU_EVENT_TIMEOUT_MS);
     // v3.7: the ICU prints the values it EXPECTS from this node
     // (EXPECTED_ACOUSTIC_REASSERT_MS / EXPECTED_LANE_NODE_DEFER_MS). Compare
     // those two banners at the start of every run. Nothing can check this
@@ -3636,10 +3736,11 @@ void printAirtimeBudget() {
                   100.0 * (double)ACOUSTIC_AIRTIME_MS / (double)ACOUSTIC_REASSERT_MS);
     Serial.printf("  Event min interval  %lu ms\n", EVENT_MIN_INTERVAL_MS);
     Serial.printf("  Heartbeat max defer %lu ms -> worst spacing ~%lu ms "
-                  "(ICU expects hbTimeout=40000)\n",
+                  "(ICU expects hbTimeout=%lu)\n",
                   HEARTBEAT_MAX_DEFER_MS,
                   HEARTBEAT_BASE_MS + HEARTBEAT_JITTER_MS +
-                  HEARTBEAT_MAX_DEFER_MS + HEARTBEAT_AIRTIME_MS);
+                  HEARTBEAT_MAX_DEFER_MS + HEARTBEAT_AIRTIME_MS,
+                  EXPECTED_ICU_HB_TIMEOUT_MS);
     Serial.printf("  Geofence            %s\n",
                   GEOFENCE_BYPASSED_FOR_SOP ? "BYPASSED (bench)"
                                             : (LANE_NODE_POSITION_KNOWN

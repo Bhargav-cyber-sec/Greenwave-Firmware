@@ -1,50 +1,26 @@
 /***********************************************************************
- * GreenWave IF-2 -- UNPROVISIONED KEY MATERIAL   ** PLACEHOLDER **
+ * GreenWave IF-2 v4 -- PROVISIONED KEY MATERIAL
  *
- * Device : RDU L3N2 (intersection 1)
- * ICU public-key table index : 5
+ * GENERATED FILE -- DO NOT EDIT BY HAND.
+ * Generated : 2026-09-10 13:33:08Z
+ * Generator : gw_provision_keys.py
+ * Device    : RDU L3N2 (intersection 1)
+ * Set ID    : 87554f73
  *
- * THIS FILE CONTAINS NO PRIVATE KEY AND MUST BE REPLACED BEFORE THIS
- * NODE CAN AUTHENTICATE.
+ * CONTAINS A PRIVATE KEY. Do not commit to version control.
+ * Do not copy to any other device. File mode is 0600 by design.
  *
- * ------------------------------------------------------------------
- * HANDOVER NOTE -- EMBEDDED INTERN -> SECURITY INTERN
- * ------------------------------------------------------------------
- * The ICU already holds the PUBLIC key for this node at index 5 of
- * GW_RDU_PUBLIC_KEYS in ICU/GreenwaveKeys.h, from key set 7e200d93:
- *
- *     fb 01 88 f0 27 04 e4 ad 31 50 60 f6 b1 c2 ee 97
- *     98 44 0e 08 9a c8 84 8c d3 89 80 96 06 dc 80 35
- *
- * The matching PRIVATE key was never present in the firmware tree and
- * is not reproducible from the public half. It must come from whatever
- * ran gw_provision_keys.py on 2026-08-05, or the whole set must be
- * regenerated.
- *
- * REGENERATE THE WHOLE SET, NOT FOUR KEYS. The header of every existing
- * key file records that key set 7e200d93 was published in a chat log and
- * a git history and "must be treated as public". Partial regeneration is
- * also impossible in principle: the ICU's public-key table and the six
- * private keys are ONE SET, so the ICU is reflashed either way.
- *
- * WHATEVER IS GENERATED, VERIFY IT BEFORE FLASHING. Derive each private
- * key's public half and check it against the ICU table at index
- * (lane-1)*2 + (node-1). An index off by one produces 100% BAD TAG from
- * one node and nothing else in any log -- it is invisible with one node
- * and fatal with two.
- * ------------------------------------------------------------------
- *
- * This file deliberately FAILS TO COMPILE. A placeholder that builds is
- * a placeholder that ships. To build this folder for a bench test that
- * does not need authentication, define GW_BENCH_UNPROVISIONED -- the
- * node will then boot, print an unmissable warning banner, and be
- * rejected by the ICU on every frame, which is the correct behaviour.
+ * Include this file from GreenwaveCrypto.h, or paste its arrays over the
+ * PLACEHOLDER blocks there. Whichever you choose, the placeholder values
+ * shipped with the header MUST be gone before this device leaves the
+ * bench -- they have been published in a chat log and a git history and
+ * must be treated as public.
  ***********************************************************************/
 
 #ifndef GREENWAVE_KEYS_H
 #define GREENWAVE_KEYS_H
 
-#define GW_KEY_SET_ID "UNPROVISIONED"
+#define GW_KEY_SET_ID "87554f73"
 #define GW_KEY_INTERSECTION 1
 
 #ifndef GW_ROLE_LANE_NODE
@@ -54,21 +30,18 @@
 #define GW_KEY_LANE_ID 3
 #define GW_KEY_NODE_ID 2
 
-#ifndef GW_BENCH_UNPROVISIONED
-#error "RDU_L3N2/GreenwaveKeys.h is a PLACEHOLDER. Provision this node before building. See the handover note at the top of this file."
-#endif
-
-/* Placeholder. Authenticates nothing. */
+/* This node's own private key. No other node's secret appears in this file,
+ * and neither does the ICU's private key. That is the entire v4 change:
+ * opening this enclosure compromises this node and nothing else. */
 static const uint8_t GW_RDU_PRIVATE_KEY[32] = {
-    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+    0xa0,0xbe,0x32,0xa8,0x48,0x95,0x9f,0x91,0xd7,0xbf,0x48,0xc6,0xd1,0xc6,0x75,0xc4,
+    0xad,0xf5,0x2e,0xfb,0x0d,0x81,0xc7,0x83,0x88,0xef,0xb4,0xda,0x60,0x14,0xef,0x65
 };
 
-/* The ICU's PUBLIC key from set 7e200d93. Safe in this image, and correct
- * only for as long as the ICU still runs that set. */
+/* The ICU's PUBLIC key. Safe in this image. */
 static const uint8_t GW_ICU_PUBLIC_KEY_LN[32] = {
-    0xe2,0xbe,0x53,0x29,0x6a,0xf8,0x94,0xd8,0x6f,0x61,0x43,0x04,0x41,0x37,0x18,0x51,
-    0xc9,0x43,0xb9,0xf1,0x49,0xe4,0x0f,0x98,0xa9,0xcb,0xc9,0x66,0x9b,0x93,0xc1,0x03
+    0xfb,0xd7,0x2c,0xbc,0xc5,0xe9,0x3e,0x53,0x7b,0xb7,0xdb,0x93,0x12,0xfd,0x60,0xf4,
+    0x6a,0x6c,0x6d,0xe2,0x72,0xcc,0x37,0x1e,0x65,0x8c,0xf0,0x8f,0x8b,0xd6,0x2c,0x29
 };
 #define GW_ICU_PUBLIC_KEY GW_ICU_PUBLIC_KEY_LN
 

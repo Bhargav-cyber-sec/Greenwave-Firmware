@@ -112,6 +112,41 @@ void    gwMarkTrackServed(int lane);
 // two-node ordering, and in degraded mode it is gone.
 #define ALLOW_DEGRADED_COMMIT  0
 
+// v7 : may a report whose geofence was NOT ENFORCED reach COMMIT?
+//
+// Same question as ALLOW_DEGRADED_COMMIT, same interim answer, and for
+// the same reason: a bypass must never become a way to LOWER the
+// evidence bar. If a bench build could reach COMMIT, then enabling the
+// SOP bypass on one roadside node would be an UPGRADE in what that node
+// can cause -- it would gain the ability to stop cross traffic on a
+// position report that nothing checked was on the road.
+//
+// The vehicle is still cryptographically authenticated. That is not in
+// question and this does not doubt it. Authentication proves WHO is
+// reporting; the geofence is what checks the report is geometrically
+// plausible, and with it disabled a valid signature over an arbitrary
+// coordinate is indistinguishable from a valid signature over a real
+// one. Signature and plausibility answer different questions -- the same
+// distinction the EVU-vs-acoustic note above draws.
+//
+// A capped demand is NOT discarded: it stands at PREPARE, is arbitrated
+// normally, is shown on the console, and is logged with its class. It
+// simply cannot be the sole basis for an automatic COMMIT.
+//
+// READ THIS BEFORE SETTING IT TO 1. The current build has
+// GEOFENCE_BYPASSED_FOR_SOP = true and LANE_NODE_POSITION_KNOWN = false
+// on every RDU, so EVERY EVU demand is unenforced and every one caps to
+// PREPARE. That is not a regression; it is the first time the bench
+// configuration has been visible in the decision layer instead of only
+// in a log line. Set to 1 only for a bench run that specifically needs
+// COMMIT, and expect the banner to say so on every pass.
+//
+// THE REAL FIX IS ON THE NODE, NOT HERE: survey the nodes, set
+// LANE_NODE_POSITION_KNOWN true and GEOFENCE_BYPASSED_FOR_SOP false, and
+// production behaviour is then byte-for-byte what it is today with this
+// left at 0.
+#define ALLOW_BYPASSED_COMMIT  0
+
 // Minimum classifier confidence for COMMIT.
 //
 // [FIELD] The RDU's own thresholds (strong >= 0.92, medium >= 0.80) were
@@ -344,6 +379,47 @@ static void gwBuildDemand(int lane) {
         if (d.stage == LS_COMMIT && gwEvuIsReceding(lane)) {
             d.stage = LS_PREPARE;
             d.etaS  = -1;
+        }
+
+        // ---------------------------------------------------------
+        // v7: GEOFENCE ENFORCEMENT CAPS THE STAGE.
+        //
+        // Placed here, alongside the receding cap, because it is the
+        // same kind of rule: something the identity evidence does not
+        // speak to, capping a stage the identity evidence would
+        // otherwise justify. Receding caps on DIRECTION; this caps on
+        // POSITION PLAUSIBILITY.
+        //
+        // Applied AFTER receding, deliberately, so the two compose
+        // rather than one overwriting the other's etaS.
+        //
+        // Applied BEFORE the NEAR_ZONE clamp, also deliberately: the
+        // clamp reads d.stage and would otherwise mark a capped demand
+        // as nearZone on the strength of a distance derived from the
+        // very report whose position is not trusted.
+        //
+        // NOT a filter. The demand survives at PREPARE and is
+        // arbitrated normally. etaS is cleared for the same reason the
+        // receding branch clears it -- an arrival time computed from an
+        // unverified position is a number with no basis, and putting it
+        // on the console would launder the doubt away.
+        // ---------------------------------------------------------
+        if (!ALLOW_BYPASSED_COMMIT &&
+            d.stage == LS_COMMIT && gwEvuLaneUnenforced(lane)) {
+            d.stage = LS_PREPARE;
+            d.etaS  = -1;
+
+            // Rate-limited: once per approach per transition, not once
+            // per pass. A line every decision cycle would bury the log
+            // it is meant to make legible.
+            static bool warned[GW_NUM_APPROACHES + 1] = {false};
+            if (lane >= 1 && lane <= GW_NUM_APPROACHES && !warned[lane]) {
+                warned[lane] = true;
+                Serial.printf("[DEMAND] L%d EVU demand capped to PREPARE -- "
+                              "reporting node did not ENFORCE the geofence "
+                              "(SOP bypass or unsurveyed). Authenticated, "
+                              "but not a trusted production report.\n", lane);
+            }
         }
 
         // ---------------------------------------------------------

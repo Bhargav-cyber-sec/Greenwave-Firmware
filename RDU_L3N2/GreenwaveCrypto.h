@@ -138,6 +138,38 @@ static inline const char *gwErrHint(int rc) {
 
 #define GW_TAG_LEN        8     // truncated HMAC-SHA256 (SOP 3.3: 8-16)
 #define GW_SESSION_KEY_LEN 32   // HKDF-SHA256 output
+
+/***********************************************************************
+ * GW_SESS_LOG  --  v7.1
+ *
+ * keyFor() is the ONLY function in this header that runs off the main
+ * thread. On the ICU it is now called from a validation worker task, and
+ * a worker must never call Serial.printf:
+ *
+ *   - it blocks for milliseconds at 115200 (the "[SESS] L1N1 epoch X ->
+ *     Y" line is ~70 characters = 6.1 ms), and a worker that is blocked
+ *     on the UART is a worker not draining its node's ring;
+ *   - it interleaves bytes with loop()'s output, which corrupts the
+ *     machine-parseable [RX2] and [HEALTH] lines that every measurement
+ *     in this project is derived from. A half-[RX2] line with a [SESS]
+ *     line spliced through it is not a log, it is noise.
+ *
+ * So the ICU points this at the deferred log ring in ICU_RxPipeline.h;
+ * loop() is the only thing that writes to the UART. The RDU keeps
+ * Serial.printf, because on the RDU this header is single-threaded.
+ *
+ * Defined here rather than in ICU_RxPipeline.h because this file is
+ * included first and must compile on its own in both roles. This file
+ * is BYTE-IDENTICAL in all seven folders (verify_rdu_tree.py checks it),
+ * so the role guard, not a per-folder edit, is what makes the two
+ * behaviours differ.
+ ***********************************************************************/
+#ifdef GW_ROLE_ICU
+  void gwPipeLogf(const char *fmt, ...);   // defined in ICU.ino
+  #define GW_SESS_LOG(...)  gwPipeLogf(__VA_ARGS__)
+#else
+  #define GW_SESS_LOG(...)  Serial.printf(__VA_ARGS__)
+#endif
 #define GW_X25519_LEN     32    // scalar and u-coordinate are both 32B
 #define GW_HKDF_INFO      "rdu-icu-session-v1"   // SOP 3.2, verbatim
 
@@ -799,7 +831,13 @@ public:
             // SOP 5.3 overlap window actually used: a frame was in flight
             // when the node rotated. Counted so it is visible whether this
             // path is exercised at all, and how often.
-            gwOverlapHits++;
+            // v7.1: incremented from a validation worker, read by loop()'s
+            // [HEALTH] printout. Relaxed atomic rather than a plain ++:
+            // two different nodes rotating at once would otherwise lose a
+            // count to a read-modify-write interleave. Relaxed is the
+            // correct ordering -- nothing branches on this value and no
+            // other state is ordered against it.
+            __atomic_fetch_add(&gwOverlapHits, 1u, __ATOMIC_RELAXED);
             *keyOut = s.prevKey; return GW_OK;
         }
 
@@ -822,12 +860,12 @@ public:
             // ICU. This is the only place that proves re-keying actually
             // happened and that the overlap window slid rather than the
             // node simply restarting.
-            Serial.printf("[SESS] L%uN%u epoch %lu -> %lu (prior epoch kept for overlap)\n",
-                          (unsigned)lane, (unsigned)node,
-                          (unsigned long)s.prevEpoch, (unsigned long)epoch);
+            GW_SESS_LOG("[SESS] L%uN%u epoch %lu -> %lu (prior epoch kept for overlap)",
+                        (unsigned)lane, (unsigned)node,
+                        (unsigned long)s.prevEpoch, (unsigned long)epoch);
         } else {
-            Serial.printf("[SESS] L%uN%u first session, epoch=%lu\n",
-                          (unsigned)lane, (unsigned)node, (unsigned long)epoch);
+            GW_SESS_LOG("[SESS] L%uN%u first session, epoch=%lu",
+                        (unsigned)lane, (unsigned)node, (unsigned long)epoch);
         }
         memcpy(s.key, fresh, GW_SESSION_KEY_LEN);
         s.epoch = epoch;

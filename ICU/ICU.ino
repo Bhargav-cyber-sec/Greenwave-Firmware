@@ -75,6 +75,20 @@
 #include "GreenwaveTypes.h"
 #include "GreenwaveCrypto.h"
 
+/***********************************************************************
+ * v7.1 -- RECEIVE/VALIDATION CONCURRENCY SUBSTRATE
+ *
+ * Must come after GreenwaveTypes.h (it needs GW_MAX_FRAME_LEN, and says
+ * so with an #error) and after GreenwaveCrypto.h (which declares
+ * gwPipeLogf for GW_SESS_LOG).
+ *
+ * This include is not optional decoration. verify_rdu_tree.py's
+ * check_rx_pipeline_wired() fails the tree if it disappears, because the
+ * v7 version of this header sat in the folder for three days with
+ * nothing including it -- see the provenance note at the top of it.
+ ***********************************************************************/
+#include "ICU_RxPipeline.h"
+
 // EDIT 1 of 4  (PHASE 2)
 // The ICU <-> ERC text protocol. Shared byte-identical with the ERC
 // sketch folder, the same rule as GreenwaveTypes.h. Transport for it
@@ -185,6 +199,7 @@ void gwSimEvuEmergency(int lane, bool on);
 void gwSimEvuClear(int lane);
 void gwSimEvuRun(int lane, int count, float secondsPerStep);
 bool    gwEvuDemand(int lane, uint8_t *priority, uint8_t *evidence, int16_t *etaS);
+bool    gwEvuLaneUnenforced(int lane);   // v7
 bool    gwEvuIsReceding(int lane);
 uint8_t gwEvuReleaseReason(int lane);
 uint8_t gwEvuEndState(int lane);
@@ -219,7 +234,7 @@ void  gwAbuseReset(int lane);
 // =====================================================
 
 // CHANGED v3: numeric, and actually enforced. See MY_INTERSECTION_ID
-// checks in pollLoRa().
+// checks in gwRxTask() (was pollLoRa() before v7.1).
 #define MY_INTERSECTION_ID      1
 
 #define TOTAL_LANES             3
@@ -431,25 +446,155 @@ bool requireDualNodeConfirmation = false;   // set true for production
 #define CENTRAL_FREQ 434.5E6
 
 // =====================================================
-// RECEIVE BUFFER
+// RECEIVE PIPELINE  (v7.1 -- replaces the single rxFrame buffer)
+//
+// THE OLD BUFFER IS GONE ON PURPOSE. `static uint8_t rxFrame[]` was one
+// buffer shared by the radio and by everything downstream of it. That
+// was safe only because nothing was asynchronous. The moment validation
+// moves off the receive path it becomes brief §12's hazard exactly:
+//
+//     receive A into rxFrame -> hand A off -> receive B into rxFrame
+//     -> the handler validates B's bytes believing they are A's.
+//
+// There is now no shared frame buffer anywhere in the ICU. Each frame is
+// copied once, out of the radio FIFO and into a slot the RX task has
+// exclusively reserved in that node's ring, and that slot is not
+// reusable until its consumer pops it. See GwRxSlot.
+//
+// Static storage, no heap, sized at compile time:
+//   rings  6 x 4 x sizeof(GwRxSlot)  ~ 3.4 kB
+//   val    8 x sizeof(GwValEvent)    ~ 1.4 kB
+//   log    16 x 192                  ~ 3.1 kB
 // =====================================================
-static uint8_t rxFrame[GW_MAX_FRAME_LEN];
+GwRxRing  gwRxRing[GW_RX_NODES];
+GwValRing gwValRing;
+GwLogRing gwLogRing;
+
+std::atomic<uint8_t> gwNodeOwner[GW_RX_NODES];
+
+// How many validation workers. See "WHY TWO WORKERS" above gwWorkerTask().
+#define GW_VAL_WORKERS   2
+
+// Stacks. The worker figure is set by mbedTLS X25519 + HKDF inside
+// keyFor(), which is the deepest thing either task calls; the RX task
+// never touches mbedTLS and only ever formats a short log line.
+#define GW_RX_TASK_STACK      3072
+#define GW_WORKER_TASK_STACK  8192
+
+// Core 0 (PRO_CPU) carries comms and cryptography; the Arduino loopTask
+// stays on core 1 with the decision layer, the ERC link and the UART.
+// This build has no WiFi or BT, so core 0 is otherwise idle. Priorities
+// are only meaningful within a core: RX above workers means a frame is
+// always taken off the radio in preference to validating an older one,
+// which is the correct bias when the failure mode is FIFO overwrite.
+#define GW_PIPE_CORE          0
+#define GW_RX_TASK_PRIO       3
+#define GW_WORKER_TASK_PRIO   2
+
+static TaskHandle_t gwRxTaskH = nullptr;
+static TaskHandle_t gwWorkerH[GW_VAL_WORKERS] = {nullptr};
+
+// Liveness. A wedged RX task is a NEW failure mode introduced by moving
+// the radio off loop(): the ICU would go deaf while loop() kept running,
+// kept feeding the watchdog, and kept looking healthy. loop() watches
+// this counter advance and says so on the [PIPE] line if it stops.
+static volatile uint32_t gwRxTaskBeats = 0;
+
+// Same for each worker. A worker that died or never started is invisible
+// otherwise: frames would queue in the node rings and simply never be
+// validated, while loop() kept running and the ICU kept looking healthy.
+// Workers wake at least every 50 ms on the notify timeout even with no
+// traffic, so a flat counter means dead, not idle.
+static volatile uint32_t gwWorkerBeats[8] = {0};
+
+// ---- deferred [PERF] accumulators -----------------------------------
+// Written by loop() only, from the timestamps carried on each validated
+// event. Reported in the 30 s health block, not per frame: the whole
+// point of this change was to stop putting milliseconds of UART in the
+// receive path, and per-frame timing lines would put them back.
+struct GwStageStat {
+    uint32_t n = 0, min = 0xFFFFFFFF, max = 0;
+    uint64_t sum = 0;
+    void add(uint32_t v) {
+        n++; sum += v;
+        if (v < min) min = v;
+        if (v > max) max = v;
+    }
+    uint32_t mean() const { return n ? (uint32_t)(sum / n) : 0; }
+    void reset() { n = 0; min = 0xFFFFFFFF; max = 0; sum = 0; }
+};
+static GwStageStat gwStQueue;    // t_q    - t_rx    : FIFO drain -> committed
+static GwStageStat gwStWait;     // t_val0 - t_q     : queue waiting time
+static GwStageStat gwStKey;      // t_key  - t_val0  : session-key resolution
+static GwStageStat gwStHmac;     // t_val1 - t_key   : HMAC + state update
+static GwStageStat gwStHandoff;  // now    - t_val1  : worker -> loop()
+static GwStageStat gwStTotal;    // now    - t_rx    : radio -> decision layer
+
+// =====================================================
+// DEFERRED LOGGING  --  DEFINITIONS ARE DELIBERATELY FURTHER DOWN
+//
+// The ring objects are declared above; gwPipeLogf() and gwDrainPipeLog()
+// are DEFINED below struct NodeState, next to the receive pipeline.
+//
+// This is not tidiness, it is the Arduino builder. The IDE injects its
+// auto-generated prototypes immediately before the FIRST function
+// definition in the main sketch. Putting a function body here -- above
+// struct NodeState -- drags that injection point above the struct, and
+// every prototype naming NodeState then fails with "does not name a
+// type", even though every file is correct. Same trap the ICU_EvuTypes.h
+// comment at the top of this file describes.
+//
+// If you add a function to this sketch, keep it BELOW struct NodeState.
+// verify_rdu_tree.py's check_proto_injection_point() enforces this.
+// =====================================================
 
 // =====================================================
 // NODE STATE
+//
+// v7.1 -- OWNERSHIP. Read this before adding a field.
+//
+// This struct is now touched from two contexts, and which one owns which
+// field is not a style question, it is the correctness argument for the
+// whole concurrency change. Every field is marked below.
+//
+//   [W] WORKER-OWNED. Written only by the validation worker currently
+//       holding this node's claim (gwClaimNode). Exactly one worker at a
+//       time, guaranteed by CAS, so the check-then-update sequences on
+//       these fields are never interleaved -- which is what makes
+//       duplicate suppression correct without a lock across the HMAC.
+//       loop() may READ these for the [HEALTH] printout. That read is
+//       deliberately unsynchronised: they are 32-bit aligned scalars on
+//       Xtensa, the read is diagnostic, and no decision branches on it.
+//
+//   [L] LOOP-OWNED. Written only by loop(), from the frame handlers
+//       (processHeartbeat / processLoRaEvent / processAcousticEvent) and
+//       the timeout sweeps. A worker never touches these. This is what
+//       keeps the entire v7 decision layer single-threaded and therefore
+//       semantically unchanged.
+//
+// The split is clean because it follows a real boundary: [W] is
+// SECURITY state (is this frame authentic and fresh), [L] is DETECTION
+// state (what did this node observe). The former must be owned per node
+// to be correct; the latter must be owned centrally to be arbitrated.
 // =====================================================
 struct NodeState
 {
-    bool online = false;
-    bool loraDetected = false;
-    bool acousticDetected = false;
+    bool online = false;                    // [L]
+    bool loraDetected = false;              // [L]
+    bool acousticDetected = false;          // [L]
 
-    float confidence = 0.0;
+    float confidence = 0.0;                 // [L]
 
     // CHANGED v3: replay state. Every frame from this node must carry a
     // counter strictly greater than this one.
-    uint32_t lastCounter = 0;
-    bool     counterStarted = false;
+    //
+    // v7.1: [W] -- THE fields the node claim exists to protect. The
+    // sequence "compare hdr.counter against lastCounter, authenticate,
+    // then advance lastCounter" runs entirely under one worker's
+    // exclusive ownership of this node, so two copies of the same
+    // counter cannot both pass the comparison (brief §3/§11/§20 case 3).
+    uint32_t lastCounter = 0;               // [W]
+    bool     counterStarted = false;        // [W]
 
     // CHANGED v3.7: live IF-2 loss measurement.
     //
@@ -463,39 +608,39 @@ struct NodeState
     // HEARTBEAT_TIMEOUT_MS derivation depends on it (see above), and the
     // v3.6 run had to be measured after the fact by diffing three logs,
     // which produced a 20-point error on the first attempt.
-    uint32_t framesAccepted = 0;
-    uint32_t framesLostIf2  = 0;
+    uint32_t framesAccepted = 0;            // [W]
+    uint32_t framesLostIf2  = 0;            // [W]
 
-    int lastRSSI = 0;            // IF-1 (ambulance -> node) link quality
-    float lastSNR = 0;
-    int lastIf2RSSI = 0;         // CHANGED v3: IF-2 (node -> ICU) link quality
-    float lastIf2SNR = 0;
+    int lastRSSI = 0;            // [L] IF-1 (ambulance -> node) link quality
+    float lastSNR = 0;           // [L]
+    int lastIf2RSSI = 0;         // [L] CHANGED v3: IF-2 (node -> ICU) link quality
+    float lastIf2SNR = 0;        // [L]
 
     // CHANGED v3: split apart. The old code set lastHeartbeat = millis()
     // inside the EVENT handlers too, which meant a node whose heartbeat
     // path had completely failed still looked "online" as long as it was
     // sending events -- masking the exact fault the heartbeat exists to
     // detect.
-    unsigned long lastHeartbeat = 0;
-    unsigned long lastSeen = 0;
+    unsigned long lastHeartbeat = 0;        // [L]
+    unsigned long lastSeen = 0;             // [L]
 
-    unsigned long lastLoRa = 0;
-    unsigned long lastAcoustic = 0;
+    unsigned long lastLoRa = 0;             // [L]
+    unsigned long lastAcoustic = 0;         // [L]
 
-    char vehicleID[8] = {0};
-    int32_t latitude = 0;        // x10^7, as received
-    int32_t longitude = 0;
-    float speed = 0;
-    uint8_t motionState = MOTION_UNKNOWN;
-    uint8_t sigStatus = SIG_UNVERIFIED;
-    uint8_t priority = 0;
-    uint32_t gpsEpoch = 0;
-    uint32_t txSequence = 0;
-    bool benchBuild = false;
+    char vehicleID[8] = {0};                // [L]
+    int32_t latitude = 0;        // [L] x10^7, as received
+    int32_t longitude = 0;                  // [L]
+    float speed = 0;                        // [L]
+    uint8_t motionState = MOTION_UNKNOWN;   // [L]
+    uint8_t sigStatus = SIG_UNVERIFIED;     // [L]
+    uint8_t priority = 0;                   // [L]
+    uint32_t gpsEpoch = 0;                  // [L]
+    uint32_t txSequence = 0;                // [L]
+    bool benchBuild = false;                // [L]
 
     // Health counters
-    uint32_t rejectedMac = 0;
-    uint32_t rejectedReplay = 0;
+    uint32_t rejectedMac = 0;               // [W]
+    uint32_t rejectedReplay = 0;            // [W]
 };
 
 NodeState lane1node1, lane1node2;
@@ -559,6 +704,30 @@ NodeState* getNodeState(uint8_t lane, uint8_t node) {
     if (lane == 2) return (node == 1) ? &lane2node1 : (node == 2 ? &lane2node2 : nullptr);
     if (lane == 3) return (node == 1) ? &lane3node1 : (node == 2 ? &lane3node2 : nullptr);
     return nullptr;
+}
+
+// =====================================================
+// DEFERRED LOGGING
+//
+// Any task may call this. loop() is the only writer to the UART.
+// =====================================================
+void gwPipeLogf(const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    gwLogRing.pushv(fmt, ap);
+    va_end(ap);
+}
+
+// Drain the deferred log. Bounded per pass so a burst of security
+// rejections cannot monopolise a loop() iteration -- the leftovers are
+// printed next pass, in order, and the ring's own dropped counter
+// reports anything that did not fit.
+static void gwDrainPipeLog() {
+    char line[GW_LOG_LINE_LEN];
+    for (int i = 0; i < 8; i++) {
+        if (!gwLogRing.pop(line, sizeof(line))) return;
+        Serial.println(line);
+    }
 }
 
 // =====================================================
@@ -1064,277 +1233,668 @@ void initCentralLoRa() {
 }
 
 // =====================================================
-// PACKET RECEIVE
+// PACKET RECEIVE  --  v7.1, THREE STAGES INSTEAD OF ONE FUNCTION
 //
-// This is the function that changed most. Read the ordering: it is
-// deliberate, cheapest-check-first, so that a flood of forged frames
-// costs us comparisons rather than cryptographic operations.
+// v7 had one function, pollLoRa(), called from loop(). It read the
+// radio, validated the frame, mutated security state, printed two long
+// Serial lines and ran the frame handlers -- and the radio was
+// unattended for every microsecond of it. See the bottleneck analysis
+// at the top of ICU_RxPipeline.h; the short version is that the cost was
+// ~31 ms of blocking UART per accepted event frame and >=240 ms every
+// 30 s for the health printout, against 86-129 ms of airtime per frame
+// on a receiver whose FIFO OVERWRITES rather than queues.
+//
+// It is now split at the two boundaries that matter:
+//
+//   gwRxTask()          owns the radio. Copies bytes out, does the four
+//                       header checks that need no per-node state, and
+//                       returns to the radio. Never blocks, never
+//                       prints, never computes a MAC.
+//
+//   gwWorkerTask() x2   own per-node SECURITY state, one node at a time,
+//                       by CAS. Replay check, key resolution, HMAC,
+//                       counter advance. Different nodes run
+//                       concurrently; the same node never does.
+//
+//   gwServiceValidated() runs in loop() and owns the DECISION layer.
+//                       Byte-for-byte the v7 handler code, moved.
+//
+// The cheapest-check-first ordering that v7's comments argued for is
+// preserved exactly, and is now spread across the first two stages:
+// version, intersection, type/length and node lookup in the RX task
+// (integer comparisons, no state); counter comparison then HMAC in the
+// worker. A flood of forged frames still costs comparisons rather than
+// AES rounds, and now it costs them on a core that is not the one
+// holding the decision loop.
 // =====================================================
-void pollLoRa() {
-    int packetSize = LoRa.parsePacket();
 
-    if (!packetSize) {
-        // 5E: sample the band while NOTHING is being received.
-        //
-        // This is the only discriminator the ICU has between a
-        // node that has failed and a node that is being jammed --
-        // both simply stop arriving, but one is a maintenance
-        // ticket and the other is an attack, and node loss unlocks
-        // degraded authority at the survivor.
-        //
-        // Rate limited: LoRa.rssi() is an SPI transaction and this
-        // function runs every loop pass. Once a second is ample for
-        // a slowly-filtered band estimate.
-        static unsigned long lastNoiseSample = 0;
-        if (millis() - lastNoiseSample >= 1000) {
-            lastNoiseSample = millis();
-            gwNoteRfNoise(LoRa.rssi());
+// RF noise sampling. LoRa.rssi() is an SPI transaction, so it can only
+// happen in the RX task -- but gwNoteRfNoise() writes safety-layer state
+// that loop() owns. So the RX task publishes the raw sample and loop()
+// applies it. Ownership stays clean and the SPI bus keeps one user.
+static std::atomic<int32_t>  gwNoiseSample{0};
+static std::atomic<uint32_t> gwNoiseSeq{0};
+
+// =====================================================
+// STAGE 1 -- THE RADIO. ONE OWNER, NO EXCEPTIONS.
+// =====================================================
+static void gwRxTask(void *) {
+    uint32_t lastNoiseMs = 0;
+
+    for (;;) {
+        gwRxTaskBeats++;
+
+        int packetSize = LoRa.parsePacket();
+
+        if (!packetSize) {
+            // 5E: sample the band while NOTHING is being received.
+            //
+            // This is the only discriminator the ICU has between a node
+            // that has failed and a node that is being jammed -- both
+            // simply stop arriving, but one is a maintenance ticket and
+            // the other is an attack, and node loss unlocks degraded
+            // authority at the survivor.
+            //
+            // Rate limited: LoRa.rssi() is an SPI transaction and this
+            // loop runs at ~1 kHz. Once a second is ample for a slowly
+            // filtered band estimate.
+            if (millis() - lastNoiseMs >= 1000) {
+                lastNoiseMs = millis();
+                gwNoiseSample.store((int32_t)LoRa.rssi(), std::memory_order_relaxed);
+                gwNoiseSeq.fetch_add(1, std::memory_order_release);
+            }
+
+            // WHY A POLLED TASK AND NOT DIO0 + onReceive().
+            //
+            // An interrupt-driven RX is the textbook answer and it is
+            // the wrong one for this radio library. arduino-LoRa's
+            // onReceive() callback is invoked from handleDio0Rise(),
+            // which performs SPI transactions in ISR context. Doing SPI
+            // from an ISR on the ESP32 is a well-known source of
+            // intermittent crashes, and "intermittent crash in the
+            // ambulance-detection path" is not a trade this system can
+            // make for a millisecond.
+            //
+            // The cost of polling instead is bounded and small: one tick
+            // of latency against 86-129 ms of airtime per frame, i.e.
+            // about 1%. This is a yield so the idle task can run -- it
+            // is NOT delay() in the receive path, and nothing downstream
+            // waits on it. The frame sits in the FIFO with its IRQ flag
+            // latched until we read it; a tick of polling delay costs
+            // nothing as long as we read it before the NEXT frame
+            // completes, which is the whole point of this task existing.
+            vTaskDelay(1);
+            continue;
         }
-        return;
+
+        uint32_t t_rx0 = micros();
+
+        int   if2rssi = LoRa.packetRssi();
+        float if2snr  = LoRa.packetSnr();
+
+        if (packetSize > GW_MAX_FRAME_LEN) {
+            gwPipeLogf("[DROP] oversize frame %d", packetSize);
+            while (LoRa.available()) LoRa.read();
+            continue;
+        }
+
+        // Drain the FIFO into a local. Copied ONCE more, into the ring
+        // slot, only after we know which node's ring it belongs in --
+        // and the ring slot is then immutable for that frame's life.
+        uint8_t  buf[GW_MAX_FRAME_LEN];
+        int      len = 0;
+        while (LoRa.available() && len < GW_MAX_FRAME_LEN)
+            buf[len++] = (uint8_t)LoRa.read();
+
+        uint32_t t_rx = micros();
+
+        // ---- 1. minimum length for a header -------------------------
+        if (len < (int)sizeof(FrameHeader)) { GW_CNT_INC(rejBadLength); continue; }
+
+        FrameHeader hdr;
+        memcpy(&hdr, buf, sizeof(FrameHeader));
+
+        // ---- 2. protocol version ------------------------------------
+        // A specific, loud error. The v2 failure mode was a generic
+        // "[UNKNOWN PACKET] size=119" that told you nothing about the
+        // cause.
+        if (hdr.proto_version != GW_PROTO_VERSION) {
+            GW_CNT_INC(rejWrongVersion);
+            gwPipeLogf("[DROP] proto v%u, expected v%d -- the two copies of "
+                       "GreenwaveTypes.h are out of sync, reflash both ends",
+                       (unsigned)hdr.proto_version, GW_PROTO_VERSION);
+            continue;
+        }
+
+        // ---- 3. is this even our intersection? ----------------------
+        // Never checked in v2. This is what stops intersection #2 from
+        // driving intersection #1.
+        if (hdr.intersection_id != MY_INTERSECTION_ID) {
+            GW_CNT_INC(rejWrongIntersection);
+            continue;   // silent: a neighbour's traffic is normal, not an error
+        }
+
+        // ---- 4. length must match the declared type -----------------
+        size_t expected;
+        switch (hdr.packet_type) {
+            case HEARTBEAT_PACKET:      expected = sizeof(HeartbeatFrame); break;
+            case LORA_EVENT_PACKET:     expected = sizeof(LoRaEventFrame); break;
+            case ACOUSTIC_EVENT_PACKET: expected = sizeof(AcousticEventFrame); break;
+            default:
+                GW_CNT_INC(rejBadLength);
+                gwPipeLogf("[DROP] unknown packet_type %u", (unsigned)hdr.packet_type);
+                continue;
+        }
+        if ((size_t)len != expected) {
+            GW_CNT_INC(rejBadLength);
+            gwPipeLogf("[DROP] type %u should be %u bytes, got %d",
+                       (unsigned)hdr.packet_type, (unsigned)expected, len);
+            continue;
+        }
+
+        // ---- 5. is this a node we know? -----------------------------
+        //
+        // Done here rather than in the worker because the ANSWER IS THE
+        // ROUTING DECISION: gwKeyIndex() is what selects the ring, and a
+        // frame with no index has no queue to go in. It reads only the
+        // compile-time key table, never per-node mutable state, so it is
+        // safe off-worker.
+        int k = gwKeyIndex(hdr.lane_id, hdr.node_id);
+        if (k < 0 || getNodeState(hdr.lane_id, hdr.node_id) == nullptr) {
+            GW_CNT_INC(rejUnknownNode);
+            gwPipeLogf("[DROP] unknown node L%uN%u",
+                       (unsigned)hdr.lane_id, (unsigned)hdr.node_id);
+            continue;
+        }
+
+        // ---- 6. hand off, and get back to the radio -----------------
+        //
+        // NOTHING below this point in the receive path is cryptographic,
+        // touches per-node state, or writes to the UART.
+        GwRxSlot *s = gwRxRing[k].reserve();
+        if (s == nullptr) {
+            // §17: a full queue has a DEFINED outcome. The frame is
+            // dropped, the drop is counted per node, and the [PIPE] line
+            // reports it. We do not block the radio waiting for a worker
+            // -- blocking here would lose the NEXT frame too, and the
+            // next frame might be the one that matters.
+            gwPipeLogf("[PIPE] RX ring full for L%uN%u -- frame dropped "
+                       "(worker stalled? depth=%lu dropped=%lu)",
+                       (unsigned)hdr.lane_id, (unsigned)hdr.node_id,
+                       (unsigned long)gwRxRing[k].depth(),
+                       (unsigned long)gwRxRing[k].dropped.load(std::memory_order_relaxed));
+            continue;
+        }
+
+        memcpy(s->bytes, buf, (size_t)len);
+        s->len     = (uint16_t)len;
+        s->rssi    = (int16_t)if2rssi;
+        s->snr_x10 = (int16_t)lrintf(if2snr * 10.0f);
+        s->t_rx_us = t_rx;
+        s->t_q_us  = micros();
+        gwRxRing[k].commit();          // release: publishes the bytes above
+
+        (void)t_rx0;
+
+        // Wake both workers. xTaskNotifyGive is a handful of
+        // instructions and cannot block. Notifying both rather than
+        // picking one keeps the RX task from having to know or track
+        // which worker is idle -- the claim CAS settles that, and a
+        // spurious wake costs one failed scan.
+        for (int w = 0; w < GW_VAL_WORKERS; w++)
+            if (gwWorkerH[w]) xTaskNotifyGive(gwWorkerH[w]);
     }
+}
 
-    int if2rssi = LoRa.packetRssi();
-    float if2snr = LoRa.packetSnr();
-
-    if (packetSize > GW_MAX_FRAME_LEN) {
-        Serial.printf("[DROP] oversize frame %d\n", packetSize);
-        while (LoRa.available()) LoRa.read();
-        return;
-    }
-
-    int len = 0;
-    while (LoRa.available() && len < GW_MAX_FRAME_LEN) rxFrame[len++] = (uint8_t)LoRa.read();
-
-    // ---- 1. minimum length for a header -----------------------------
-    if (len < (int)sizeof(FrameHeader)) { rejBadLength++; return; }
-
+// =====================================================
+// STAGE 2 -- VALIDATION. PER-NODE OWNERSHIP.
+//
+// Called ONLY with node k claimed by the calling worker. Everything it
+// touches is either that node's own state or a relaxed global counter.
+//
+// The v7 ordering is preserved exactly, and for the same reason v7 gave:
+// the counter check is one integer comparison, the HMAC is a
+// cryptographic operation, so under a flood of replayed frames we spend
+// comparisons rather than SHA rounds.
+//
+// WHAT IS DIFFERENT FROM v7, AND WHAT IS NOT:
+//
+//   not different -- the checks, their order, the counters they bump,
+//                    the messages they emit, the semantics of "same
+//                    counter = benign duplicate" vs "lower counter =
+//                    replay", key derivation, the overlap window,
+//                    constant-time tag comparison, revocation.
+//
+//   different ----- Serial.printf became gwPipeLogf, the frame handlers
+//                   are no longer called from here, and the whole
+//                   function runs under a node claim instead of under
+//                   the implicit "there is only one thread" assumption
+//                   v7 relied on without ever stating it.
+// =====================================================
+static void gwValidateSlot(int k, const GwRxSlot *s) {
     FrameHeader hdr;
-    memcpy(&hdr, rxFrame, sizeof(FrameHeader));
+    memcpy(&hdr, s->bytes, sizeof(FrameHeader));
 
-    // ---- 2. protocol version ----------------------------------------
-    // A specific, loud error. The v2 failure mode was a generic
-    // "[UNKNOWN PACKET] size=119" that told you nothing about the cause.
-    if (hdr.proto_version != GW_PROTO_VERSION) {
-        rejWrongVersion++;
-        Serial.printf("[DROP] proto v%u, expected v%d -- the two copies of "
-                      "GreenwaveTypes.h are out of sync, reflash both ends\n",
-                      (unsigned)hdr.proto_version, GW_PROTO_VERSION);
-        return;
-    }
+    NodeState *n = getNodeState(hdr.lane_id, hdr.node_id);
+    if (n == nullptr) { GW_CNT_INC(rejUnknownNode); return; }   // re-checked; cannot happen
 
-    // ---- 3. is this even our intersection? --------------------------
-    // Never checked in v2. This is what stops intersection #2 from
-    // driving intersection #1.
-    if (hdr.intersection_id != MY_INTERSECTION_ID) {
-        rejWrongIntersection++;
-        return;   // silent: a neighbour's traffic is normal, not an error
-    }
+    uint32_t t_val0 = micros();
 
-    // ---- 4. length must match the declared type ---------------------
-    size_t expected;
-    switch (hdr.packet_type) {
-        case HEARTBEAT_PACKET:      expected = sizeof(HeartbeatFrame); break;
-        case LORA_EVENT_PACKET:     expected = sizeof(LoRaEventFrame); break;
-        case ACOUSTIC_EVENT_PACKET: expected = sizeof(AcousticEventFrame); break;
-        default:
-            rejBadLength++;
-            Serial.printf("[DROP] unknown packet_type %u\n", (unsigned)hdr.packet_type);
-            return;
-    }
-    if ((size_t)len != expected) {
-        rejBadLength++;
-        Serial.printf("[DROP] type %u should be %u bytes, got %d\n",
-                      (unsigned)hdr.packet_type, (unsigned)expected, len);
-        return;
-    }
-
-    // ---- 5. is this a node we know? ---------------------------------
-    NodeState* n = getNodeState(hdr.lane_id, hdr.node_id);
-    if (n == nullptr) {
-        rejUnknownNode++;
-        Serial.printf("[DROP] unknown node L%uN%u\n",
-                      (unsigned)hdr.lane_id, (unsigned)hdr.node_id);
-        return;
-    }
-
-    // ---- 6. replay check BEFORE the MAC -----------------------------
-    // Ordering matters. The counter check is one integer comparison; the
-    // CMAC is a cryptographic operation. Under a flood of replayed
-    // frames we want to be spending comparisons, not AES rounds.
+    // ---- replay check BEFORE the MAC --------------------------------
     // CHANGED v3.1: separated benign duplicates from actual replays.
     //
     // A frame with the SAME counter is one of the node's own deliberate
-    // repeats. A frame with a LOWER counter is something else entirely --
-    // either an attacker replaying a recording, or a node whose epoch
-    // counter failed to persist across a reboot. Averaging those together
-    // meant a real attack would vanish into thousands of routine
-    // duplicates: TC-LN-001 logged replay=2520, all of it benign.
+    // repeats. A frame with a LOWER counter is something else entirely
+    // -- either an attacker replaying a recording, or a node whose epoch
+    // counter failed to persist across a reboot. Averaging those
+    // together meant a real attack would vanish into thousands of
+    // routine duplicates: TC-LN-001 logged replay=2520, all of it benign.
+    //
+    // v7.1: this is the sequence brief §11 warns about. It is safe here
+    // because n->lastCounter and n->counterStarted are [W] fields and
+    // this worker holds node k's exclusive claim for the whole of
+    // compare -> authenticate -> advance. A second copy of the same
+    // counter is necessarily behind this one in THE SAME ring, popped by
+    // THE SAME owner, after lastCounter has already moved. There is no
+    // window to interleave into, and no lock is held across the HMAC to
+    // achieve that.
     if (n->counterStarted) {
         if (hdr.counter == n->lastCounter) {
-            dupSuppressed++;
+            GW_CNT_INC(dupSuppressed);
             return;                       // expected, silent
         }
         if (hdr.counter < n->lastCounter) {
-            n->rejectedReplay++; rejReplay++;
-            // v3.2: this should now be genuinely rare. Before v3.2 the
-            // lane node assigned counters at frame-build time while
-            // transmitting in a different order, so out-of-order arrival
-            // was routine and REAL DETECTIONS were discarded here. The
-            // counter is now stamped at transmit time. If this fires
-            // again, it is either an actual replay or a node whose epoch
-            // failed to persist across a reboot -- both worth chasing.
-            Serial.printf("[SECURITY] REPLAY from L%uN%u type=%u ctr=%lu < last=%lu (gap=%ld)\n",
-                          (unsigned)hdr.lane_id, (unsigned)hdr.node_id,
-                          (unsigned)hdr.packet_type,
-                          (unsigned long)hdr.counter,
-                          (unsigned long)n->lastCounter,
-                          (long)(n->lastCounter - hdr.counter));
+            n->rejectedReplay++; GW_CNT_INC(rejReplay);
+            gwPipeLogf("[SECURITY] REPLAY from L%uN%u type=%u ctr=%lu < last=%lu (gap=%ld)",
+                       (unsigned)hdr.lane_id, (unsigned)hdr.node_id,
+                       (unsigned)hdr.packet_type,
+                       (unsigned long)hdr.counter,
+                       (unsigned long)n->lastCounter,
+                       (long)(n->lastCounter - hdr.counter));
             return;
         }
     }
 
-    // ---- 7. authenticate --------------------------------------------
-    //
-    // CHANGED v4 (SOP 3.3/3.5/5.3). Was a static-key CMAC check. Now:
-    // derive (or look up) the session key for this node and epoch, then
-    // verify a truncated HMAC-SHA256 tag against it.
+    // ---- authenticate ------------------------------------------------
     //
     // gwVerifyFrameEx returns a SPECIFIC failure reason so each rejection
-    // path is counted separately. A revoked node and a forged tag are very
-    // different events and must not share a counter.
+    // path is counted separately. A revoked node and a forged tag are
+    // very different events and must not share a counter.
     //
-    // Ordering note: this still runs AFTER the counter check above, so a
-    // replay flood costs one integer comparison rather than an HMAC.
-    GwVerifyResult vr = gwVerifyFrameEx(hdr.lane_id, hdr.node_id,
-                                        hdr.session_epoch, rxFrame, len);
+    // This call reaches gwIcuSessions.keyFor(), which mutates slot k of
+    // the session cache when the epoch advances -- current key, previous
+    // key, both epochs, both validity flags. That is a FIVE-FIELD
+    // transition and it is exactly why the ownership unit here is the
+    // node and not the variable: making each field individually atomic
+    // would still permit a reader to observe a key from one epoch beside
+    // an epoch number from another (brief §10). Under the claim, no such
+    // reader exists.
+    //
+    // It is also where the only genuinely expensive operation in this
+    // path lives: X25519 + HKDF on a new epoch, milliseconds rather than
+    // the tens of microseconds an HMAC costs. Splitting t_key from
+    // t_val1 below is what makes that visible on the [PERF] line instead
+    // of inferred.
+    const uint8_t *key = nullptr;
+    GwVerifyResult vr = gwIcuSessions.keyFor(hdr.lane_id, hdr.node_id,
+                                             hdr.session_epoch, &key);
+    uint32_t t_key = micros();
+
+    if (vr == GW_OK)
+        vr = gwVerifyFrameEx(hdr.lane_id, hdr.node_id,
+                             hdr.session_epoch, s->bytes, s->len);
+
     if (vr != GW_OK) {
         switch (vr) {
             case GW_ERR_REVOKED:
-                rejRevoked++;
-                Serial.printf("[SECURITY] REVOKED node L%uN%u ctr=%lu epoch=%lu "
-                              "-- session refused at establishment (SOP 3.5)\n",
-                              (unsigned)hdr.lane_id, (unsigned)hdr.node_id,
-                              (unsigned long)hdr.counter,
-                              (unsigned long)hdr.session_epoch);
+                GW_CNT_INC(rejRevoked);
+                gwPipeLogf("[SECURITY] REVOKED node L%uN%u ctr=%lu epoch=%lu "
+                           "-- session refused at establishment (SOP 3.5)",
+                           (unsigned)hdr.lane_id, (unsigned)hdr.node_id,
+                           (unsigned long)hdr.counter,
+                           (unsigned long)hdr.session_epoch);
                 break;
             case GW_ERR_EPOCH:
-                rejEpoch++;
-                Serial.printf("[SECURITY] STALE EPOCH from L%uN%u epoch=%lu "
-                              "-- older than the overlap window\n",
-                              (unsigned)hdr.lane_id, (unsigned)hdr.node_id,
-                              (unsigned long)hdr.session_epoch);
+                GW_CNT_INC(rejEpoch);
+                gwPipeLogf("[SECURITY] STALE EPOCH from L%uN%u epoch=%lu "
+                           "-- older than the overlap window",
+                           (unsigned)hdr.lane_id, (unsigned)hdr.node_id,
+                           (unsigned long)hdr.session_epoch);
                 break;
             case GW_ERR_NO_SESSION:
-                rejNoSession++;
-                Serial.printf("[SECURITY] NO SESSION for L%uN%u epoch=%lu "
-                              "-- ECDH/HKDF derivation failed\n",
-                              (unsigned)hdr.lane_id, (unsigned)hdr.node_id,
-                              (unsigned long)hdr.session_epoch);
+                GW_CNT_INC(rejNoSession);
+                gwPipeLogf("[SECURITY] NO SESSION for L%uN%u epoch=%lu "
+                           "-- ECDH/HKDF derivation failed",
+                           (unsigned)hdr.lane_id, (unsigned)hdr.node_id,
+                           (unsigned long)hdr.session_epoch);
                 break;
             case GW_ERR_UNKNOWN_NODE:
-                rejUnknownNodeK++;
-                Serial.printf("[SECURITY] NO PUBLIC KEY provisioned for L%uN%u\n",
-                              (unsigned)hdr.lane_id, (unsigned)hdr.node_id);
+                GW_CNT_INC(rejUnknownNodeK);
+                gwPipeLogf("[SECURITY] NO PUBLIC KEY provisioned for L%uN%u",
+                           (unsigned)hdr.lane_id, (unsigned)hdr.node_id);
                 break;
             case GW_ERR_LENGTH:
-                rejBadLength++;
-                Serial.printf("[SECURITY] LENGTH REJECT from L%uN%u len=%d\n",
-                              (unsigned)hdr.lane_id, (unsigned)hdr.node_id, len);
+                GW_CNT_INC(rejBadLength);
+                gwPipeLogf("[SECURITY] LENGTH REJECT from L%uN%u len=%u",
+                           (unsigned)hdr.lane_id, (unsigned)hdr.node_id,
+                           (unsigned)s->len);
                 break;
             default:   // GW_ERR_TAG
-                n->rejectedMac++; rejMac++;
-                Serial.printf("[SECURITY] BAD TAG from L%uN%u ctr=%lu epoch=%lu "
-                              "(total=%lu) -- forged frame or key mismatch\n",
-                              (unsigned)hdr.lane_id, (unsigned)hdr.node_id,
-                              (unsigned long)hdr.counter,
-                              (unsigned long)hdr.session_epoch,
-                              (unsigned long)n->rejectedMac);
+                n->rejectedMac++; GW_CNT_INC(rejMac);
+                gwPipeLogf("[SECURITY] BAD TAG from L%uN%u ctr=%lu epoch=%lu "
+                           "(total=%lu) -- forged frame or key mismatch",
+                           (unsigned)hdr.lane_id, (unsigned)hdr.node_id,
+                           (unsigned long)hdr.counter,
+                           (unsigned long)hdr.session_epoch,
+                           (unsigned long)n->rejectedMac);
                 break;
         }
         return;
     }
 
-    // ---- 8. accepted -------------------------------------------------
-    // v3.7: count the hole this frame's counter reveals, BEFORE advancing.
-    // Guarded on counterStarted so the first frame after an ICU reboot does
-    // not report the node's entire boot history as loss.
+    // ---- accepted ----------------------------------------------------
+    // v3.7: count the hole this frame's counter reveals, BEFORE
+    // advancing. Guarded on counterStarted so the first frame after an
+    // ICU reboot does not report the node's entire boot history as loss.
     if (n->counterStarted && hdr.counter > n->lastCounter + 1) {
         n->framesLostIf2 += (hdr.counter - n->lastCounter - 1);
     }
     n->framesAccepted++;
 
+    // THE COMMIT POINT. After this line the transaction has been
+    // accepted and can never be accepted again: any later copy of this
+    // counter compares equal and is suppressed above. It happens before
+    // the handoff below deliberately -- if the validated-event ring is
+    // full and the handoff fails, we lose a DETECTION, which is a
+    // reported and recoverable loss, rather than leaving the replay
+    // window open, which is not.
     n->lastCounter = hdr.counter;
     n->counterStarted = true;
 
-    // ==================================================================
-    // CHANGED v3.7: [RX2] -- one machine-parseable line per accepted frame,
-    // mirroring [RX1] on the lane node.
-    //
-    // WHY: measuring IF-2 delivery by counting [LORA RX] lines against the
-    // lane node's [EVENT RADIATED] lines gave 73.2%. Matching by SEQUENCE
-    // NUMBER gave 93.9%. The 20-point error was this ICU's own serial
-    // capture dropping long log lines -- the same failure that made the
-    // IF-1 PRR read 131.8% before [RX1] existed. Line counts are not a
-    // measurement; sequence diffs are.
-    //
-    // `ctr` is the per-node monotonic counter and is the authoritative key
-    // for IF-2 loss: it increments on EVERY frame this node sends, of every
-    // type, so a gap in ctr across an [RX2] series is IF-2 loss with no
-    // inference required. `seq` is the EVU's own sequence, present only on
-    // event frames, and is what correlates an ICU record back to [RX1] on
-    // the lane node and to the EVU log. Both are needed: one measures this
-    // link, the other stitches the three logs together.
-    //
-    //   IF-2 loss:      grep -o 'ctr=[0-9]*' ICULOG | cut -d= -f2 | sort -n
-    //   end-to-end:     compare seq= across RX2 / RX1 / EVU
-    //
-    // Emitted for EVERY accepted frame including heartbeats, because a
-    // heartbeat is exactly the frame whose loss the [HEALTH] line cannot
-    // distinguish from a node that stopped sending.
-    // ==================================================================
-    switch (hdr.packet_type) {
-        case HEARTBEAT_PACKET: {
-            HeartbeatFrame f; memcpy(&f, rxFrame, sizeof(f));
-            // v4.5: sepoch added. Without it the entire SOP 3.4 re-key
-            // mechanism and the SOP 5.3 overlap window are invisible -- they
-            // could rotate, fail, or never run and no log would differ.
-            Serial.printf("[RX2] type=hb  lane=%u node=%u ctr=%lu sepoch=%lu seq=- "
-                          "rssi=%d snr=%.2f up=%lu heap=%u\n",
-                          (unsigned)hdr.lane_id, (unsigned)hdr.node_id,
-                          (unsigned long)hdr.counter,
-                          (unsigned long)hdr.session_epoch, if2rssi, if2snr,
-                          (unsigned long)f.uptime_s, (unsigned)f.free_heap_kb);
-            processHeartbeat(f, n);
-            break;
+    uint32_t t_val1 = micros();
+
+    // ---- hand the authenticated frame to the decision layer ----------
+    GwValEvent e;
+    memcpy(e.bytes, s->bytes, s->len);
+    e.len          = s->len;
+    e.nodeIdx      = (uint8_t)k;
+    e.packetType   = hdr.packet_type;
+    e.rssi         = s->rssi;
+    e.snr_x10      = s->snr_x10;
+    e.counter      = hdr.counter;
+    e.sessionEpoch = hdr.session_epoch;
+    e.t_rx_us      = s->t_rx_us;
+    e.t_q_us       = s->t_q_us;
+    e.t_val0_us    = t_val0;
+    e.t_key_us     = t_key;
+    e.t_val1_us    = t_val1;
+
+    if (!gwValRing.push(e)) {
+        gwPipeLogf("[PIPE] validated-event ring FULL -- authenticated frame from "
+                   "L%uN%u ctr=%lu DISCARDED (decision loop is not keeping up)",
+                   (unsigned)hdr.lane_id, (unsigned)hdr.node_id,
+                   (unsigned long)hdr.counter);
+    }
+}
+
+// Drain every frame queued for node k. Called with k claimed.
+//
+// The slot is validated IN PLACE and popped only afterwards: the
+// producer cannot reserve slot[tail] until tail advances, so the bytes
+// are immutable for exactly as long as they are being used. See GwRxSlot.
+static void gwDrainNode(int k) {
+    const GwRxSlot *s;
+    while ((s = gwRxRing[k].peek()) != nullptr) {
+        gwValidateSlot(k, s);
+        gwRxRing[k].pop();
+    }
+}
+
+// =====================================================
+// WHY TWO WORKERS
+//
+// Brief §18 asks for the smallest architecture that achieves genuine
+// concurrency, and §19 asks for the number to be justified rather than
+// asserted. The justification is not "there are six RDUs".
+//
+// ONE worker would be enough for the HMAC. HMAC-SHA256 over a <=56-byte
+// frame is four SHA256 compressions -- tens of microseconds -- against
+// 86-129 ms of airtime for the frame it authenticates. Six workers all
+// hashing at once would save nothing measurable, and they could not
+// anyway: the six RDUs share ONE 434.5 MHz channel, so the receiver is
+// physically incapable of being handed two frames at the same instant.
+// Overlapping transmissions collide and both are lost.
+//
+// The second worker exists for exactly one operation: the X25519 + HKDF
+// derivation inside GwIcuSessionCache::keyFor() when a node advances its
+// session epoch. That is milliseconds, not microseconds, and it is the
+// only thing in the validation path long enough to matter. With a single
+// worker, node L1N1 rotating its epoch would stall node L2N1's
+// already-queued frame behind it -- which is precisely the head-of-line
+// blocking across different RDUs that this whole change exists to
+// remove, just with a smaller constant than the brief assumed.
+//
+// The THIRD worker would add nothing, and the count is bounded by RAM
+// rather than by taste. A worker's stack is sized by mbedTLS ECDH, not
+// by our code: 8 kB each. Six workers would be 48 kB of DRAM to make
+// concurrent an operation the air delivers 8 times a second at most.
+// Two is 16 kB and bounds head-of-line blocking to at most one
+// in-progress derivation, which is all that can realistically be in
+// flight -- epochs rotate on the order of hours, not milliseconds.
+//
+// If a measured [PERF] key= p99 ever shows two derivations overlapping
+// often enough to queue, raise GW_VAL_WORKERS. Do not raise it on the
+// theory that six nodes need six workers; they do not, and the shared
+// channel is the reason.
+// =====================================================
+static void gwWorkerTask(void *arg) {
+    const uint8_t id = (uint8_t)(uintptr_t)arg;
+
+    for (;;) {
+        gwWorkerBeats[id]++;
+        bool didWork = false;
+
+        // Scan from a different offset per worker so two idle workers do
+        // not contend for the same node's claim on every wake.
+        for (int i = 0; i < GW_RX_NODES; i++) {
+            int k = (i + id) % GW_RX_NODES;
+
+            if (gwRxRing[k].depth() == 0) continue;
+
+            // NON-BLOCKING. If another worker already owns this node we
+            // do not wait for it -- we go and look at the next node.
+            // This is the property that makes head-of-line blocking
+            // impossible and makes the claim protocol deadlock-free:
+            // a worker never holds one claim while waiting for another.
+            if (!gwClaimNode(k, id)) continue;
+
+            gwDrainNode(k);
+            gwReleaseNode(k);
+            didWork = true;
         }
-        case LORA_EVENT_PACKET: {
-            LoRaEventFrame f; memcpy(&f, rxFrame, sizeof(f));
-            Serial.printf("[RX2] type=evt lane=%u node=%u ctr=%lu sepoch=%lu seq=%lu "
-                          "rssi=%d snr=%.2f pri=%u sig=%u flags=0x%02X "
-                          "if1rssi=%d if1snr=%.1f epoch=%lu\n",
-                          (unsigned)hdr.lane_id, (unsigned)hdr.node_id,
-                          (unsigned long)hdr.counter,
-                          (unsigned long)hdr.session_epoch, (unsigned long)f.tx_seq,
-                          if2rssi, if2snr, (unsigned)f.priority,
-                          (unsigned)f.sig_status, (unsigned)f.flags,
-                          f.rssi_if1, f.snr_if1_x10 / 10.0f,
-                          (unsigned long)f.gps_epoch);
-            processLoRaEvent(f, n, if2rssi, if2snr);
-            break;
-        }
-        case ACOUSTIC_EVENT_PACKET: {
-            AcousticEventFrame f; memcpy(&f, rxFrame, sizeof(f));
-            Serial.printf("[RX2] type=aco lane=%u node=%u ctr=%lu sepoch=%lu seq=- "
-                          "rssi=%d snr=%.2f conf=%u flags=0x%02X sustained=%d\n",
-                          (unsigned)hdr.lane_id, (unsigned)hdr.node_id,
-                          (unsigned long)hdr.counter,
-                          (unsigned long)hdr.session_epoch, if2rssi, if2snr,
-                          (unsigned)f.confidence, (unsigned)f.flags,
-                          (f.flags & ACF_SUSTAINED) ? 1 : 0);
-            processAcousticEvent(f, n);
-            break;
+
+        // Nothing to do: sleep until the RX task commits a frame.
+        //
+        // The timeout is a backstop, not a poll. If a notification were
+        // ever lost -- it cannot be, because xTaskNotifyGive latches a
+        // pending count that ulTaskNotifyTake consumes even if it
+        // arrives before the take -- a worker would still re-scan within
+        // 50 ms rather than sleeping forever. §17: bounded wait, never
+        // indefinite.
+        if (!didWork) ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(50));
+    }
+}
+
+// =====================================================
+// STAGE 3 -- DECISION LAYER HANDOFF.  RUNS IN loop().
+//
+// This is the v7 tail of pollLoRa(), moved wholesale and otherwise
+// untouched: the same [RX2] lines with the same field sets, the same
+// three handlers, called in the same way. That is deliberate. Everything
+// downstream of here -- geometry, tracks, EVU tracks, the demand
+// arbitration, the geofence-bypass cap, the ERC console -- remains
+// single-threaded and therefore semantically identical to v7. The
+// concurrency stops at this function's front door.
+//
+// Bounded per pass. GW_VAL_RING_DEPTH is 8 and each accepted event frame
+// costs ~31 ms of UART, so a completely full ring is ~250 ms of loop()
+// -- well inside the 8 s watchdog, and the leftovers (there will not be
+// any; the air cannot fill this ring) would be taken next pass.
+// =====================================================
+void gwServiceValidated() {
+    // Apply any RF noise sample the RX task published. The SPI read
+    // happened there; the safety-layer state it feeds is owned here.
+    static uint32_t lastNoiseSeq = 0;
+    uint32_t seq = gwNoiseSeq.load(std::memory_order_acquire);
+    if (seq != lastNoiseSeq) {
+        lastNoiseSeq = seq;
+        gwNoteRfNoise((int)gwNoiseSample.load(std::memory_order_relaxed));
+    }
+
+    GwValEvent e;
+    while (gwValRing.pop(e)) {
+        FrameHeader hdr;
+        memcpy(&hdr, e.bytes, sizeof(FrameHeader));
+
+        NodeState *n = getNodeState(hdr.lane_id, hdr.node_id);
+        if (n == nullptr) continue;      // cannot happen; validated already
+
+        int   if2rssi = e.rssi;
+        float if2snr  = e.snr_x10 / 10.0f;
+
+        uint32_t now_us = micros();
+        gwStQueue.add(e.t_q_us    - e.t_rx_us);
+        gwStWait.add (e.t_val0_us - e.t_q_us);
+        gwStKey.add  (e.t_key_us  - e.t_val0_us);
+        gwStHmac.add (e.t_val1_us - e.t_key_us);
+        gwStHandoff.add(now_us    - e.t_val1_us);
+        gwStTotal.add(now_us      - e.t_rx_us);
+
+        // ==============================================================
+        // CHANGED v3.7: [RX2] -- one machine-parseable line per accepted
+        // frame, mirroring [RX1] on the lane node.
+        //
+        // WHY: measuring IF-2 delivery by counting [LORA RX] lines
+        // against the lane node's [EVENT RADIATED] lines gave 73.2%.
+        // Matching by SEQUENCE NUMBER gave 93.9%. The 20-point error was
+        // this ICU's own serial capture dropping long log lines -- the
+        // same failure that made the IF-1 PRR read 131.8% before [RX1]
+        // existed. Line counts are not a measurement; sequence diffs are.
+        //
+        // `ctr` is the per-node monotonic counter and is the
+        // authoritative key for IF-2 loss: it increments on EVERY frame
+        // this node sends, of every type, so a gap in ctr across an
+        // [RX2] series is IF-2 loss with no inference required. `seq` is
+        // the EVU's own sequence, present only on event frames, and is
+        // what correlates an ICU record back to [RX1] on the lane node
+        // and to the EVU log. Both are needed: one measures this link,
+        // the other stitches the three logs together.
+        //
+        //   IF-2 loss:      grep -o 'ctr=[0-9]*' ICULOG | cut -d= -f2 | sort -n
+        //   end-to-end:     compare seq= across RX2 / RX1 / EVU
+        //
+        // Emitted for EVERY accepted frame including heartbeats, because
+        // a heartbeat is exactly the frame whose loss the [HEALTH] line
+        // cannot distinguish from a node that stopped sending.
+        //
+        // v7.1: unchanged in content and field set. It now prints from
+        // loop() rather than from inside the receive path, so the ~14 ms
+        // it costs at 115200 is no longer 14 ms of radio deafness.
+        // ==============================================================
+        switch (hdr.packet_type) {
+            case HEARTBEAT_PACKET: {
+                HeartbeatFrame f; memcpy(&f, e.bytes, sizeof(f));
+                // v4.5: sepoch added. Without it the entire SOP 3.4 re-key
+                // mechanism and the SOP 5.3 overlap window are invisible --
+                // they could rotate, fail, or never run and no log would
+                // differ.
+                Serial.printf("[RX2] type=hb  lane=%u node=%u ctr=%lu sepoch=%lu seq=- "
+                              "rssi=%d snr=%.2f up=%lu heap=%u\n",
+                              (unsigned)hdr.lane_id, (unsigned)hdr.node_id,
+                              (unsigned long)hdr.counter,
+                              (unsigned long)hdr.session_epoch, if2rssi, if2snr,
+                              (unsigned long)f.uptime_s, (unsigned)f.free_heap_kb);
+                processHeartbeat(f, n);
+                break;
+            }
+            case LORA_EVENT_PACKET: {
+                LoRaEventFrame f; memcpy(&f, e.bytes, sizeof(f));
+                Serial.printf("[RX2] type=evt lane=%u node=%u ctr=%lu sepoch=%lu seq=%lu "
+                              "rssi=%d snr=%.2f pri=%u sig=%u flags=0x%02X "
+                              "if1rssi=%d if1snr=%.1f epoch=%lu\n",
+                              (unsigned)hdr.lane_id, (unsigned)hdr.node_id,
+                              (unsigned long)hdr.counter,
+                              (unsigned long)hdr.session_epoch, (unsigned long)f.tx_seq,
+                              if2rssi, if2snr, (unsigned)f.priority,
+                              (unsigned)f.sig_status, (unsigned)f.flags,
+                              f.rssi_if1, f.snr_if1_x10 / 10.0f,
+                              (unsigned long)f.gps_epoch);
+                processLoRaEvent(f, n, if2rssi, if2snr);
+                break;
+            }
+            case ACOUSTIC_EVENT_PACKET: {
+                AcousticEventFrame f; memcpy(&f, e.bytes, sizeof(f));
+                Serial.printf("[RX2] type=aco lane=%u node=%u ctr=%lu sepoch=%lu seq=- "
+                              "rssi=%d snr=%.2f conf=%u flags=0x%02X sustained=%d\n",
+                              (unsigned)hdr.lane_id, (unsigned)hdr.node_id,
+                              (unsigned long)hdr.counter,
+                              (unsigned long)hdr.session_epoch, if2rssi, if2snr,
+                              (unsigned)f.confidence, (unsigned)f.flags,
+                              (f.flags & ACF_SUSTAINED) ? 1 : 0);
+                processAcousticEvent(f, n);
+                break;
+            }
         }
     }
+}
+
+// =====================================================
+// PIPELINE START
+//
+// MUST be called after initCentralLoRa(): the RX task touches the radio
+// on its first pass, and initCentralLoRa() contains a `while (true)`
+// spin on failure that this task must not be racing.
+// =====================================================
+void gwStartRxPipeline() {
+    for (int i = 0; i < GW_RX_NODES; i++)
+        gwNodeOwner[i].store(0, std::memory_order_relaxed);
+
+    for (int w = 0; w < GW_VAL_WORKERS; w++) {
+        char nm[16];
+        snprintf(nm, sizeof(nm), "gwVal%d", w);
+        BaseType_t ok = xTaskCreatePinnedToCore(
+            gwWorkerTask, nm, GW_WORKER_TASK_STACK,
+            (void *)(uintptr_t)w, GW_WORKER_TASK_PRIO,
+            &gwWorkerH[w], GW_PIPE_CORE);
+        if (ok != pdPASS) {
+            gwWorkerH[w] = nullptr;
+            Serial.printf("[PIPE] *** worker %d FAILED TO START -- validation "
+                          "capacity reduced ***\n", w);
+        }
+    }
+
+    BaseType_t ok = xTaskCreatePinnedToCore(
+        gwRxTask, "gwRx", GW_RX_TASK_STACK, nullptr,
+        GW_RX_TASK_PRIO, &gwRxTaskH, GW_PIPE_CORE);
+
+    if (ok != pdPASS) {
+        // Say so loudly and do not pretend. Same principle as the
+        // watchdog init path: a receive pipeline believed to be running
+        // and silently absent is an ICU that boots perfectly, reports
+        // healthy, and never hears an ambulance.
+        gwRxTaskH = nullptr;
+        Serial.println("[PIPE] *** RX TASK FAILED TO START -- THE ICU IS DEAF. "
+                       "DO NOT DEPLOY. ***");
+        return;
+    }
+
+    Serial.printf("[PIPE] rx task + %d validation worker(s) on core %d | "
+                  "per-node ring depth=%d val=%d log=%d | "
+                  "static %u B rings, %u B stacks\n",
+                  GW_VAL_WORKERS, GW_PIPE_CORE,
+                  GW_RX_RING_DEPTH, GW_VAL_RING_DEPTH, GW_LOG_RING_DEPTH,
+                  (unsigned)(sizeof(gwRxRing) + sizeof(gwValRing) + sizeof(gwLogRing)),
+                  (unsigned)(GW_RX_TASK_STACK + GW_VAL_WORKERS * GW_WORKER_TASK_STACK));
 }
 
 // =====================================================
@@ -1379,6 +1939,122 @@ void printRejectSummary() {
     // entirely healthy from the outbound side while silently discarding
     // the only evidence that a human ever saw an alert.
     ercPrintStats();
+
+    // v7.1: PIPELINE HEALTH.
+    //
+    // Every drop path in the new receive pipeline is counted and
+    // reported here. §17 requires an explicit answer to "what happens
+    // when a queue is full"; this line is that answer being observable
+    // rather than merely specified.
+    //
+    // rxdrop  -- per-node RX ring full. The RX task could not hand a
+    //            frame to a worker. Nonzero means a worker stalled, and
+    //            names which node's worker.
+    // valdrop -- the decision loop did not drain validated events fast
+    //            enough. These frames WERE authenticated and their
+    //            replay counters WERE advanced; a detection was lost,
+    //            not a security property.
+    // logdrop -- deferred log lines discarded. Cosmetic.
+    // maxd    -- high-water mark of each node's ring. If this never
+    //            exceeds 1, the queueing is pure headroom, which is what
+    //            a healthy single-channel link should look like.
+    {
+        uint32_t rxdrop = 0, maxd = 0;
+        char perNode[96]; int off = 0;
+        for (int i = 0; i < GW_RX_NODES; i++) {
+            uint32_t d = gwRxRing[i].dropped.load(std::memory_order_relaxed);
+            uint32_t m = gwRxRing[i].maxDepth.load(std::memory_order_relaxed);
+            rxdrop += d;
+            if (m > maxd) maxd = m;
+            off += snprintf(perNode + off, sizeof(perNode) - off, "%s%lu/%lu",
+                            i ? "," : "", (unsigned long)d, (unsigned long)m);
+            if (off >= (int)sizeof(perNode)) break;
+        }
+
+        // A wedged RX task is invisible from loop(): the ICU keeps
+        // iterating, keeps feeding the watchdog, and simply stops
+        // hearing anything. Watching the beat counter is what turns that
+        // into a reported fault instead of a silent one.
+        static uint32_t lastBeats = 0;
+        uint32_t beats = gwRxTaskBeats;
+        bool rxAlive = (beats != lastBeats);
+        lastBeats = beats;
+
+        // Worker liveness, same treatment as the RX task.
+        static uint32_t lastWBeats[8] = {0};
+        char wstat[64]; int woff = 0;
+        for (int w = 0; w < GW_VAL_WORKERS; w++) {
+            uint32_t wb = gwWorkerBeats[w];
+            const char *st = (gwWorkerH[w] == nullptr) ? "ABSENT"
+                           : (wb != lastWBeats[w] ? "alive" : "*STALLED*");
+            lastWBeats[w] = wb;
+            woff += snprintf(wstat + woff, sizeof(wstat) - woff,
+                             "%sw%d=%s", w ? " " : "", w, st);
+            if (woff >= (int)sizeof(wstat)) break;
+        }
+
+        // Re-emit the startup banner on the FIRST health block.
+        //
+        // Boards with native USB CDC do not enumerate for about a second
+        // after reset, so everything setup() prints is lost -- including
+        // the pipeline banner and, worse, the "RX TASK FAILED TO START"
+        // message. A failure notice you cannot see is not a notice. So it
+        // is repeated here, once, after the port is certainly up.
+        static bool bannerRepeated = false;
+        if (!bannerRepeated) {
+            bannerRepeated = true;
+            Serial.printf("[PIPE] (boot banner repeat) rx task + %d validation "
+                          "worker(s) on core %d | ring depth=%d val=%d log=%d | "
+                          "static %u B rings, %u B stacks\n",
+                          GW_VAL_WORKERS, GW_PIPE_CORE,
+                          GW_RX_RING_DEPTH, GW_VAL_RING_DEPTH, GW_LOG_RING_DEPTH,
+                          (unsigned)(sizeof(gwRxRing) + sizeof(gwValRing) + sizeof(gwLogRing)),
+                          (unsigned)(GW_RX_TASK_STACK + GW_VAL_WORKERS * GW_WORKER_TASK_STACK));
+        }
+
+        Serial.printf("[PIPE] rx=%s beats=%lu | %s | rxdrop=%lu valdrop=%lu logdrop=%lu "
+                      "maxdepth=%lu | per-node drop/max %s\n",
+                      gwRxTaskH == nullptr ? "ABSENT" : (rxAlive ? "alive" : "*** STALLED ***"),
+                      (unsigned long)beats, wstat,
+                      (unsigned long)rxdrop,
+                      (unsigned long)gwValRing.dropped.load(std::memory_order_relaxed),
+                      (unsigned long)gwLogRing.dropped.load(std::memory_order_relaxed),
+                      (unsigned long)maxd, perNode);
+    }
+
+    // v7.1: MEASURED per-stage latency, radio to decision layer.
+    //
+    // Brief §19 asks for measurements rather than claims, and this is
+    // where they come from on real hardware. Every accepted frame
+    // carries five micros() stamps; these are their running min/mean/max
+    // since the last health block. Printed here, once per 30 s, rather
+    // than per frame -- a per-frame timing line would put back exactly
+    // the UART cost this change removed.
+    //
+    //   queue = FIFO drained -> committed to the node ring (RX task)
+    //   wait  = sat in the ring waiting for a worker
+    //   key   = gwIcuSessions.keyFor() -- ~0 on a cached epoch, and
+    //           MILLISECONDS on a rotation, because that is X25519+HKDF
+    //   hmac  = tag verify + security-state advance
+    //   hand  = worker -> loop() pickup
+    //   TOTAL = radio to decision layer
+    //
+    // If `wait` stays near zero while two nodes are active, different
+    // RDUs are not queueing behind each other. If it tracks `key`, they
+    // are, and GW_VAL_WORKERS is the dial.
+    if (gwStTotal.n) {
+        Serial.printf("[PERF] n=%lu us(min/mean/max) queue=%lu/%lu/%lu wait=%lu/%lu/%lu "
+                      "key=%lu/%lu/%lu hmac=%lu/%lu/%lu hand=%lu/%lu/%lu TOTAL=%lu/%lu/%lu\n",
+            (unsigned long)gwStTotal.n,
+            (unsigned long)gwStQueue.min,   (unsigned long)gwStQueue.mean(),   (unsigned long)gwStQueue.max,
+            (unsigned long)gwStWait.min,    (unsigned long)gwStWait.mean(),    (unsigned long)gwStWait.max,
+            (unsigned long)gwStKey.min,     (unsigned long)gwStKey.mean(),     (unsigned long)gwStKey.max,
+            (unsigned long)gwStHmac.min,    (unsigned long)gwStHmac.mean(),    (unsigned long)gwStHmac.max,
+            (unsigned long)gwStHandoff.min, (unsigned long)gwStHandoff.mean(), (unsigned long)gwStHandoff.max,
+            (unsigned long)gwStTotal.min,   (unsigned long)gwStTotal.mean(),   (unsigned long)gwStTotal.max);
+        gwStQueue.reset(); gwStWait.reset(); gwStKey.reset();
+        gwStHmac.reset(); gwStHandoff.reset(); gwStTotal.reset();
+    }
 
     // PHASE 5A: full geometry and health picture.
     gwPrintGeometry();
@@ -1481,6 +2157,16 @@ void setup() {
     gwIcuSessions.begin();
 
     initCentralLoRa();
+
+    // v7.1: MUST be last, and must be after initCentralLoRa().
+    //
+    // The RX task touches the radio on its first pass, and
+    // initCentralLoRa() contains a `while (true)` spin on failure -- a
+    // task racing that would be polling a radio that never came up.
+    // After this call the radio has exactly one owner and nothing else
+    // in the build may touch LoRa.*.
+    gwStartRxPipeline();
+
     Serial.println("READY");
 }
 
@@ -1489,7 +2175,19 @@ void loop() {
     // iterating -- not that one slow call inside it overran.
     gwWatchdogFeed();
 
-    pollLoRa();
+    // v7.1: the radio is no longer read here. gwRxTask() owns it and has
+    // been reading it continuously, on the other core, for the whole of
+    // the previous loop() pass -- including the ~250 ms the 30 s health
+    // printout takes, which used to be 250 ms of deafness.
+    //
+    // What runs here is the DECISION side of the handoff: drain the
+    // already-authenticated events and run the v7 frame handlers on
+    // them, single-threaded, exactly as before.
+    gwServiceValidated();
+
+    // Print anything the RX task or a worker wanted to say. They may not
+    // touch the UART; loop() is its only writer.
+    gwDrainPipeLog();
 
     // EDIT 3 of 4  (PHASE 2)
     // Sends PING, reads replies, tracks link health. Rate-limits itself

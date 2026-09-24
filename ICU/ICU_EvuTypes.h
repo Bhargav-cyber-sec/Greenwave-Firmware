@@ -124,6 +124,36 @@ struct EvuTrack {
     int16_t  etaS     = -1;            // -1 = not computable
 
     bool     directReceived = false;   // heard by the ICU itself, not relayed
+
+    // ---- v7: GEOFENCE TRUST STATE ----
+    //
+    // Copied from the reporting RDU's EVF_* flags at ingest. NOT part of
+    // the wire protocol and NOT a decision-layer computation: this is
+    // provenance, recorded where the rest of the track's provenance
+    // already lives (directReceived, claimedPriority).
+    //
+    // WHY THE TRACK AND NOT THE DEMAND TUPLE. gwBuildDemand() reads the
+    // track through accessors and never reaches into it directly; the
+    // demand tuple is layer 3's input and is deliberately free of
+    // per-track state. Putting the flag here and exposing an accessor is
+    // the same shape as gwEvuIsReceding() and gwEvuDistanceM(), which is
+    // what "smallest point that respects the flag" resolves to.
+    //
+    // A track is FULLY TRUSTED only when the geofence acted as a real
+    // admission gate and this vehicle cleared it. See EVF_GEOFENCE_ENFORCED.
+    bool     geofenceEnforced = false;   // EVF_GEOFENCE_ENFORCED
+    bool     geofencePassed   = false;   // EVF_GEOFENCE_PASS
+    bool     geofenceBypassed = false;   // EVF_GEOFENCE_BYPASS
+
+    // Sticky. A track that was ever reported by an unenforced node stays
+    // unenforced for its whole life.
+    //
+    // Without this, a bypassed node and a production node covering the
+    // same approach would let the track's trust level flip with whichever
+    // node last relayed a packet -- and an attacker who could reach one
+    // bypassed node would only need it to be the last reporter. Trust
+    // that can be restored by a later packet is not a constraint.
+    bool     everUnenforced   = false;
 };
 
 #endif // ICU_EVU_TYPES_H

@@ -215,6 +215,28 @@ enum MotionState : uint8_t {
 #define EVF_GPS_VALID       (1 << 2)
 #define EVF_GEOFENCE_PASS   (1 << 3)
 #define EVF_GEOFENCE_BYPASS (1 << 4)   // node is running with the SOP bypass on
+// v7: bit 5. The geofence acted as a real ADMISSION GATE for this packet.
+//
+// EVF_GEOFENCE_PASS alone is not sufficient evidence that a geofence was
+// applied. Before v7 the RDU set PASS from its `accepted` variable, which
+// the bypass hardcoded to true -- so PASS was set on every frame while
+// smartGeofenceDecision() was never called. And on an unsurveyed node the
+// check returns true by design ("failing OPEN"), so even a real call
+// yields a vacuous pass.
+//
+// The correct reading of the three bits together:
+//
+//   ENFORCED + PASS      geofence ran as a gate and this packet cleared it
+//   ENFORCED + !PASS     cannot occur -- the RDU would have dropped it
+//   !ENFORCED + PASS     the check would have passed, but nothing rode on
+//                        it: bypassed node, or unsurveyed node failing open
+//   !ENFORCED + !PASS    admitted ONLY because the geofence was bypassed
+//
+// Only the first is a fully trusted production report.
+//
+// Wire-compatible: previously-unused bit of an existing uint8_t. An ICU
+// built before v7 ignores it and behaves exactly as it does today.
+#define EVF_GEOFENCE_ENFORCED (1 << 5)
 
 // Acoustic frame flag bits
 #define ACF_MIC_OK          (1 << 0)

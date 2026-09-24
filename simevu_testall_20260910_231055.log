@@ -1,0 +1,1882 @@
+
+======================================================================
+TEST 1 -- single lane baseline
+ETA must fall monotonically; demand must cap at PREPARE because the geofence is bypassed on every node.
+approx 67 s
+======================================================================
+23:10:57.266  >>> simevu 1 clear
+23:10:57.413  [SIMEVU] L1 simulated vehicle removed
+23:10:57.413  [EVU] no tracks
+23:10:58.827  [RX2] type=hb  lane=1 node=2 ctr=852074 sepoch=153 seq=- rssi=-61 snr=9.50 up=1183 heap=180
+23:10:58.827  [HEARTBEAT] L1N2 CTR=852074 UP=1183s HEAP=180KB LORA=1 MIC=1 BATT=6417mV LVL=2  [BENCH]
+23:10:59.444  [SESS] L1N1 epoch 285 -> 286 (prior epoch kept for overlap)
+23:10:59.445  [RX2] type=hb  lane=1 node=1 ctr=1507426 sepoch=286 seq=- rssi=-41 snr=9.80 up=1097 heap=180
+23:10:59.445  [HEARTBEAT] L1N1 CTR=1507426 UP=1097s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:11:00.059  [SESS] L3N2 epoch 105 -> 106 (prior epoch kept for overlap)
+23:11:00.060  [RX2] type=hb  lane=3 node=2 ctr=196712 sepoch=106 seq=- rssi=-37 snr=10.00 up=1149 heap=180
+23:11:00.060  [HEARTBEAT] L3N2 CTR=196712 UP=1149s HEAP=180KB LORA=1 MIC=0 BATT=3091mV LVL=1  [BENCH]
+23:11:00.267  >>> simevu 1 approach 500 40
+23:11:00.462  [SIMEVU] SIM_01 on L1: from 500m at 40 km/h heading 90 (lat 13.026100 lon 77.658385)
+23:11:00.463  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:11:00.463  [EVU] SIM_01 reported by L1N1 with the geofence NOT ENFORCED (bypass=0 pass=0) -- track marked reduced-trust for its lifetime
+23:11:00.463  [EVU] SIM_01 TRACK OPEN  lane=1 pri=2(registry) dist=500m hdg=90 spd=40 eta=51 relayed
+23:11:00.463  [EVU]
+23:11:00.463    SIM_01  ACTIVE    lane=1 pri=2 dist=500m spd=40 hdg=90 eta=51 EVU-RLY  *CLAIM MISMATCH*
+23:11:00.463  [DECISION] L1 ALERT PREPARE evidence=EVU_INDIRECT conf=1.00 eta=-1
+23:11:00.463  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:11:02.268  >>> simevu 1 run 10 2
+23:11:02.293  [SIMEVU] L1 running 10 steps at 2.0s intervals
+23:11:02.293  [EVU]
+23:11:02.293    SIM_01  ACTIVE    lane=1 pri=2 dist=500m spd=40 hdg=90 eta=51 EVU-RLY  *CLAIM MISMATCH*
+23:11:02.293  [SIMEVU] L1 step 2s -> 478m (approaching)
+23:11:02.294  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:11:03.314  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:11:04.324  [SIMEVU] L1 step 2s -> 456m (approaching)
+23:11:04.325  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:11:05.335  [RX2] type=hb  lane=2 node=2 ctr=196715 sepoch=119 seq=- rssi=-58 snr=9.50 up=1188 heap=180
+23:11:05.335  [HEARTBEAT] L2N2 CTR=196715 UP=1188s HEAP=180KB LORA=1 MIC=1 BATT=8737mV LVL=5  [BENCH]
+23:11:05.953  [SESS] L3N1 epoch 419 -> 420 (prior epoch kept for overlap)
+23:11:05.954  [RX2] type=hb  lane=3 node=1 ctr=458850 sepoch=420 seq=- rssi=-48 snr=9.80 up=1090 heap=180
+23:11:05.954  [HEARTBEAT] L3N1 CTR=458850 UP=1090s HEAP=180KB LORA=1 MIC=1 BATT=1754mV LVL=1  [BENCH]
+23:11:06.171  [RX2] type=hb  lane=2 node=1 ctr=393323 sepoch=93 seq=- rssi=-65 snr=9.50 up=1192 heap=180
+23:11:06.171  [HEARTBEAT] L2N1 CTR=393323 UP=1192s HEAP=180KB LORA=1 MIC=1 BATT=6998mV LVL=2  [BENCH]
+23:11:06.372  [SIMEVU] L1 step 2s -> 433m (approaching)
+23:11:06.373  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:11:06.373  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:11:08.403  [SIMEVU] L1 step 2s -> 411m (approaching)
+23:11:08.404  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:11:09.426  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:11:09.426  [RX2] type=hb  lane=1 node=1 ctr=1507427 sepoch=286 seq=- rssi=-40 snr=9.50 up=1108 heap=180
+23:11:09.426  [HEARTBEAT] L1N1 CTR=1507427 UP=1108s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:11:09.829  [RX2] type=hb  lane=1 node=2 ctr=852075 sepoch=153 seq=- rssi=-61 snr=9.20 up=1194 heap=180
+23:11:09.829  [HEARTBEAT] L1N2 CTR=852075 UP=1194s HEAP=180KB LORA=1 MIC=1 BATT=6426mV LVL=2  [BENCH]
+23:11:10.448  [SIMEVU] L1 step 2s -> 389m (approaching)
+23:11:10.448  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:11:10.853  [RX2] type=hb  lane=3 node=2 ctr=196713 sepoch=106 seq=- rssi=-37 snr=9.80 up=1159 heap=180
+23:11:10.853  [HEARTBEAT] L3N2 CTR=196713 UP=1159s HEAP=180KB LORA=1 MIC=0 BATT=3088mV LVL=1  [BENCH]
+23:11:12.292  [SIMEVU] L1 step 2s -> 367m (approaching)
+23:11:12.292  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:11:12.496  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:11:14.342  [SIMEVU] L1 step 2s -> 344m (approaching)
+23:11:14.342  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:11:15.364  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:11:16.398  [SIMEVU] L1 step 2s -> 322m (approaching)
+23:11:16.398  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:11:16.598  [RX2] type=hb  lane=2 node=2 ctr=196716 sepoch=119 seq=- rssi=-59 snr=9.50 up=1199 heap=180
+23:11:16.599  [HEARTBEAT] L2N2 CTR=196716 UP=1199s HEAP=180KB LORA=1 MIC=1 BATT=8733mV LVL=5  [BENCH]
+23:11:16.799  [RX2] type=hb  lane=3 node=1 ctr=458851 sepoch=420 seq=- rssi=-49 snr=9.20 up=1101 heap=180
+23:11:16.799  [HEARTBEAT] L3N1 CTR=458851 UP=1101s HEAP=180KB LORA=1 MIC=1 BATT=1757mV LVL=1  [BENCH]
+23:11:17.203  [RX2] type=hb  lane=2 node=1 ctr=393324 sepoch=93 seq=- rssi=-66 snr=9.80 up=1203 heap=180
+23:11:17.203  [HEARTBEAT] L2N1 CTR=393324 UP=1203s HEAP=180KB LORA=1 MIC=1 BATT=6995mV LVL=2  [BENCH]
+23:11:18.436  [SIMEVU] L1 step 2s -> 300m (approaching)
+23:11:18.436  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:11:18.436  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:11:20.127  [HEALTH] rejects: ver=0 xsect=0 len=0 node=0 replay=0 mac=0 | dup=0 | mode=SINGLE-NODE-BENCH
+23:11:20.127  [HEALTH] session: revoked=0 nosession=0 epoch=0 nokey=0 overlap=0 | keys=87554f73 | revmask=0x00
+23:11:20.127  [ERC LINK] DOWN  ping=989 pong=0 lost=989 (0.0% return) seqmismatch=0  state=IDLE acked=0
+23:11:20.127  [ERC ACK ] operator=0 auto=0 legacy=0 | backstop_fired=0
+23:11:20.127  [PIPE] rx=alive beats=988837 | w0=alive w1=alive | rxdrop=0 valdrop=0 logdrop=0 maxdepth=1 | per-node drop/max 0/1,0/1,0/1,0/1,0/1,0/1
+23:11:20.128  [PERF] n=15 us(min/mean/max) queue=21/23/26 wait=138/142/149 key=7/22685/114844 hmac=169/212/248 hand=21/53/151 TOTAL=356/23116/115399
+23:11:20.128  [GEOMETRY]
+23:11:20.128    approach 1 (LEFT): USABLE  sep=100m  ok
+23:11:20.128      N1  FAR     HEALTHY      dist=250m    hash=0x5E5837CE floor=108 live=1083 mic:OK
+23:11:20.128      N2  NEAR    HEALTHY      dist=150m    hash=0x7FD0287D floor=176 live=1168 mic:OK
+23:11:20.128    approach 2 (BOTTOM): USABLE  sep=100m  ok
+23:11:20.128      N1  FAR     HEALTHY      dist=260m    hash=0xE20A570B floor=118 live=1176 mic:OK
+23:11:20.128      N2  NEAR    HEALTHY      dist=160m    hash=0xD14422AB floor=171 live=1173 mic:OK
+23:11:20.128    approach 3 (RIGHT): USABLE  sep=100m  ok
+23:11:20.128      N1  FAR     HEALTHY      dist=270m    hash=0x12C3B55D floor=106 live=1076 mic:OK
+23:11:20.128      N2  NEAR    SUSPECT      dist=170m    hash=0xEBA33961 floor=245 live=1141 mic:FAIL
+23:11:20.128  [TRACKS] none active
+23:11:20.128  [EVU]
+23:11:20.128    SIM_01  ACTIVE    lane=1 pri=2 dist=300m spd=40 hdg=90 eta=31 EVU-RLY  *CLAIM MISMATCH*
+23:11:20.128  [DECISION] active=LEFT
+23:11:20.128    L1 PREPARE   EVU_INDIRECT         conf=1.00 eta=-1 score=18080270
+23:11:20.128  [SAFETY] wdt=armed  rf=-93dBm base=-97dBm (+5)  link_suspect=0
+23:11:20.128  [HEALTH] queue depth=0 active=0 | L1N1:hb=1,det=--,if2=97.8%(87/89) L1N2:hb=1,det=--,if2=98.9%(88/89) L2N1:hb=1,det=--,if2=93.3%(84/90) L2N2:hb=1,det=--,if2=92.1%(82/89) L3N1:hb=1,det=--,if2=92.1%(82/89) L3N2:hb=1,det=--,if2=97.8%(88/90)
+23:11:20.345  [SIMEVU] L1 step 2s -> 278m (approaching)
+23:11:20.346  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:11:20.561  [RX2] type=hb  lane=1 node=1 ctr=1507428 sepoch=286 seq=- rssi=-40 snr=10.00 up=1119 heap=180
+23:11:20.562  [HEARTBEAT] L1N1 CTR=1507428 UP=1119s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:11:21.167  [RX2] type=hb  lane=1 node=2 ctr=852076 sepoch=153 seq=- rssi=-62 snr=10.00 up=1205 heap=180
+23:11:21.167  [HEARTBEAT] L1N2 CTR=852076 UP=1205s HEAP=180KB LORA=1 MIC=1 BATT=6430mV LVL=2  [BENCH]
+23:11:21.381  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:11:21.999  [RX2] type=hb  lane=3 node=2 ctr=196714 sepoch=106 seq=- rssi=-37 snr=10.80 up=1171 heap=180
+23:11:21.999  [HEARTBEAT] L3N2 CTR=196714 UP=1171s HEAP=180KB LORA=1 MIC=0 BATT=3087mV LVL=1  [BENCH]
+23:11:24.455  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:11:27.327  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:11:27.942  [SESS] L2N2 epoch 119 -> 120 (prior epoch kept for overlap)
+23:11:27.942  [RX2] type=hb  lane=2 node=2 ctr=196717 sepoch=120 seq=- rssi=-57 snr=9.80 up=1210 heap=180
+23:11:27.942  [HEARTBEAT] L2N2 CTR=196717 UP=1210s HEAP=180KB LORA=1 MIC=1 BATT=8731mV LVL=5  [BENCH]
+23:11:27.942  [RX2] type=hb  lane=3 node=1 ctr=458852 sepoch=420 seq=- rssi=-49 snr=9.50 up=1112 heap=180
+23:11:27.942  [HEARTBEAT] L3N1 CTR=458852 UP=1112s HEAP=180KB LORA=1 MIC=1 BATT=1758mV LVL=1  [BENCH]
+23:11:28.548  [SESS] L2N1 epoch 93 -> 94 (prior epoch kept for overlap)
+23:11:28.548  [RX2] type=hb  lane=2 node=1 ctr=393325 sepoch=94 seq=- rssi=-65 snr=9.80 up=1214 heap=180
+23:11:28.548  [HEARTBEAT] L2N1 CTR=393325 UP=1214s HEAP=180KB LORA=1 MIC=1 BATT=6988mV LVL=2  [BENCH]
+23:11:30.411  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:11:31.851  [RX2] type=hb  lane=1 node=1 ctr=1507429 sepoch=286 seq=- rssi=-41 snr=9.80 up=1130 heap=180
+23:11:31.852  [HEARTBEAT] L1N1 CTR=1507429 UP=1130s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:11:32.482  [EVU] SIM_01 -> DEGRADED (no packet for 12001ms)
+23:11:32.482  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:28
+23:11:32.482  [RX2] type=hb  lane=1 node=2 ctr=852077 sepoch=154 seq=- rssi=-62 snr=10.00 up=1216 heap=180
+23:11:32.482  [HEARTBEAT] L1N2 CTR=852077 UP=1216s HEAP=180KB LORA=1 MIC=1 BATT=6433mV LVL=2  [BENCH]
+23:11:32.482  [SESS] L1N2 epoch 153 -> 154 (prior epoch kept for overlap)
+23:11:33.088  [RX2] type=hb  lane=3 node=2 ctr=196715 sepoch=106 seq=- rssi=-37 snr=9.80 up=1182 heap=180
+23:11:33.088  [HEARTBEAT] L3N2 CTR=196715 UP=1182s HEAP=180KB LORA=1 MIC=0 BATT=3088mV LVL=1  [BENCH]
+23:11:35.316  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:28
+23:11:38.390  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:28
+23:11:39.014  [RX2] type=hb  lane=2 node=2 ctr=196718 sepoch=120 seq=- rssi=-57 snr=10.00 up=1222 heap=180
+23:11:39.014  [HEARTBEAT] L2N2 CTR=196718 UP=1222s HEAP=180KB LORA=1 MIC=1 BATT=8739mV LVL=5  [BENCH]
+23:11:39.214  [RX2] type=hb  lane=3 node=1 ctr=458853 sepoch=420 seq=- rssi=-49 snr=10.20 up=1123 heap=180
+23:11:39.214  [HEARTBEAT] L3N1 CTR=458853 UP=1123s HEAP=180KB LORA=1 MIC=1 BATT=1755mV LVL=1  [BENCH]
+23:11:39.633  [RX2] type=hb  lane=2 node=1 ctr=393326 sepoch=94 seq=- rssi=-65 snr=10.50 up=1225 heap=180
+23:11:39.633  [HEARTBEAT] L2N1 CTR=393326 UP=1225s HEAP=180KB LORA=1 MIC=1 BATT=6989mV LVL=2  [BENCH]
+23:11:41.484  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:28
+23:11:43.117  [RX2] type=hb  lane=1 node=1 ctr=1507430 sepoch=286 seq=- rssi=-42 snr=9.80 up=1141 heap=180
+23:11:43.117  [HEARTBEAT] L1N1 CTR=1507430 UP=1141s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:11:43.331  [RX2] type=hb  lane=3 node=2 ctr=196716 sepoch=106 seq=- rssi=-33 snr=10.50 up=1192 heap=180
+23:11:43.331  [HEARTBEAT] L3N2 CTR=196716 UP=1192s HEAP=180KB LORA=1 MIC=0 BATT=3094mV LVL=1  [BENCH]
+23:11:44.351  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:28
+23:11:47.396  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:28
+23:11:49.448  [RX2] type=hb  lane=2 node=2 ctr=196719 sepoch=120 seq=- rssi=-55 snr=9.80 up=1232 heap=180
+23:11:49.448  [HEARTBEAT] L2N2 CTR=196719 UP=1232s HEAP=180KB LORA=1 MIC=1 BATT=8738mV LVL=5  [BENCH]
+23:11:50.068  [RX2] type=hb  lane=2 node=1 ctr=393327 sepoch=94 seq=- rssi=-64 snr=9.80 up=1236 heap=180
+23:11:50.068  [HEARTBEAT] L2N1 CTR=393327 UP=1236s HEAP=180KB LORA=1 MIC=1 BATT=6995mV LVL=2  [BENCH]
+23:11:50.268  [HEALTH] rejects: ver=0 xsect=0 len=0 node=0 replay=0 mac=0 | dup=0 | mode=SINGLE-NODE-BENCH
+23:11:50.268  [HEALTH] session: revoked=0 nosession=0 epoch=0 nokey=0 overlap=0 | keys=87554f73 | revmask=0x00
+23:11:50.269  [ERC LINK] DOWN  ping=1019 pong=0 lost=1019 (0.0% return) seqmismatch=0  state=IDLE acked=0
+23:11:50.269  [ERC ACK ] operator=0 auto=0 legacy=0 | backstop_fired=0
+23:11:50.269  [PIPE] rx=alive beats=1018821 | w0=alive w1=alive | rxdrop=0 valdrop=0 logdrop=0 maxdepth=1 | per-node drop/max 0/1,0/1,0/1,0/1,0/1,0/1
+23:11:50.269  [PERF] n=16 us(min/mean/max) queue=21/24/27 wait=139/142/147 key=11/21700/117143 hmac=107/216/248 hand=14/1165/17814 TOTAL=388/23249/135238
+23:11:50.269  [GEOMETRY]
+23:11:50.269    approach 1 (LEFT): USABLE  sep=100m  ok
+23:11:50.269      N1  FAR     HEALTHY      dist=250m    hash=0x5E5837CE floor=109 live=1116 mic:OK
+23:11:50.269      N2  NEAR    HEALTHY      dist=150m    hash=0x7FD0287D floor=176 live=1190 mic:OK
+23:11:50.269    approach 2 (BOTTOM): USABLE  sep=100m  ok
+23:11:50.269      N1  FAR     HEALTHY      dist=260m    hash=0xE20A570B floor=119 live=1208 mic:OK
+23:11:50.269      N2  NEAR    HEALTHY      dist=160m    hash=0xD14422AB floor=171 live=1205 mic:OK
+23:11:50.270    approach 3 (RIGHT): USABLE  sep=100m  ok
+23:11:50.270      N1  FAR     HEALTHY      dist=270m    hash=0x12C3B55D floor=110 live=1098 mic:OK
+23:11:50.270      N2  NEAR    SUSPECT      dist=170m    hash=0xEBA33961 floor=245 live=1173 mic:FAIL
+23:11:50.270  [TRACKS] none active
+23:11:50.270  [EVU]
+23:11:50.270    SIM_01  DEGRADED  lane=1 pri=2 dist=278m spd=40 hdg=90 eta=28 EVU-DEG  *CLAIM MISMATCH*
+23:11:50.270  [DECISION] active=LEFT
+23:11:50.270    L1 PREPARE   EVU_DEGRADED         conf=1.00 eta=28 score=18070272
+23:11:50.270  [SAFETY] wdt=armed  rf=-92dBm base=-97dBm (+5)  link_suspect=0
+23:11:50.270  [HEALTH] queue depth=0 active=0 | L1N1:hb=1,det=--,if2=97.8%(90/92) L1N2:hb=1,det=--,if2=98.9%(90/91) L2N1:hb=1,det=--,if2=93.5%(87/93) L2N2:hb=1,det=--,if2=92.4%(85/92) L3N1:hb=1,det=--,if2=92.3%(84/91) L3N2:hb=1,det=--,if2=97.8%(91/93)
+23:11:50.270  [RX2] type=hb  lane=3 node=1 ctr=458854 sepoch=420 seq=- rssi=-52 snr=10.00 up=1134 heap=180
+23:11:50.271  [HEARTBEAT] L3N1 CTR=458854 UP=1134s HEAP=180KB LORA=1 MIC=1 BATT=1748mV LVL=1  [BENCH]
+23:11:50.483  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:28
+23:11:53.360  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:28
+23:11:53.966  [RX2] type=hb  lane=1 node=2 ctr=852079 sepoch=154 seq=- rssi=-61 snr=10.20 up=1238 heap=180
+23:11:53.967  [HEARTBEAT] L1N2 CTR=852079 UP=1238s HEAP=180KB LORA=1 MIC=1 BATT=6418mV LVL=2  [BENCH]
+23:11:54.376  [SESS] L1N1 epoch 286 -> 287 (prior epoch kept for overlap)
+23:11:54.376  [RX2] type=hb  lane=1 node=1 ctr=1507431 sepoch=287 seq=- rssi=-39 snr=9.50 up=1152 heap=180
+23:11:54.376  [HEARTBEAT] L1N1 CTR=1507431 UP=1152s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:11:54.376  [RX2] type=hb  lane=3 node=2 ctr=196717 sepoch=106 seq=- rssi=-39 snr=9.20 up=1203 heap=180
+23:11:54.376  [HEARTBEAT] L3N2 CTR=196717 UP=1203s HEAP=180KB LORA=1 MIC=0 BATT=3099mV LVL=1  [BENCH]
+23:11:56.442  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:28
+23:11:59.269  >>> simevu 1 clear
+23:11:59.323  [SIMEVU] L1 simulated vehicle removed
+23:11:59.323  [EVU] no tracks
+23:11:59.324  [DECISION] L1 releasing (EXPIRED)
+23:11:59.324  [ERC TX] RELEASE:LEFT:EXPIRED
+23:12:00.360  [RX2] type=hb  lane=2 node=2 ctr=196720 sepoch=120 seq=- rssi=-54 snr=9.50 up=1243 heap=180
+23:12:00.361  [HEARTBEAT] L2N2 CTR=196720 UP=1243s HEAP=180KB LORA=1 MIC=1 BATT=8739mV LVL=5  [BENCH]
+23:12:01.178  [RX2] type=hb  lane=2 node=1 ctr=393328 sepoch=94 seq=- rssi=-64 snr=9.50 up=1247 heap=180
+23:12:01.178  [HEARTBEAT] L2N1 CTR=393328 UP=1247s HEAP=180KB LORA=1 MIC=1 BATT=6997mV LVL=2  [BENCH]
+23:12:01.596  [RX2] type=hb  lane=3 node=1 ctr=458855 sepoch=420 seq=- rssi=-49 snr=9.50 up=1145 heap=180
+23:12:01.596  [HEARTBEAT] L3N1 CTR=458855 UP=1145s HEAP=180KB LORA=1 MIC=1 BATT=1747mV LVL=1  [BENCH]
+23:12:04.676  [SESS] L3N2 epoch 106 -> 107 (prior epoch kept for overlap)
+23:12:04.676  [RX2] type=hb  lane=3 node=2 ctr=196718 sepoch=107 seq=- rssi=-37 snr=9.50 up=1213 heap=180
+23:12:04.676  [HEARTBEAT] L3N2 CTR=196718 UP=1213s HEAP=180KB LORA=1 MIC=0 BATT=3092mV LVL=1  [BENCH]
+23:12:04.877  [RX2] type=hb  lane=1 node=2 ctr=852080 sepoch=154 seq=- rssi=-64 snr=9.80 up=1249 heap=180
+23:12:04.877  [HEARTBEAT] L1N2 CTR=852080 UP=1249s HEAP=180KB LORA=1 MIC=1 BATT=6419mV LVL=2  [BENCH]
+23:12:05.281  [RX2] type=hb  lane=1 node=1 ctr=1507432 sepoch=287 seq=- rssi=-39 snr=9.80 up=1164 heap=180
+23:12:05.281  [HEARTBEAT] L1N1 CTR=1507432 UP=1164s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+
+TEST 1 done.
+
+--- 20 s gap before next test ---
+
+======================================================================
+TEST 2 -- two lane contention
+Lane 2 opens 200 m closer and should win arbitration. Watch hand= on [PERF]: two lanes alerting doubles the ERC TX burst that loop() has to push out.
+approx 76 s
+======================================================================
+23:12:26.509  [SESS] L1N2 epoch 154 -> 155 (prior epoch kept for overlap)
+23:12:26.509  [RX2] type=hb  lane=1 node=2 ctr=852082 sepoch=155 seq=- rssi=-60 snr=9.80 up=1270 heap=180
+23:12:26.510  [HEARTBEAT] L1N2 CTR=852082 UP=1270s HEAP=180KB LORA=1 MIC=1 BATT=6423mV LVL=2  [BENCH]
+23:12:27.118  [RX2] type=hb  lane=3 node=2 ctr=196720 sepoch=107 seq=- rssi=-38 snr=9.50 up=1236 heap=180
+23:12:27.119  [HEARTBEAT] L3N2 CTR=196720 UP=1236s HEAP=180KB LORA=1 MIC=0 BATT=3057mV LVL=1  [BENCH]
+23:12:27.735  [RX2] type=hb  lane=1 node=1 ctr=1507434 sepoch=287 seq=- rssi=-38 snr=9.50 up=1186 heap=180
+23:12:27.735  [HEARTBEAT] L1N1 CTR=1507434 UP=1186s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:12:27.807  >>> simevu 1 clear
+23:12:27.950  [SIMEVU] L1 simulated vehicle removed
+23:12:27.951  [EVU] no tracks
+23:12:28.807  >>> simevu 2 clear
+23:12:28.969  [SIMEVU] L2 simulated vehicle removed
+23:12:28.970  [EVU] no tracks
+23:12:33.278  [SESS] L2N2 epoch 120 -> 121 (prior epoch kept for overlap)
+23:12:33.279  [RX2] type=hb  lane=2 node=2 ctr=196723 sepoch=121 seq=- rssi=-55 snr=9.50 up=1276 heap=180
+23:12:33.279  [HEARTBEAT] L2N2 CTR=196723 UP=1276s HEAP=180KB LORA=1 MIC=1 BATT=8742mV LVL=5  [BENCH]
+23:12:33.808  >>> simevu 1 approach 500 40
+23:12:33.909  [RX2] type=hb  lane=2 node=1 ctr=393331 sepoch=95 seq=- rssi=-66 snr=10.00 up=1280 heap=180
+23:12:33.909  [HEARTBEAT] L2N1 CTR=393331 UP=1280s HEAP=180KB LORA=1 MIC=1 BATT=6982mV LVL=2  [BENCH]
+23:12:33.910  [SIMEVU] SIM_01 on L1: from 500m at 40 km/h heading 90 (lat 13.026100 lon 77.658385)
+23:12:33.910  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:12:33.910  [EVU] SIM_01 reported by L1N1 with the geofence NOT ENFORCED (bypass=0 pass=0) -- track marked reduced-trust for its lifetime
+23:12:33.910  [EVU] SIM_01 TRACK OPEN  lane=1 pri=2(registry) dist=500m hdg=90 spd=40 eta=51 relayed
+23:12:33.910  [EVU]
+23:12:33.910    SIM_01  ACTIVE    lane=1 pri=2 dist=500m spd=40 hdg=90 eta=51 EVU-RLY  *CLAIM MISMATCH*
+23:12:33.910  [DECISION] L1 ALERT PREPARE evidence=EVU_INDIRECT conf=1.00 eta=-1
+23:12:33.910  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:12:34.809  >>> simevu 2 approach 300 40
+23:12:34.957  [SIMEVU] SIM_02 on L2: from 300m at 40 km/h heading 0 (lat 13.023402 lon 77.663000)
+23:12:34.957  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:12:34.957  [EVU] SIM_02 reported by L2N1 with the geofence NOT ENFORCED (bypass=0 pass=0) -- track marked reduced-trust for its lifetime
+23:12:34.958  [EVU] SIM_02 TRACK OPEN  lane=2 pri=1(registry) dist=300m hdg=0 spd=40 eta=31 relayed
+23:12:34.958  [EVU]
+23:12:34.958    SIM_01  ACTIVE    lane=1 pri=2 dist=500m spd=40 hdg=90 eta=51 EVU-RLY  *CLAIM MISMATCH*
+23:12:34.959    SIM_02  ACTIVE    lane=2 pri=1 dist=300m spd=40 hdg=0 eta=31 EVU-RLY  *CLAIM MISMATCH*
+23:12:34.959  [ERC TX] QUEUE:1:BOTTOM:1
+23:12:34.959  [RX2] type=hb  lane=3 node=1 ctr=458858 sepoch=421 seq=- rssi=-54 snr=9.50 up=1179 heap=180
+23:12:34.959  [HEARTBEAT] L3N1 CTR=458858 UP=1179s HEAP=180KB LORA=1 MIC=1 BATT=1754mV LVL=1  [BENCH]
+23:12:35.810  >>> simevu 1 run 12 2
+23:12:35.810  >>> simevu 2 run 12 2
+23:12:35.994  [SIMEVU] L1 running 12 steps at 2.0s intervals
+23:12:35.995  [EVU]
+23:12:35.995    SIM_01  ACTIVE    lane=1 pri=2 dist=500m spd=40 hdg=90 eta=51 EVU-RLY  *CLAIM MISMATCH*
+23:12:35.995    SIM_02  ACTIVE    lane=2 pri=1 dist=300m spd=40 hdg=0 eta=31 EVU-RLY  *CLAIM MISMATCH*
+23:12:35.995  [SIMEVU] L2 running 12 steps at 2.0s intervals
+23:12:35.995  [EVU]
+23:12:35.995    SIM_01  ACTIVE    lane=1 pri=2 dist=500m spd=40 hdg=90 eta=51 EVU-RLY  *CLAIM MISMATCH*
+23:12:35.995    SIM_02  ACTIVE    lane=2 pri=1 dist=300m spd=40 hdg=0 eta=31 EVU-RLY  *CLAIM MISMATCH*
+23:12:35.995  [SIMEVU] L1 step 2s -> 478m (approaching)
+23:12:35.995  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:12:35.995  [SIMEVU] L2 step 2s -> 278m (approaching)
+23:12:35.996  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:12:37.032  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:12:37.635  [RX2] type=hb  lane=1 node=2 ctr=852083 sepoch=155 seq=- rssi=-63 snr=10.20 up=1282 heap=180
+23:12:37.636  [HEARTBEAT] L1N2 CTR=852083 UP=1282s HEAP=180KB LORA=1 MIC=1 BATT=6423mV LVL=2  [BENCH]
+23:12:37.849  [RX2] type=hb  lane=3 node=2 ctr=196721 sepoch=107 seq=- rssi=-39 snr=9.50 up=1246 heap=180
+23:12:37.850  [HEARTBEAT] L3N2 CTR=196721 UP=1246s HEAP=180KB LORA=1 MIC=0 BATT=3056mV LVL=1  [BENCH]
+23:12:37.850  [SIMEVU] L1 step 2s -> 456m (approaching)
+23:12:37.850  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:12:37.850  [SIMEVU] L2 step 2s -> 256m (approaching)
+23:12:37.850  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:12:38.882  [RX2] type=hb  lane=1 node=1 ctr=1507435 sepoch=287 seq=- rssi=-38 snr=9.80 up=1197 heap=180
+23:12:38.882  [HEARTBEAT] L1N1 CTR=1507435 UP=1197s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:12:39.890  [SIMEVU] L1 step 2s -> 433m (approaching)
+23:12:39.890  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:12:39.891  [SIMEVU] L2 step 2s -> 233m (approaching)
+23:12:39.891  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:12:39.891  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:12:41.947  [SIMEVU] L1 step 2s -> 411m (approaching)
+23:12:41.947  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:12:41.948  [SIMEVU] L2 step 2s -> 211m (approaching)
+23:12:41.948  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:12:42.980  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:12:43.987  [SIMEVU] L1 step 2s -> 389m (approaching)
+23:12:43.987  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:12:43.987  [SIMEVU] L2 step 2s -> 189m (approaching)
+23:12:43.987  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:12:44.388  [RX2] type=hb  lane=2 node=2 ctr=196724 sepoch=121 seq=- rssi=-54 snr=10.20 up=1287 heap=180
+23:12:44.389  [HEARTBEAT] L2N2 CTR=196724 UP=1287s HEAP=180KB LORA=1 MIC=1 BATT=8736mV LVL=5  [BENCH]
+23:12:44.818  [RX2] type=hb  lane=2 node=1 ctr=393332 sepoch=95 seq=- rssi=-70 snr=10.00 up=1291 heap=180
+23:12:44.818  [HEARTBEAT] L2N1 CTR=393332 UP=1291s HEAP=180KB LORA=1 MIC=1 BATT=6988mV LVL=2  [BENCH]
+23:12:45.837  [SIMEVU] L1 step 2s -> 367m (approaching)
+23:12:45.838  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:12:45.838  [SIMEVU] L2 step 2s -> 167m (approaching)
+23:12:45.838  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:12:46.053  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:12:46.254  [RX2] type=hb  lane=3 node=1 ctr=458859 sepoch=421 seq=- rssi=-54 snr=9.20 up=1190 heap=180
+23:12:46.255  [HEARTBEAT] L3N1 CTR=458859 UP=1190s HEAP=180KB LORA=1 MIC=1 BATT=1748mV LVL=1  [BENCH]
+23:12:47.908  [SIMEVU] L1 step 2s -> 344m (approaching)
+23:12:47.909  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:12:47.909  [SIMEVU] L2 step 2s -> 144m (approaching)
+23:12:47.910  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:12:48.530  [RX2] type=hb  lane=1 node=2 ctr=852084 sepoch=155 seq=- rssi=-65 snr=9.20 up=1293 heap=180
+23:12:48.531  [HEARTBEAT] L1N2 CTR=852084 UP=1293s HEAP=180KB LORA=1 MIC=1 BATT=6410mV LVL=2  [BENCH]
+23:12:48.934  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:12:49.340  [RX2] type=hb  lane=3 node=2 ctr=196722 sepoch=107 seq=- rssi=-38 snr=9.00 up=1258 heap=180
+23:12:49.340  [HEARTBEAT] L3N2 CTR=196722 UP=1258s HEAP=180KB LORA=1 MIC=0 BATT=3041mV LVL=1  [BENCH]
+23:12:49.946  [SIMEVU] L1 step 2s -> 322m (approaching)
+23:12:49.946  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:12:49.947  [SIMEVU] L2 step 2s -> 122m (approaching)
+23:12:49.947  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:12:50.150  [HEALTH] rejects: ver=0 xsect=0 len=0 node=0 replay=0 mac=0 | dup=0 | mode=SINGLE-NODE-BENCH
+23:12:50.150  [HEALTH] session: revoked=0 nosession=0 epoch=0 nokey=0 overlap=0 | keys=87554f73 | revmask=0x00
+23:12:50.151  [ERC LINK] DOWN  ping=1079 pong=0 lost=1079 (0.0% return) seqmismatch=0  state=IDLE acked=0
+23:12:50.151  [ERC ACK ] operator=0 auto=0 legacy=0 | backstop_fired=0
+23:12:50.151  [PIPE] rx=alive beats=1078788 | w0=alive w1=alive | rxdrop=0 valdrop=0 logdrop=0 maxdepth=1 | per-node drop/max 0/1,0/1,0/1,0/1,0/1,0/1
+23:12:50.151  [PERF] n=17 us(min/mean/max) queue=22/23/28 wait=136/140/146 key=7/19879/113494 hmac=117/237/670 hand=13/43/222 TOTAL=399/20324/114350
+23:12:50.151  [GEOMETRY]
+23:12:50.151    approach 1 (LEFT): USABLE  sep=100m  ok
+23:12:50.151      N1  FAR     HEALTHY      dist=250m    hash=0x5E5837CE floor=114 live=1171 mic:OK
+23:12:50.151      N2  NEAR    HEALTHY      dist=150m    hash=0x7FD0287D floor=176 live=1265 mic:OK
+23:12:50.151    approach 2 (BOTTOM): USABLE  sep=100m  ok
+23:12:50.151      N1  FAR     HEALTHY      dist=260m    hash=0xE20A570B floor=122 live=1262 mic:OK
+23:12:50.151      N2  NEAR    HEALTHY      dist=160m    hash=0xD14422AB floor=172 live=1259 mic:OK
+23:12:50.151    approach 3 (RIGHT): USABLE  sep=100m  ok
+23:12:50.151      N1  FAR     HEALTHY      dist=270m    hash=0x12C3B55D floor=115 live=1164 mic:OK
+23:12:50.151      N2  NEAR    SUSPECT      dist=170m    hash=0xEBA33961 floor=245 live=1238 mic:FAIL
+23:12:50.151  [TRACKS] none active
+23:12:50.151  [EVU]
+23:12:50.151    SIM_01  ACTIVE    lane=1 pri=2 dist=322m spd=40 hdg=90 eta=33 EVU-RLY  *CLAIM MISMATCH*
+23:12:50.151    SIM_02  ACTIVE    lane=2 pri=1 dist=122m spd=40 hdg=0 eta=12 EVU-RLY  *CLAIM MISMATCH*
+23:12:50.151  [DECISION] active=LEFT
+23:12:50.151    L1 PREPARE   EVU_INDIRECT         conf=1.00 eta=-1 score=18080267
+23:12:50.151    L2 PREPARE   EVU_INDIRECT         conf=1.00 eta=-1 score=19080287
+23:12:50.151  [SAFETY] wdt=armed  rf=-94dBm base=-98dBm (+3)  link_suspect=0
+23:12:50.151  [HEALTH] queue depth=0 active=0 | L1N1:hb=1,det=--,if2=97.9%(95/97) L1N2:hb=1,det=--,if2=98.0%(96/98) L2N1:hb=1,det=--,if2=93.9%(92/98) L2N2:hb=1,det=--,if2=92.8%(90/97) L3N1:hb=1,det=--,if2=92.8%(90/97) L3N2:hb=1,det=--,if2=98.0%(97/99)
+23:12:50.151  [SESS] L1N1 epoch 287 -> 288 (prior epoch kept for overlap)
+23:12:50.151  [RX2] type=hb  lane=1 node=1 ctr=1507436 sepoch=288 seq=- rssi=-39 snr=9.80 up=1208 heap=180
+23:12:50.151  [HEARTBEAT] L1N1 CTR=1507436 UP=1208s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:12:51.980  [SIMEVU] L1 step 2s -> 300m (approaching)
+23:12:51.981  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:12:51.981  [SIMEVU] L2 step 2s -> 100m (approaching)
+23:12:51.981  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:12:51.982  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:12:53.998  [SIMEVU] L1 step 2s -> 278m (approaching)
+23:12:53.999  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:12:53.999  [SIMEVU] L2 step 2s -> 78m (approaching)
+23:12:53.999  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:12:55.023  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:12:55.828  [SIMEVU] L1 step 2s -> 256m (approaching)
+23:12:55.828  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:12:55.828  [SIMEVU] L2 step 2s -> 56m (approaching)
+23:12:55.828  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:12:56.248  [RX2] type=hb  lane=2 node=2 ctr=196725 sepoch=121 seq=- rssi=-53 snr=9.50 up=1299 heap=180
+23:12:56.249  [HEARTBEAT] L2N2 CTR=196725 UP=1299s HEAP=180KB LORA=1 MIC=1 BATT=8733mV LVL=5  [BENCH]
+23:12:57.060  [RX2] type=hb  lane=2 node=1 ctr=393333 sepoch=95 seq=- rssi=-67 snr=10.00 up=1303 heap=180
+23:12:57.060  [HEARTBEAT] L2N1 CTR=393333 UP=1303s HEAP=180KB LORA=1 MIC=1 BATT=6993mV LVL=2  [BENCH]
+23:12:57.478  [RX2] type=hb  lane=3 node=1 ctr=458860 sepoch=421 seq=- rssi=-54 snr=10.00 up=1201 heap=180
+23:12:57.478  [HEARTBEAT] L3N1 CTR=458860 UP=1201s HEAP=180KB LORA=1 MIC=1 BATT=1744mV LVL=1  [BENCH]
+23:12:57.895  [SIMEVU] L1 step 2s -> 233m (approaching)
+23:12:57.896  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:12:57.896  [SIMEVU] L2 step 2s -> 33m (approaching)
+23:12:57.897  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:12:57.897  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:12:59.739  [SESS] L3N2 epoch 107 -> 108 (prior epoch kept for overlap)
+23:12:59.739  [RX2] type=hb  lane=3 node=2 ctr=196723 sepoch=108 seq=- rssi=-38 snr=9.00 up=1268 heap=180
+23:12:59.740  [HEARTBEAT] L3N2 CTR=196723 UP=1268s HEAP=180KB LORA=1 MIC=0 BATT=3031mV LVL=1  [BENCH]
+23:13:00.747  [RX2] type=hb  lane=1 node=2 ctr=852085 sepoch=155 seq=- rssi=-63 snr=10.20 up=1305 heap=180
+23:13:00.748  [HEARTBEAT] L1N2 CTR=852085 UP=1305s HEAP=180KB LORA=1 MIC=1 BATT=6409mV LVL=2  [BENCH]
+23:13:00.963  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:13:01.374  [RX2] type=hb  lane=1 node=1 ctr=1507437 sepoch=288 seq=- rssi=-38 snr=10.80 up=1219 heap=180
+23:13:01.374  [HEARTBEAT] L1N1 CTR=1507437 UP=1219s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:13:04.026  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:13:06.452  [RX2] type=hb  lane=2 node=2 ctr=196726 sepoch=121 seq=- rssi=-53 snr=9.50 up=1309 heap=180
+23:13:06.453  [HEARTBEAT] L2N2 CTR=196726 UP=1309s HEAP=180KB LORA=1 MIC=1 BATT=8734mV LVL=5  [BENCH]
+23:13:06.871  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:13:07.073  [RX2] type=hb  lane=2 node=1 ctr=393334 sepoch=95 seq=- rssi=-70 snr=9.20 up=1313 heap=180
+23:13:07.074  [HEARTBEAT] L2N1 CTR=393334 UP=1313s HEAP=180KB LORA=1 MIC=1 BATT=6989mV LVL=2  [BENCH]
+23:13:08.685  [SESS] L3N1 epoch 421 -> 422 (prior epoch kept for overlap)
+23:13:08.686  [RX2] type=hb  lane=3 node=1 ctr=458861 sepoch=422 seq=- rssi=-54 snr=9.20 up=1212 heap=180
+23:13:08.686  [HEARTBEAT] L3N1 CTR=458861 UP=1212s HEAP=180KB LORA=1 MIC=1 BATT=1747mV LVL=1  [BENCH]
+23:13:09.910  [EVU] SIM_01 -> DEGRADED (no packet for 12001ms)
+23:13:09.913  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:24
+23:13:09.913  [EVU] SIM_02 -> DEGRADED (no packet for 12040ms)
+23:13:10.733  [RX2] type=hb  lane=3 node=2 ctr=196724 sepoch=108 seq=- rssi=-39 snr=9.00 up=1279 heap=180
+23:13:10.734  [HEARTBEAT] L3N2 CTR=196724 UP=1279s HEAP=180KB LORA=1 MIC=0 BATT=3035mV LVL=1  [BENCH]
+23:13:10.949  [RX2] type=hb  lane=1 node=2 ctr=852086 sepoch=155 seq=- rssi=-63 snr=9.50 up=1315 heap=180
+23:13:10.950  [HEARTBEAT] L1N2 CTR=852086 UP=1315s HEAP=180KB LORA=1 MIC=1 BATT=6413mV LVL=2  [BENCH]
+23:13:12.377  [RX2] type=hb  lane=1 node=1 ctr=1507438 sepoch=288 seq=- rssi=-38 snr=10.00 up=1231 heap=180
+23:13:12.378  [HEARTBEAT] L1N1 CTR=1507438 UP=1231s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:13:12.997  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:24
+23:13:16.026  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:24
+23:13:17.640  [RX2] type=hb  lane=2 node=2 ctr=196727 sepoch=121 seq=- rssi=-54 snr=10.00 up=1320 heap=180
+23:13:17.640  [HEARTBEAT] L2N2 CTR=196727 UP=1320s HEAP=180KB LORA=1 MIC=1 BATT=8734mV LVL=5  [BENCH]
+23:13:18.246  [RX2] type=hb  lane=2 node=1 ctr=393335 sepoch=95 seq=- rssi=-69 snr=10.20 up=1324 heap=180
+23:13:18.247  [HEARTBEAT] L2N1 CTR=393335 UP=1324s HEAP=180KB LORA=1 MIC=1 BATT=6987mV LVL=2  [BENCH]
+23:13:19.070  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:24
+23:13:19.070  [RX2] type=hb  lane=3 node=1 ctr=458862 sepoch=422 seq=- rssi=-54 snr=9.80 up=1223 heap=180
+23:13:19.071  [HEARTBEAT] L3N1 CTR=458862 UP=1223s HEAP=180KB LORA=1 MIC=1 BATT=1753mV LVL=1  [BENCH]
+23:13:20.282  [HEALTH] rejects: ver=0 xsect=0 len=0 node=0 replay=0 mac=0 | dup=0 | mode=SINGLE-NODE-BENCH
+23:13:20.282  [HEALTH] session: revoked=0 nosession=0 epoch=0 nokey=0 overlap=0 | keys=87554f73 | revmask=0x00
+23:13:20.283  [ERC LINK] DOWN  ping=1109 pong=0 lost=1109 (0.0% return) seqmismatch=0  state=IDLE acked=0
+23:13:20.283  [ERC ACK ] operator=0 auto=0 legacy=0 | backstop_fired=0
+23:13:20.284  [PIPE] rx=alive beats=1108772 | w0=alive w1=alive | rxdrop=0 valdrop=0 logdrop=0 maxdepth=1 | per-node drop/max 0/1,0/1,0/1,0/1,0/1,0/1
+23:13:20.284  [PERF] n=16 us(min/mean/max) queue=21/24/27 wait=140/142/147 key=10/22625/128162 hmac=197/252/621 hand=28/64/283 TOTAL=420/23109/128803
+23:13:20.284  [GEOMETRY]
+23:13:20.284    approach 1 (LEFT): USABLE  sep=100m  ok
+23:13:20.284      N1  FAR     HEALTHY      dist=250m    hash=0x5E5837CE floor=111 live=1204 mic:OK
+23:13:20.284      N2  NEAR    HEALTHY      dist=150m    hash=0x7FD0287D floor=176 live=1287 mic:OK
+23:13:20.284    approach 2 (BOTTOM): USABLE  sep=100m  ok
+23:13:20.285      N1  FAR     HEALTHY      dist=260m    hash=0xE20A570B floor=119 live=1295 mic:OK
+23:13:20.285      N2  NEAR    HEALTHY      dist=160m    hash=0xD14422AB floor=172 live=1292 mic:OK
+23:13:20.285    approach 3 (RIGHT): USABLE  sep=100m  ok
+23:13:20.285      N1  FAR     HEALTHY      dist=270m    hash=0x12C3B55D floor=110 live=1196 mic:OK
+23:13:20.285      N2  NEAR    SUSPECT      dist=170m    hash=0xEBA33961 floor=245 live=1259 mic:FAIL
+23:13:20.285  [TRACKS] none active
+23:13:20.286  [EVU]
+23:13:20.286    SIM_01  DEGRADED  lane=1 pri=2 dist=233m spd=40 hdg=90 eta=24 EVU-DEG  *CLAIM MISMATCH*
+23:13:20.286    SIM_02  DEGRADED  lane=2 pri=1 dist=33m spd=40 hdg=0 eta=3 EVU-DEG  *CLAIM MISMATCH*
+23:13:20.286  [DECISION] active=LEFT
+23:13:20.286    L1 PREPARE   EVU_DEGRADED         conf=1.00 eta=24 score=18070276
+23:13:20.286    L2 PREPARE   EVU_DEGRADED         conf=1.00 eta=3 score=19170296
+23:13:20.287  [SAFETY] wdt=armed  rf=-94dBm base=-98dBm (+4)  link_suspect=0
+23:13:20.287  [HEALTH] queue depth=0 active=0 | L1N1:hb=1,det=--,if2=98.0%(98/100) L1N2:hb=1,det=--,if2=98.0%(98/100) L2N1:hb=1,det=--,if2=94.1%(95/101) L2N2:hb=1,det=--,if2=93.0%(93/100) L3N1:hb=1,det=--,if2=93.0%(93/100) L3N2:hb=1,det=--,if2=98.0%(99/101)
+23:13:21.508  [RX2] type=hb  lane=3 node=2 ctr=196725 sepoch=108 seq=- rssi=-37 snr=9.80 up=1290 heap=180
+23:13:21.508  [HEARTBEAT] L3N2 CTR=196725 UP=1290s HEAP=180KB LORA=1 MIC=0 BATT=3064mV LVL=1  [BENCH]
+23:13:21.911  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:24
+23:13:22.115  [RX2] type=hb  lane=1 node=2 ctr=852087 sepoch=155 seq=- rssi=-63 snr=9.80 up=1326 heap=180
+23:13:22.115  [HEARTBEAT] L1N2 CTR=852087 UP=1326s HEAP=180KB LORA=1 MIC=1 BATT=6419mV LVL=2  [BENCH]
+23:13:22.924  [RX2] type=hb  lane=1 node=1 ctr=1507439 sepoch=288 seq=- rssi=-39 snr=9.50 up=1241 heap=180
+23:13:22.924  [HEARTBEAT] L1N1 CTR=1507439 UP=1241s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:13:24.962  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:24
+23:13:27.993  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:24
+23:13:29.003  [SESS] L2N2 epoch 121 -> 122 (prior epoch kept for overlap)
+23:13:29.005  [RX2] type=hb  lane=2 node=2 ctr=196728 sepoch=122 seq=- rssi=-55 snr=9.80 up=1331 heap=180
+23:13:29.005  [HEARTBEAT] L2N2 CTR=196728 UP=1331s HEAP=180KB LORA=1 MIC=1 BATT=8738mV LVL=5  [BENCH]
+23:13:29.623  [SESS] L2N1 epoch 95 -> 96 (prior epoch kept for overlap)
+23:13:29.623  [RX2] type=hb  lane=2 node=1 ctr=393336 sepoch=96 seq=- rssi=-67 snr=10.00 up=1335 heap=180
+23:13:29.624  [HEARTBEAT] L2N1 CTR=393336 UP=1335s HEAP=180KB LORA=1 MIC=1 BATT=6979mV LVL=2  [BENCH]
+23:13:30.025  [RX2] type=hb  lane=3 node=1 ctr=458863 sepoch=422 seq=- rssi=-54 snr=9.50 up=1234 heap=180
+23:13:30.026  [HEARTBEAT] L3N1 CTR=458863 UP=1234s HEAP=180KB LORA=1 MIC=1 BATT=1755mV LVL=1  [BENCH]
+23:13:31.039  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:24
+23:13:31.862  [RX2] type=hb  lane=3 node=2 ctr=196726 sepoch=108 seq=- rssi=-39 snr=9.50 up=1300 heap=180
+23:13:31.863  [HEARTBEAT] L3N2 CTR=196726 UP=1300s HEAP=180KB LORA=1 MIC=0 BATT=3077mV LVL=1  [BENCH]
+23:13:33.475  [SESS] L1N2 epoch 155 -> 156 (prior epoch kept for overlap)
+23:13:33.476  [RX2] type=hb  lane=1 node=2 ctr=852088 sepoch=156 seq=- rssi=-63 snr=10.00 up=1337 heap=180
+23:13:33.476  [HEARTBEAT] L1N2 CTR=852088 UP=1337s HEAP=180KB LORA=1 MIC=1 BATT=6417mV LVL=2  [BENCH]
+23:13:33.892  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:24
+23:13:34.915  [RX2] type=hb  lane=1 node=1 ctr=1507440 sepoch=288 seq=- rssi=-38 snr=9.80 up=1253 heap=180
+23:13:34.916  [HEARTBEAT] L1N1 CTR=1507440 UP=1253s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:13:36.960  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:24
+23:13:37.811  >>> simevu 1 clear
+23:13:37.971  [SIMEVU] L1 simulated vehicle removed
+23:13:37.972  [EVU]
+23:13:37.972    SIM_02  DEGRADED  lane=2 pri=1 dist=33m spd=40 hdg=0 eta=3 EVU-DEG  *CLAIM MISMATCH*
+23:13:37.972  [DECISION] L1 releasing (EXPIRED)
+23:13:37.973  [ERC TX] RELEASE:LEFT:EXPIRED
+23:13:37.973  [ERC TX] QUEUE:0
+23:13:37.973  [DECISION] L2 ALERT PREPARE evidence=EVU_DEGRADED conf=1.00 eta=3
+23:13:37.973  [ERC TX] ALERT:BOTTOM:PREPARE:1:EVU_DEGRADED:3
+23:13:38.812  >>> simevu 2 clear
+23:13:39.007  [SIMEVU] L2 simulated vehicle removed
+23:13:39.007  [EVU] no tracks
+23:13:39.008  [DECISION] L2 releasing (EXPIRED)
+23:13:39.008  [ERC TX] RELEASE:BOTTOM:EXPIRED
+23:13:39.209  [RX2] type=hb  lane=2 node=2 ctr=196729 sepoch=122 seq=- rssi=-55 snr=9.50 up=1342 heap=180
+23:13:39.209  [HEARTBEAT] L2N2 CTR=196729 UP=1342s HEAP=180KB LORA=1 MIC=1 BATT=8743mV LVL=5  [BENCH]
+23:13:39.814  [RX2] type=hb  lane=2 node=1 ctr=393337 sepoch=96 seq=- rssi=-70 snr=9.80 up=1346 heap=180
+23:13:39.814  [HEARTBEAT] L2N1 CTR=393337 UP=1346s HEAP=180KB LORA=1 MIC=1 BATT=6982mV LVL=2  [BENCH]
+23:13:40.220  [RX2] type=hb  lane=3 node=1 ctr=458864 sepoch=422 seq=- rssi=-54 snr=10.50 up=1244 heap=180
+23:13:40.220  [HEARTBEAT] L3N1 CTR=458864 UP=1244s HEAP=180KB LORA=1 MIC=1 BATT=1754mV LVL=1  [BENCH]
+23:13:42.658  [RX2] type=hb  lane=3 node=2 ctr=196727 sepoch=108 seq=- rssi=-38 snr=10.00 up=1311 heap=180
+23:13:42.658  [HEARTBEAT] L3N2 CTR=196727 UP=1311s HEAP=180KB LORA=1 MIC=0 BATT=3071mV LVL=1  [BENCH]
+23:13:43.685  [RX2] type=hb  lane=1 node=2 ctr=852089 sepoch=156 seq=- rssi=-63 snr=9.80 up=1348 heap=180
+23:13:43.686  [HEARTBEAT] L1N2 CTR=852089 UP=1348s HEAP=180KB LORA=1 MIC=1 BATT=6414mV LVL=2  [BENCH]
+23:13:45.095  [RX2] type=hb  lane=1 node=1 ctr=1507441 sepoch=288 seq=- rssi=-39 snr=9.50 up=1263 heap=180
+23:13:45.096  [HEARTBEAT] L1N1 CTR=1507441 UP=1263s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+
+TEST 2 done.
+
+--- 20 s gap before next test ---
+
+======================================================================
+TEST 3 -- three lane contention + starvation bound
+All three approaches demanding at once. The 120 s starvation timer must stop any lane being locked out, and no preempt-of-preempt should occur.
+approx 116 s
+======================================================================
+23:14:07.426  >>> simevu 1 clear
+23:14:07.557  [SIMEVU] L1 simulated vehicle removed
+23:14:07.557  [EVU] no tracks
+23:14:07.558  [RX2] type=hb  lane=1 node=1 ctr=1507443 sepoch=289 seq=- rssi=-39 snr=9.80 up=1286 heap=180
+23:14:07.558  [HEARTBEAT] L1N1 CTR=1507443 UP=1286s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:14:08.427  >>> simevu 2 clear
+23:14:08.581  [SIMEVU] L2 simulated vehicle removed
+23:14:08.582  [EVU] no tracks
+23:14:09.428  >>> simevu 3 clear
+23:14:09.593  [SIMEVU] L3 simulated vehicle removed
+23:14:09.594  [EVU] no tracks
+23:14:12.624  [RX2] type=hb  lane=2 node=2 ctr=196732 sepoch=122 seq=- rssi=-57 snr=9.80 up=1375 heap=180
+23:14:12.625  [HEARTBEAT] L2N2 CTR=196732 UP=1375s HEAP=180KB LORA=1 MIC=1 BATT=8744mV LVL=5  [BENCH]
+23:14:13.244  [RX2] type=hb  lane=2 node=1 ctr=393340 sepoch=96 seq=- rssi=-68 snr=9.80 up=1379 heap=180
+23:14:13.244  [HEARTBEAT] L2N1 CTR=393340 UP=1379s HEAP=180KB LORA=1 MIC=1 BATT=6988mV LVL=2  [BENCH]
+23:14:13.648  [RX2] type=hb  lane=3 node=1 ctr=458867 sepoch=423 seq=- rssi=-55 snr=9.80 up=1278 heap=180
+23:14:13.649  [HEARTBEAT] L3N1 CTR=458867 UP=1278s HEAP=180KB LORA=1 MIC=1 BATT=1755mV LVL=1  [BENCH]
+23:14:14.429  >>> simevu 1 approach 500 40
+23:14:14.481  [SIMEVU] SIM_01 on L1: from 500m at 40 km/h heading 90 (lat 13.026100 lon 77.658385)
+23:14:14.482  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:14:14.482  [EVU] SIM_01 reported by L1N1 with the geofence NOT ENFORCED (bypass=0 pass=0) -- track marked reduced-trust for its lifetime
+23:14:14.482  [EVU] SIM_01 TRACK OPEN  lane=1 pri=2(registry) dist=500m hdg=90 spd=40 eta=51 relayed
+23:14:14.482  [EVU]
+23:14:14.482    SIM_01  ACTIVE    lane=1 pri=2 dist=500m spd=40 hdg=90 eta=51 EVU-RLY  *CLAIM MISMATCH*
+23:14:14.482  [DECISION] L1 ALERT PREPARE evidence=EVU_INDIRECT conf=1.00 eta=-1
+23:14:14.482  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:14:15.430  >>> simevu 2 approach 300 40
+23:14:15.502  [SIMEVU] SIM_02 on L2: from 300m at 40 km/h heading 0 (lat 13.023402 lon 77.663000)
+23:14:15.503  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:14:15.503  [EVU] SIM_02 reported by L2N1 with the geofence NOT ENFORCED (bypass=0 pass=0) -- track marked reduced-trust for its lifetime
+23:14:15.504  [EVU] SIM_02 TRACK OPEN  lane=2 pri=1(registry) dist=300m hdg=0 spd=40 eta=31 relayed
+23:14:15.504  [EVU]
+23:14:15.504    SIM_01  ACTIVE    lane=1 pri=2 dist=500m spd=40 hdg=90 eta=51 EVU-RLY  *CLAIM MISMATCH*
+23:14:15.504    SIM_02  ACTIVE    lane=2 pri=1 dist=300m spd=40 hdg=0 eta=31 EVU-RLY  *CLAIM MISMATCH*
+23:14:15.504  [ERC TX] QUEUE:1:BOTTOM:1
+23:14:16.124  [RX2] type=hb  lane=3 node=2 ctr=196730 sepoch=109 seq=- rssi=-38 snr=9.20 up=1345 heap=180
+23:14:16.125  [HEARTBEAT] L3N2 CTR=196730 UP=1345s HEAP=180KB LORA=1 MIC=0 BATT=3057mV LVL=1  [BENCH]
+23:14:16.431  >>> simevu 3 approach 400 40
+23:14:16.532  [SIMEVU] SIM_03 on L3: from 400m at 40 km/h heading 270 (lat 13.026100 lon 77.666692)
+23:14:16.532  [EVU] *** SIM_03 CLAIMS priority 9, REGISTRY SAYS 3 -- registry wins ***
+23:14:16.533  [EVU] SIM_03 reported by L3N1 with the geofence NOT ENFORCED (bypass=0 pass=0) -- track marked reduced-trust for its lifetime
+23:14:16.533  [EVU] SIM_03 TRACK OPEN  lane=3 pri=3(registry) dist=400m hdg=270 spd=40 eta=41 relayed
+23:14:16.533  [EVU]
+23:14:16.533    SIM_01  ACTIVE    lane=1 pri=2 dist=500m spd=40 hdg=90 eta=51 EVU-RLY  *CLAIM MISMATCH*
+23:14:16.533    SIM_02  ACTIVE    lane=2 pri=1 dist=300m spd=40 hdg=0 eta=31 EVU-RLY  *CLAIM MISMATCH*
+23:14:16.533    SIM_03  ACTIVE    lane=3 pri=3 dist=400m spd=40 hdg=270 eta=41 EVU-RLY  *CLAIM MISMATCH*
+23:14:16.533  [ERC TX] QUEUE:2:BOTTOM:1:RIGHT:3
+23:14:16.935  [RX2] type=hb  lane=1 node=2 ctr=852092 sepoch=156 seq=- rssi=-65 snr=9.80 up=1381 heap=180
+23:14:16.936  [HEARTBEAT] L1N2 CTR=852092 UP=1381s HEAP=180KB LORA=1 MIC=1 BATT=6414mV LVL=2  [BENCH]
+23:14:17.433  >>> simevu 1 run 15 2
+23:14:17.433  >>> simevu 2 run 15 2
+23:14:17.434  >>> simevu 3 run 15 2
+23:14:17.545  [SIMEVU] L1 running 15 steps at 2.0s intervals
+23:14:17.546  [EVU]
+23:14:17.546    SIM_01  ACTIVE    lane=1 pri=2 dist=500m spd=40 hdg=90 eta=51 EVU-RLY  *CLAIM MISMATCH*
+23:14:17.547    SIM_02  ACTIVE    lane=2 pri=1 dist=300m spd=40 hdg=0 eta=31 EVU-RLY  *CLAIM MISMATCH*
+23:14:17.547    SIM_03  ACTIVE    lane=3 pri=3 dist=400m spd=40 hdg=270 eta=41 EVU-RLY  *CLAIM MISMATCH*
+23:14:17.547  [SIMEVU] L2 running 15 steps at 2.0s intervals
+23:14:17.547  [EVU]
+23:14:17.548    SIM_01  ACTIVE    lane=1 pri=2 dist=500m spd=40 hdg=90 eta=51 EVU-RLY  *CLAIM MISMATCH*
+23:14:17.548    SIM_02  ACTIVE    lane=2 pri=1 dist=300m spd=40 hdg=0 eta=31 EVU-RLY  *CLAIM MISMATCH*
+23:14:17.548    SIM_03  ACTIVE    lane=3 pri=3 dist=400m spd=40 hdg=270 eta=41 EVU-RLY  *CLAIM MISMATCH*
+23:14:17.548  [SIMEVU] L3 running 15 steps at 2.0s intervals
+23:14:17.548  [EVU]
+23:14:17.548    SIM_01  ACTIVE    lane=1 pri=2 dist=500m spd=40 hdg=90 eta=51 EVU-RLY  *CLAIM MISMATCH*
+23:14:17.548    SIM_02  ACTIVE    lane=2 pri=1 dist=300m spd=40 hdg=0 eta=31 EVU-RLY  *CLAIM MISMATCH*
+23:14:17.548    SIM_03  ACTIVE    lane=3 pri=3 dist=400m spd=40 hdg=270 eta=41 EVU-RLY  *CLAIM MISMATCH*
+23:14:17.548  [SIMEVU] L1 step 2s -> 478m (approaching)
+23:14:17.549  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:14:17.549  [SIMEVU] L2 step 2s -> 278m (approaching)
+23:14:17.549  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:14:17.549  [SIMEVU] L3 step 2s -> 378m (approaching)
+23:14:17.549  [EVU] *** SIM_03 CLAIMS priority 9, REGISTRY SAYS 3 -- registry wins ***
+23:14:17.549  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:14:18.570  [RX2] type=hb  lane=1 node=1 ctr=1507444 sepoch=289 seq=- rssi=-39 snr=10.20 up=1297 heap=180
+23:14:18.571  [HEARTBEAT] L1N1 CTR=1507444 UP=1297s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:14:19.586  [SIMEVU] L1 step 2s -> 456m (approaching)
+23:14:19.587  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:14:19.587  [SIMEVU] L2 step 2s -> 256m (approaching)
+23:14:19.587  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:14:19.587  [SIMEVU] L3 step 2s -> 356m (approaching)
+23:14:19.587  [EVU] *** SIM_03 CLAIMS priority 9, REGISTRY SAYS 3 -- registry wins ***
+23:14:20.193  [HEALTH] rejects: ver=0 xsect=0 len=0 node=0 replay=0 mac=0 | dup=0 | mode=SINGLE-NODE-BENCH
+23:14:20.194  [HEALTH] session: revoked=0 nosession=0 epoch=0 nokey=0 overlap=0 | keys=87554f73 | revmask=0x00
+23:14:20.195  [ERC LINK] DOWN  ping=1169 pong=0 lost=1169 (0.0% return) seqmismatch=0  state=IDLE acked=0
+23:14:20.195  [ERC ACK ] operator=0 auto=0 legacy=0 | backstop_fired=0
+23:14:20.195  [PIPE] rx=alive beats=1168739 | w0=alive w1=alive | rxdrop=0 valdrop=0 logdrop=0 maxdepth=1 | per-node drop/max 0/1,0/1,0/1,0/1,0/1,0/1
+23:14:20.195  [PERF] n=18 us(min/mean/max) queue=18/23/29 wait=135/143/166 key=5/18793/114990 hmac=128/204/304 hand=16/196/2985 TOTAL=367/19361/115318
+23:14:20.195  [GEOMETRY]
+23:14:20.195    approach 1 (LEFT): USABLE  sep=100m  ok
+23:14:20.196      N1  FAR     HEALTHY      dist=250m    hash=0x5E5837CE floor=107 live=1269 mic:OK
+23:14:20.196      N2  NEAR    HEALTHY      dist=150m    hash=0x7FD0287D floor=176 live=1352 mic:OK
+23:14:20.196    approach 2 (BOTTOM): USABLE  sep=100m  ok
+23:14:20.196      N1  FAR     HEALTHY      dist=260m    hash=0xE20A570B floor=118 live=1349 mic:OK
+23:14:20.196      N2  NEAR    HEALTHY      dist=160m    hash=0xD14422AB floor=172 live=1346 mic:OK
+23:14:20.196    approach 3 (RIGHT): USABLE  sep=100m  ok
+23:14:20.196      N1  FAR     HEALTHY      dist=270m    hash=0x12C3B55D floor=106 live=1250 mic:OK
+23:14:20.196      N2  NEAR    SUSPECT      dist=170m    hash=0xEBA33961 floor=245 live=1324 mic:FAIL
+23:14:20.196  [TRACKS] none active
+23:14:20.196  [EVU]
+23:14:20.196    SIM_01  ACTIVE    lane=1 pri=2 dist=456m spd=40 hdg=90 eta=47 EVU-RLY  *CLAIM MISMATCH*
+23:14:20.197    SIM_02  ACTIVE    lane=2 pri=1 dist=256m spd=40 hdg=0 eta=26 EVU-RLY  *CLAIM MISMATCH*
+23:14:20.197    SIM_03  ACTIVE    lane=3 pri=3 dist=356m spd=40 hdg=270 eta=36 EVU-RLY  *CLAIM MISMATCH*
+23:14:20.197  [DECISION] active=LEFT
+23:14:20.197    L1 PREPARE   EVU_INDIRECT         conf=1.00 eta=-1 score=18080254
+23:14:20.197    L2 PREPARE   EVU_INDIRECT         conf=1.00 eta=-1 score=19080274
+23:14:20.197    L3 PREPARE   EVU_INDIRECT         conf=1.00 eta=-1 score=17080264
+23:14:20.197  [SAFETY] wdt=armed  rf=-95dBm base=-98dBm (+3)  link_suspect=0
+23:14:20.197  [HEALTH] queue depth=0 active=0 | L1N1:hb=1,det=--,if2=98.1%(104/106) L1N2:hb=1,det=--,if2=98.1%(104/106) L2N1:hb=1,det=--,if2=94.3%(100/106) L2N2:hb=1,det=--,if2=93.3%(98/105) L3N1:hb=1,det=--,if2=93.3%(98/105) L3N2:hb=1,det=--,if2=98.1%(105/107)
+23:14:20.615  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:14:21.640  [SIMEVU] L1 step 2s -> 433m (approaching)
+23:14:21.640  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:14:21.641  [SIMEVU] L2 step 2s -> 233m (approaching)
+23:14:21.641  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:14:21.641  [SIMEVU] L3 step 2s -> 333m (approaching)
+23:14:21.642  [EVU] *** SIM_03 CLAIMS priority 9, REGISTRY SAYS 3 -- registry wins ***
+23:14:23.486  [SIMEVU] L1 step 2s -> 411m (approaching)
+23:14:23.486  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:14:23.487  [SIMEVU] L2 step 2s -> 211m (approaching)
+23:14:23.487  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:14:23.487  [SIMEVU] L3 step 2s -> 311m (approaching)
+23:14:23.487  [EVU] *** SIM_03 CLAIMS priority 9, REGISTRY SAYS 3 -- registry wins ***
+23:14:23.488  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:14:23.689  [RX2] type=hb  lane=2 node=2 ctr=196733 sepoch=122 seq=- rssi=-57 snr=10.00 up=1386 heap=180
+23:14:23.689  [HEARTBEAT] L2N2 CTR=196733 UP=1386s HEAP=180KB LORA=1 MIC=1 BATT=8743mV LVL=5  [BENCH]
+23:14:24.498  [SESS] L2N1 epoch 96 -> 97 (prior epoch kept for overlap)
+23:14:24.498  [RX2] type=hb  lane=2 node=1 ctr=393341 sepoch=97 seq=- rssi=-71 snr=9.50 up=1390 heap=180
+23:14:24.498  [HEARTBEAT] L2N1 CTR=393341 UP=1390s HEAP=180KB LORA=1 MIC=1 BATT=6981mV LVL=2  [BENCH]
+23:14:25.510  [SIMEVU] L1 step 2s -> 389m (approaching)
+23:14:25.510  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:14:25.510  [SIMEVU] L2 step 2s -> 189m (approaching)
+23:14:25.511  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:14:25.511  [SIMEVU] L3 step 2s -> 289m (approaching)
+23:14:25.512  [EVU] *** SIM_03 CLAIMS priority 9, REGISTRY SAYS 3 -- registry wins ***
+23:14:25.926  [RX2] type=hb  lane=3 node=1 ctr=458868 sepoch=423 seq=- rssi=-55 snr=9.20 up=1290 heap=180
+23:14:25.927  [HEARTBEAT] L3N1 CTR=458868 UP=1290s HEAP=180KB LORA=1 MIC=1 BATT=1757mV LVL=1  [BENCH]
+23:14:26.531  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:14:26.732  [RX2] type=hb  lane=3 node=2 ctr=196731 sepoch=109 seq=- rssi=-38 snr=9.80 up=1355 heap=180
+23:14:26.733  [HEARTBEAT] L3N2 CTR=196731 UP=1355s HEAP=180KB LORA=1 MIC=0 BATT=3078mV LVL=1  [BENCH]
+23:14:27.541  [SIMEVU] L1 step 2s -> 367m (approaching)
+23:14:27.542  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:14:27.542  [SIMEVU] L2 step 2s -> 167m (approaching)
+23:14:27.542  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:14:27.542  [SIMEVU] L3 step 2s -> 267m (approaching)
+23:14:27.543  [EVU] *** SIM_03 CLAIMS priority 9, REGISTRY SAYS 3 -- registry wins ***
+23:14:28.363  [SESS] L1N2 epoch 156 -> 157 (prior epoch kept for overlap)
+23:14:28.364  [RX2] type=hb  lane=1 node=2 ctr=852093 sepoch=157 seq=- rssi=-63 snr=10.20 up=1392 heap=180
+23:14:28.364  [HEARTBEAT] L1N2 CTR=852093 UP=1392s HEAP=180KB LORA=1 MIC=1 BATT=6414mV LVL=2  [BENCH]
+23:14:29.574  [SIMEVU] L1 step 2s -> 344m (approaching)
+23:14:29.574  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:14:29.575  [SIMEVU] L2 step 2s -> 144m (approaching)
+23:14:29.575  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:14:29.575  [SIMEVU] L3 step 2s -> 244m (approaching)
+23:14:29.575  [EVU] *** SIM_03 CLAIMS priority 9, REGISTRY SAYS 3 -- registry wins ***
+23:14:29.575  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:14:30.801  [RX2] type=hb  lane=1 node=1 ctr=1507445 sepoch=289 seq=- rssi=-39 snr=9.50 up=1309 heap=180
+23:14:30.801  [HEARTBEAT] L1N1 CTR=1507445 UP=1309s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:14:31.635  [SIMEVU] L1 step 2s -> 322m (approaching)
+23:14:31.635  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:14:31.635  [SIMEVU] L2 step 2s -> 122m (approaching)
+23:14:31.635  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:14:31.635  [SIMEVU] L3 step 2s -> 222m (approaching)
+23:14:31.635  [EVU] *** SIM_03 CLAIMS priority 9, REGISTRY SAYS 3 -- registry wins ***
+23:14:32.648  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:14:33.456  [SIMEVU] L1 step 2s -> 300m (approaching)
+23:14:33.457  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:14:33.458  [SIMEVU] L2 step 2s -> 100m (approaching)
+23:14:33.458  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:14:33.458  [SIMEVU] L3 step 2s -> 200m (approaching)
+23:14:33.459  [EVU] *** SIM_03 CLAIMS priority 9, REGISTRY SAYS 3 -- registry wins ***
+23:14:35.292  [SESS] L2N2 epoch 122 -> 123 (prior epoch kept for overlap)
+23:14:35.293  [RX2] type=hb  lane=2 node=2 ctr=196734 sepoch=123 seq=- rssi=-57 snr=9.80 up=1398 heap=180
+23:14:35.293  [HEARTBEAT] L2N2 CTR=196734 UP=1398s HEAP=180KB LORA=1 MIC=1 BATT=8748mV LVL=5  [BENCH]
+23:14:35.493  [SIMEVU] L1 step 2s -> 278m (approaching)
+23:14:35.494  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:14:35.494  [SIMEVU] L2 step 2s -> 78m (approaching)
+23:14:35.495  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:14:35.495  [SIMEVU] L3 step 2s -> 178m (approaching)
+23:14:35.495  [EVU] *** SIM_03 CLAIMS priority 9, REGISTRY SAYS 3 -- registry wins ***
+23:14:35.495  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:14:35.910  [RX2] type=hb  lane=2 node=1 ctr=393342 sepoch=97 seq=- rssi=-71 snr=9.50 up=1402 heap=180
+23:14:35.911  [HEARTBEAT] L2N1 CTR=393342 UP=1402s HEAP=180KB LORA=1 MIC=1 BATT=6980mV LVL=2  [BENCH]
+23:14:36.112  [RX2] type=hb  lane=3 node=1 ctr=458869 sepoch=423 seq=- rssi=-54 snr=10.00 up=1300 heap=180
+23:14:36.113  [HEARTBEAT] L3N1 CTR=458869 UP=1300s HEAP=180KB LORA=1 MIC=1 BATT=1752mV LVL=1  [BENCH]
+23:14:37.326  [RX2] type=hb  lane=3 node=2 ctr=196732 sepoch=109 seq=- rssi=-38 snr=9.20 up=1366 heap=180
+23:14:37.326  [HEARTBEAT] L3N2 CTR=196732 UP=1366s HEAP=180KB LORA=1 MIC=0 BATT=3072mV LVL=1  [BENCH]
+23:14:37.529  [SIMEVU] L1 step 2s -> 256m (approaching)
+23:14:37.529  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:14:37.530  [SIMEVU] L2 step 2s -> 56m (approaching)
+23:14:37.530  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:14:37.531  [SIMEVU] L3 step 2s -> 156m (approaching)
+23:14:37.531  [EVU] *** SIM_03 CLAIMS priority 9, REGISTRY SAYS 3 -- registry wins ***
+23:14:38.571  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:14:39.578  [SIMEVU] L1 step 2s -> 233m (approaching)
+23:14:39.578  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:14:39.579  [SIMEVU] L2 step 2s -> 33m (approaching)
+23:14:39.580  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:14:39.580  [SIMEVU] L3 step 2s -> 133m (approaching)
+23:14:39.580  [EVU] *** SIM_03 CLAIMS priority 9, REGISTRY SAYS 3 -- registry wins ***
+23:14:39.580  [RX2] type=hb  lane=1 node=2 ctr=852094 sepoch=157 seq=- rssi=-64 snr=9.20 up=1404 heap=180
+23:14:39.580  [HEARTBEAT] L1N2 CTR=852094 UP=1404s HEAP=180KB LORA=1 MIC=1 BATT=6407mV LVL=2  [BENCH]
+23:14:40.999  [RX2] type=hb  lane=1 node=1 ctr=1507446 sepoch=289 seq=- rssi=-39 snr=9.20 up=1319 heap=180
+23:14:40.999  [HEARTBEAT] L1N1 CTR=1507446 UP=1319s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:14:41.608  [SIMEVU] L1 step 2s -> 211m (approaching)
+23:14:41.608  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:14:41.608  [SIMEVU] L2 step 2s -> 11m (approaching)
+23:14:41.608  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:14:41.608  [SIMEVU] L3 step 2s -> 111m (approaching)
+23:14:41.608  [EVU] *** SIM_03 CLAIMS priority 9, REGISTRY SAYS 3 -- registry wins ***
+23:14:41.608  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:14:43.452  [SIMEVU] L1 step 2s -> 189m (approaching)
+23:14:43.452  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:14:43.452  [SIMEVU] L2 step 2s -> 0m (approaching)
+23:14:43.452  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:14:43.452  [SIMEVU] L3 step 2s -> 89m (approaching)
+23:14:43.453  [EVU] *** SIM_03 CLAIMS priority 9, REGISTRY SAYS 3 -- registry wins ***
+23:14:44.677  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:14:45.487  [SIMEVU] L1 step 2s -> 167m (approaching)
+23:14:45.487  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:14:45.488  [SIMEVU] L2 step 2s -> 0m (approaching)
+23:14:45.488  [EVU] *** SIM_02 CLAIMS priority 9, REGISTRY SAYS 1 -- registry wins ***
+23:14:45.489  [SIMEVU] L3 step 2s -> 67m (approaching)
+23:14:45.489  [EVU] *** SIM_03 CLAIMS priority 9, REGISTRY SAYS 3 -- registry wins ***
+23:14:46.711  [RX2] type=hb  lane=2 node=1 ctr=393343 sepoch=97 seq=- rssi=-69 snr=9.20 up=1413 heap=180
+23:14:46.711  [HEARTBEAT] L2N1 CTR=393343 UP=1413s HEAP=180KB LORA=1 MIC=1 BATT=6985mV LVL=2  [BENCH]
+23:14:47.317  [RX2] type=hb  lane=3 node=1 ctr=458870 sepoch=423 seq=- rssi=-55 snr=9.50 up=1311 heap=180
+23:14:47.317  [HEARTBEAT] L3N1 CTR=458870 UP=1311s HEAP=180KB LORA=1 MIC=1 BATT=1745mV LVL=1  [BENCH]
+23:14:47.518  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:14:48.731  [RX2] type=hb  lane=3 node=2 ctr=196733 sepoch=109 seq=- rssi=-38 snr=10.00 up=1377 heap=180
+23:14:48.732  [HEARTBEAT] L3N2 CTR=196733 UP=1377s HEAP=180KB LORA=1 MIC=0 BATT=3068mV LVL=1  [BENCH]
+23:14:50.146  [HEALTH] rejects: ver=0 xsect=0 len=0 node=0 replay=0 mac=0 | dup=0 | mode=SINGLE-NODE-BENCH
+23:14:50.147  [HEALTH] session: revoked=0 nosession=0 epoch=0 nokey=0 overlap=0 | keys=87554f73 | revmask=0x00
+23:14:50.147  [ERC LINK] DOWN  ping=1199 pong=0 lost=1199 (0.0% return) seqmismatch=0  state=IDLE acked=0
+23:14:50.147  [ERC ACK ] operator=0 auto=0 legacy=0 | backstop_fired=0
+23:14:50.147  [PIPE] rx=alive beats=1198724 | w0=alive w1=alive | rxdrop=0 valdrop=0 logdrop=0 maxdepth=1 | per-node drop/max 0/1,0/1,0/1,0/1,0/1,0/1
+23:14:50.147  [PERF] n=15 us(min/mean/max) queue=21/22/25 wait=138/143/152 key=12/23427/117813 hmac=205/255/658 hand=18/57/202 TOTAL=412/23906/118397
+23:14:50.147  [GEOMETRY]
+23:14:50.148    approach 1 (LEFT): USABLE  sep=100m  ok
+23:14:50.148      N1  FAR     HEALTHY      dist=250m    hash=0x5E5837CE floor=106 live=1291 mic:OK
+23:14:50.148      N2  NEAR    HEALTHY      dist=150m    hash=0x7FD0287D floor=176 live=1374 mic:OK
+23:14:50.148    approach 2 (BOTTOM): USABLE  sep=100m  ok
+23:14:50.148      N1  FAR     HEALTHY      dist=260m    hash=0xE20A570B floor=118 live=1382 mic:OK
+23:14:50.148      N2  NEAR    HEALTHY      dist=160m    hash=0xD14422AB floor=172 live=1368 mic:OK
+23:14:50.148    approach 3 (RIGHT): USABLE  sep=100m  ok
+23:14:50.149      N1  FAR     HEALTHY      dist=270m    hash=0x12C3B55D floor=104 live=1283 mic:OK
+23:14:50.149      N2  NEAR    SUSPECT      dist=170m    hash=0xEBA33961 floor=245 live=1356 mic:FAIL
+23:14:50.149  [TRACKS] none active
+23:14:50.149  [EVU]
+23:14:50.149    SIM_01  ACTIVE    lane=1 pri=2 dist=167m spd=40 hdg=90 eta=17 EVU-RLY  *CLAIM MISMATCH*
+23:14:50.149    SIM_02  ACTIVE    lane=2 pri=1 dist=0m spd=40 hdg=0 eta=0 EVU-RLY  *CLAIM MISMATCH*
+23:14:50.149    SIM_03  ACTIVE    lane=3 pri=3 dist=67m spd=40 hdg=270 eta=6 EVU-RLY  *CLAIM MISMATCH*
+23:14:50.149  [DECISION] active=LEFT
+23:14:50.149    L1 PREPARE   EVU_INDIRECT         conf=1.00 eta=-1 score=18080283
+23:14:50.149    L2 PREPARE   EVU_INDIRECT         conf=1.00 eta=-1 score=19080100
+23:14:50.149    L3 PREPARE   EVU_INDIRECT         conf=1.00 eta=-1 score=17180293
+23:14:50.149  [SAFETY] wdt=armed  rf=-93dBm base=-98dBm (+5)  link_suspect=0
+23:14:50.149  [HEALTH] queue depth=0 active=0 | L1N1:hb=1,det=--,if2=98.1%(106/108) L1N2:hb=1,det=--,if2=98.1%(106/108) L2N1:hb=1,det=--,if2=94.5%(103/109) L2N2:hb=1,det=--,if2=93.5%(100/107) L3N1:hb=1,det=--,if2=93.5%(101/108) L3N2:hb=1,det=--,if2=98.2%(108/110)
+23:14:50.565  [RX2] type=hb  lane=1 node=2 ctr=852095 sepoch=157 seq=- rssi=-63 snr=10.50 up=1415 heap=180
+23:14:50.565  [HEARTBEAT] L1N2 CTR=852095 UP=1415s HEAP=180KB LORA=1 MIC=1 BATT=6398mV LVL=1  [BENCH]
+23:14:50.566  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:14:52.181  [SESS] L1N1 epoch 289 -> 290 (prior epoch kept for overlap)
+23:14:52.182  [RX2] type=hb  lane=1 node=1 ctr=1507447 sepoch=290 seq=- rssi=-38 snr=9.50 up=1330 heap=180
+23:14:52.182  [HEARTBEAT] L1N1 CTR=1507447 UP=1330s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:14:53.607  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:14:56.647  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:14:57.268  [RX2] type=hb  lane=2 node=2 ctr=196736 sepoch=123 seq=- rssi=-56 snr=10.20 up=1420 heap=180
+23:14:57.269  [HEARTBEAT] L2N2 CTR=196736 UP=1420s HEAP=180KB LORA=1 MIC=1 BATT=8752mV LVL=5  [BENCH]
+23:14:57.471  [EVU] SIM_01 -> DEGRADED (no packet for 12001ms)
+23:14:57.672  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:17
+23:14:57.673  [EVU] SIM_02 -> DEGRADED (no packet for 12040ms)
+23:14:57.673  [EVU] SIM_03 -> DEGRADED (no packet for 12039ms)
+23:14:58.076  [RX2] type=hb  lane=2 node=1 ctr=393344 sepoch=97 seq=- rssi=-68 snr=10.50 up=1424 heap=180
+23:14:58.077  [HEARTBEAT] L2N1 CTR=393344 UP=1424s HEAP=180KB LORA=1 MIC=1 BATT=6990mV LVL=2  [BENCH]
+23:14:58.483  [RX2] type=hb  lane=3 node=1 ctr=458871 sepoch=423 seq=- rssi=-54 snr=10.20 up=1322 heap=180
+23:14:58.483  [HEARTBEAT] L3N1 CTR=458871 UP=1322s HEAP=180KB LORA=1 MIC=1 BATT=1742mV LVL=1  [BENCH]
+23:14:59.102  [SESS] L3N2 epoch 109 -> 110 (prior epoch kept for overlap)
+23:14:59.103  [RX2] type=hb  lane=3 node=2 ctr=196734 sepoch=110 seq=- rssi=-38 snr=9.20 up=1388 heap=180
+23:14:59.103  [HEARTBEAT] L3N2 CTR=196734 UP=1388s HEAP=180KB LORA=1 MIC=0 BATT=3073mV LVL=1  [BENCH]
+23:15:00.526  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:17
+23:15:01.736  [RX2] type=hb  lane=1 node=2 ctr=852096 sepoch=157 seq=- rssi=-63 snr=10.00 up=1426 heap=180
+23:15:01.736  [HEARTBEAT] L1N2 CTR=852096 UP=1426s HEAP=180KB LORA=1 MIC=1 BATT=6386mV LVL=1  [BENCH]
+23:15:03.380  [RX2] type=hb  lane=1 node=1 ctr=1507448 sepoch=290 seq=- rssi=-39 snr=9.50 up=1341 heap=180
+23:15:03.380  [HEARTBEAT] L1N1 CTR=1507448 UP=1341s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:15:03.583  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:17
+23:15:06.612  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:17
+23:15:07.432  [RX2] type=hb  lane=2 node=2 ctr=196737 sepoch=123 seq=- rssi=-57 snr=11.00 up=1430 heap=180
+23:15:07.433  [HEARTBEAT] L2N2 CTR=196737 UP=1430s HEAP=180KB LORA=1 MIC=1 BATT=8748mV LVL=5  [BENCH]
+23:15:08.252  [RX2] type=hb  lane=2 node=1 ctr=393345 sepoch=97 seq=- rssi=-70 snr=10.20 up=1434 heap=180
+23:15:08.253  [HEARTBEAT] L2N1 CTR=393345 UP=1434s HEAP=180KB LORA=1 MIC=1 BATT=6985mV LVL=2  [BENCH]
+23:15:08.859  [SESS] L3N1 epoch 423 -> 424 (prior epoch kept for overlap)
+23:15:08.859  [RX2] type=hb  lane=3 node=1 ctr=458872 sepoch=424 seq=- rssi=-55 snr=9.50 up=1333 heap=180
+23:15:08.860  [HEARTBEAT] L3N1 CTR=458872 UP=1333s HEAP=180KB LORA=1 MIC=1 BATT=1748mV LVL=1  [BENCH]
+23:15:09.679  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:17
+23:15:10.081  [RX2] type=hb  lane=3 node=2 ctr=196735 sepoch=110 seq=- rssi=-38 snr=9.20 up=1399 heap=180
+23:15:10.082  [HEARTBEAT] L3N2 CTR=196735 UP=1399s HEAP=180KB LORA=1 MIC=0 BATT=3064mV LVL=1  [BENCH]
+23:15:11.913  [RX2] type=hb  lane=1 node=2 ctr=852097 sepoch=157 seq=- rssi=-63 snr=9.50 up=1436 heap=180
+23:15:11.914  [HEARTBEAT] L1N2 CTR=852097 UP=1436s HEAP=180KB LORA=1 MIC=1 BATT=6396mV LVL=1  [BENCH]
+23:15:12.520  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:17
+23:15:13.731  [RX2] type=hb  lane=1 node=1 ctr=1507449 sepoch=290 seq=- rssi=-38 snr=10.00 up=1352 heap=180
+23:15:13.731  [HEARTBEAT] L1N1 CTR=1507449 UP=1352s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:15:15.546  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:17
+23:15:18.577  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:17
+23:15:18.982  [RX2] type=hb  lane=2 node=2 ctr=196738 sepoch=123 seq=- rssi=-57 snr=9.80 up=1442 heap=180
+23:15:18.982  [HEARTBEAT] L2N2 CTR=196738 UP=1442s HEAP=180KB LORA=1 MIC=1 BATT=8746mV LVL=5  [BENCH]
+23:15:19.791  [SESS] L2N1 epoch 97 -> 98 (prior epoch kept for overlap)
+23:15:19.791  [RX2] type=hb  lane=2 node=1 ctr=393346 sepoch=98 seq=- rssi=-68 snr=9.20 up=1445 heap=180
+23:15:19.792  [HEARTBEAT] L2N1 CTR=393346 UP=1445s HEAP=180KB LORA=1 MIC=1 BATT=6981mV LVL=2  [BENCH]
+23:15:20.196  [HEALTH] rejects: ver=0 xsect=0 len=0 node=0 replay=0 mac=0 | dup=0 | mode=SINGLE-NODE-BENCH
+23:15:20.196  [HEALTH] session: revoked=0 nosession=0 epoch=0 nokey=0 overlap=0 | keys=87554f73 | revmask=0x00
+23:15:20.197  [ERC LINK] DOWN  ping=1229 pong=0 lost=1229 (0.0% return) seqmismatch=0  state=IDLE acked=0
+23:15:20.197  [ERC ACK ] operator=0 auto=0 legacy=0 | backstop_fired=0
+23:15:20.197  [PIPE] rx=alive beats=1228708 | w0=alive w1=alive | rxdrop=0 valdrop=0 logdrop=0 maxdepth=1 | per-node drop/max 0/1,0/1,0/1,0/1,0/1,0/1
+23:15:20.197  [PERF] n=16 us(min/mean/max) queue=23/24/26 wait=137/142/146 key=11/29157/119836 hmac=139/220/250 hand=16/85/298 TOTAL=421/29630/120452
+23:15:20.197  [GEOMETRY]
+23:15:20.198    approach 1 (LEFT): USABLE  sep=100m  ok
+23:15:20.198      N1  FAR     HEALTHY      dist=250m    hash=0x5E5837CE floor=106 live=1323 mic:OK
+23:15:20.198      N2  NEAR    HEALTHY      dist=150m    hash=0x7FD0287D floor=177 live=1406 mic:OK
+23:15:20.198    approach 2 (BOTTOM): USABLE  sep=100m  ok
+23:15:20.199      N1  FAR     HEALTHY      dist=260m    hash=0xE20A570B floor=118 live=1414 mic:OK
+23:15:20.199      N2  NEAR    HEALTHY      dist=160m    hash=0xD14422AB floor=172 live=1411 mic:OK
+23:15:20.199    approach 3 (RIGHT): USABLE  sep=100m  ok
+23:15:20.199      N1  FAR     HEALTHY      dist=270m    hash=0x12C3B55D floor=104 live=1304 mic:OK
+23:15:20.199      N2  NEAR    SUSPECT      dist=170m    hash=0xEBA33961 floor=245 live=1377 mic:FAIL
+23:15:20.199  [TRACKS] none active
+23:15:20.199  [EVU]
+23:15:20.200    SIM_01  DEGRADED  lane=1 pri=2 dist=167m spd=40 hdg=90 eta=17 EVU-DEG  *CLAIM MISMATCH*
+23:15:20.200    SIM_02  DEGRADED  lane=2 pri=1 dist=0m spd=40 hdg=0 eta=0 EVU-DEG  *CLAIM MISMATCH*
+23:15:20.200    SIM_03  DEGRADED  lane=3 pri=3 dist=67m spd=40 hdg=270 eta=6 EVU-DEG  *CLAIM MISMATCH*
+23:15:20.200  [DECISION] active=LEFT
+23:15:20.200    L1 PREPARE   EVU_DEGRADED         conf=1.00 eta=17 score=18070283
+23:15:20.200    L2 PREPARE   EVU_DEGRADED         conf=1.00 eta=0 score=19070100
+23:15:20.200    L3 PREPARE   EVU_DEGRADED         conf=1.00 eta=6 score=17170293
+23:15:20.200  [SAFETY] wdt=armed  rf=-92dBm base=-98dBm (+5)  link_suspect=0
+23:15:20.200  [HEALTH] queue depth=0 active=0 | L1N1:hb=1,det=--,if2=98.2%(109/111) L1N2:hb=1,det=--,if2=98.2%(109/111) L2N1:hb=1,det=--,if2=94.6%(106/112) L2N2:hb=1,det=--,if2=92.8%(103/111) L3N1:hb=1,det=--,if2=93.6%(103/110) L3N2:hb=1,det=--,if2=98.2%(110/112)
+23:15:21.619  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:17
+23:15:23.458  [SESS] L1N2 epoch 157 -> 158 (prior epoch kept for overlap)
+23:15:23.459  [RX2] type=hb  lane=1 node=2 ctr=852098 sepoch=158 seq=- rssi=-64 snr=9.20 up=1447 heap=180
+23:15:23.459  [HEARTBEAT] L1N2 CTR=852098 UP=1447s HEAP=180KB LORA=1 MIC=1 BATT=6396mV LVL=1  [BENCH]
+23:15:24.497  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:17
+23:15:25.725  [RX2] type=hb  lane=1 node=1 ctr=1507450 sepoch=290 seq=- rssi=-39 snr=9.80 up=1364 heap=180
+23:15:25.726  [HEARTBEAT] L1N1 CTR=1507450 UP=1364s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:15:27.548  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:17
+23:15:29.985  [SESS] L2N2 epoch 123 -> 124 (prior epoch kept for overlap)
+23:15:29.985  [RX2] type=hb  lane=2 node=2 ctr=196739 sepoch=124 seq=- rssi=-57 snr=10.00 up=1452 heap=180
+23:15:29.986  [HEARTBEAT] L2N2 CTR=196739 UP=1452s HEAP=180KB LORA=1 MIC=1 BATT=8750mV LVL=5  [BENCH]
+23:15:30.590  [EVU] SIM_01 EXPIRED
+23:15:30.591  [DECISION] L1 releasing (EXPIRED)
+23:15:30.591  [ERC TX] RELEASE:LEFT:EXPIRED
+23:15:30.591  [RX2] type=hb  lane=2 node=1 ctr=393347 sepoch=98 seq=- rssi=-69 snr=9.80 up=1456 heap=180
+23:15:30.591  [HEARTBEAT] L2N1 CTR=393347 UP=1456s HEAP=180KB LORA=1 MIC=1 BATT=6979mV LVL=2  [BENCH]
+23:15:30.592  [EVU] SIM_02 EXPIRED
+23:15:30.592  [EVU] SIM_03 EXPIRED
+23:15:30.592  [ERC TX] QUEUE:0
+23:15:34.234  [RX2] type=hb  lane=1 node=2 ctr=852099 sepoch=158 seq=- rssi=-63 snr=9.50 up=1458 heap=180
+23:15:34.234  [HEARTBEAT] L1N2 CTR=852099 UP=1458s HEAP=180KB LORA=1 MIC=1 BATT=6404mV LVL=2  [BENCH]
+23:15:36.058  [RX2] type=hb  lane=1 node=1 ctr=1507451 sepoch=290 seq=- rssi=-38 snr=9.50 up=1374 heap=180
+23:15:36.059  [HEARTBEAT] L1N1 CTR=1507451 UP=1374s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:15:40.965  [RX2] type=hb  lane=2 node=2 ctr=196740 sepoch=124 seq=- rssi=-56 snr=10.20 up=1464 heap=180
+23:15:40.966  [HEARTBEAT] L2N2 CTR=196740 UP=1464s HEAP=180KB LORA=1 MIC=1 BATT=8754mV LVL=5  [BENCH]
+23:15:41.369  [RX2] type=hb  lane=3 node=2 ctr=196738 sepoch=110 seq=- rssi=-38 snr=9.50 up=1430 heap=180
+23:15:41.369  [HEARTBEAT] L3N2 CTR=196738 UP=1430s HEAP=180KB LORA=1 MIC=0 BATT=3051mV LVL=1  [BENCH]
+23:15:41.774  [RX2] type=hb  lane=2 node=1 ctr=393348 sepoch=98 seq=- rssi=-70 snr=10.00 up=1467 heap=180
+23:15:41.775  [HEARTBEAT] L2N1 CTR=393348 UP=1467s HEAP=180KB LORA=1 MIC=1 BATT=6984mV LVL=2  [BENCH]
+23:15:42.180  [RX2] type=hb  lane=3 node=1 ctr=458875 sepoch=424 seq=- rssi=-54 snr=9.50 up=1366 heap=180
+23:15:42.180  [HEARTBEAT] L3N1 CTR=458875 UP=1366s HEAP=180KB LORA=1 MIC=1 BATT=1749mV LVL=1  [BENCH]
+23:15:45.459  [RX2] type=hb  lane=1 node=2 ctr=852100 sepoch=158 seq=- rssi=-64 snr=9.50 up=1469 heap=180
+23:15:45.460  [HEARTBEAT] L1N2 CTR=852100 UP=1469s HEAP=180KB LORA=1 MIC=1 BATT=6410mV LVL=2  [BENCH]
+23:15:47.075  [RX2] type=hb  lane=1 node=1 ctr=1507452 sepoch=290 seq=- rssi=-38 snr=12.50 up=1385 heap=180
+23:15:47.076  [HEARTBEAT] L1N1 CTR=1507452 UP=1385s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:15:50.130  [HEALTH] rejects: ver=0 xsect=0 len=0 node=0 replay=0 mac=0 | dup=0 | mode=SINGLE-NODE-BENCH
+23:15:50.131  [HEALTH] session: revoked=0 nosession=0 epoch=0 nokey=0 overlap=0 | keys=87554f73 | revmask=0x00
+23:15:50.131  [ERC LINK] DOWN  ping=1259 pong=0 lost=1259 (0.0% return) seqmismatch=0  state=IDLE acked=0
+23:15:50.132  [ERC ACK ] operator=0 auto=0 legacy=0 | backstop_fired=0
+23:15:50.132  [PIPE] rx=alive beats=1258697 | w0=alive w1=alive | rxdrop=0 valdrop=0 logdrop=0 maxdepth=1 | per-node drop/max 0/1,0/1,0/1,0/1,0/1,0/1
+23:15:50.132  [PERF] n=12 us(min/mean/max) queue=24/25/27 wait=138/140/146 key=14/19416/116484 hmac=196/257/693 hand=24/457/4868 TOTAL=424/20297/117410
+23:15:50.133  [GEOMETRY]
+23:15:50.133    approach 1 (LEFT): USABLE  sep=100m  ok
+23:15:50.133      N1  FAR     HEALTHY      dist=250m    hash=0x5E5837CE floor=105 live=1356 mic:OK
+23:15:50.133      N2  NEAR    HEALTHY      dist=150m    hash=0x7FD0287D floor=176 live=1439 mic:OK
+23:15:50.133    approach 2 (BOTTOM): USABLE  sep=100m  ok
+23:15:50.133      N1  FAR     HEALTHY      dist=260m    hash=0xE20A570B floor=118 live=1436 mic:OK
+23:15:50.134      N2  NEAR    HEALTHY      dist=160m    hash=0xD14422AB floor=171 live=1433 mic:OK
+23:15:50.134    approach 3 (RIGHT): USABLE  sep=100m  ok
+23:15:50.134      N1  FAR     HEALTHY      dist=270m    hash=0x12C3B55D floor=102 live=1337 mic:OK
+23:15:50.134      N2  NEAR    SUSPECT      dist=170m    hash=0xEBA33961 floor=245 live=1408 mic:FAIL
+23:15:50.134  [TRACKS] none active
+23:15:50.134  [EVU] no tracks
+23:15:50.134  [DECISION] active=none
+23:15:50.135  [SAFETY] wdt=armed  rf=-91dBm base=-98dBm (+6)  link_suspect=0
+23:15:50.135  [HEALTH] queue depth=0 active=0 | L1N1:hb=1,det=--,if2=98.2%(112/114) L1N2:hb=1,det=--,if2=98.2%(112/114) L2N1:hb=1,det=--,if2=94.7%(108/114) L2N2:hb=1,det=--,if2=92.9%(105/113) L3N1:hb=1,det=--,if2=92.0%(104/113) L3N2:hb=1,det=--,if2=96.5%(111/115)
+23:15:51.370  [RX2] type=hb  lane=2 node=2 ctr=196741 sepoch=124 seq=- rssi=-57 snr=10.20 up=1474 heap=180
+23:15:51.371  [HEARTBEAT] L2N2 CTR=196741 UP=1474s HEAP=180KB LORA=1 MIC=1 BATT=8742mV LVL=5  [BENCH]
+23:15:51.776  [RX2] type=hb  lane=3 node=2 ctr=196739 sepoch=110 seq=- rssi=-38 snr=9.50 up=1440 heap=180
+23:15:51.777  [HEARTBEAT] L3N2 CTR=196739 UP=1440s HEAP=180KB LORA=1 MIC=0 BATT=3053mV LVL=1  [BENCH]
+23:15:52.180  [RX2] type=hb  lane=2 node=1 ctr=393349 sepoch=98 seq=- rssi=-70 snr=9.50 up=1478 heap=180
+23:15:52.181  [HEARTBEAT] L2N1 CTR=393349 UP=1478s HEAP=180KB LORA=1 MIC=1 BATT=6988mV LVL=2  [BENCH]
+23:15:53.389  [RX2] type=hb  lane=3 node=1 ctr=458876 sepoch=424 seq=- rssi=-55 snr=9.80 up=1377 heap=180
+23:15:53.390  [HEARTBEAT] L3N1 CTR=458876 UP=1377s HEAP=180KB LORA=1 MIC=1 BATT=1743mV LVL=1  [BENCH]
+23:15:55.812  [RX2] type=hb  lane=1 node=2 ctr=852101 sepoch=158 seq=- rssi=-63 snr=9.50 up=1480 heap=180
+23:15:55.813  [HEARTBEAT] L1N2 CTR=852101 UP=1480s HEAP=180KB LORA=1 MIC=1 BATT=6394mV LVL=1  [BENCH]
+23:15:56.436  >>> simevu 1 clear
+23:15:56.638  [SIMEVU] L1 simulated vehicle removed
+23:15:56.638  [EVU] no tracks
+23:15:57.437  >>> simevu 2 clear
+23:15:57.446  [SIMEVU] L2 simulated vehicle removed
+23:15:57.446  [EVU] no tracks
+23:15:58.438  >>> simevu 3 clear
+23:15:58.459  [SESS] L1N1 epoch 290 -> 291 (prior epoch kept for overlap)
+23:15:58.459  [RX2] type=hb  lane=1 node=1 ctr=1507453 sepoch=291 seq=- rssi=-38 snr=9.50 up=1396 heap=180
+23:15:58.460  [HEARTBEAT] L1N1 CTR=1507453 UP=1396s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:15:58.460  [SIMEVU] L3 simulated vehicle removed
+23:15:58.461  [EVU] no tracks
+23:16:01.701  [RX2] type=hb  lane=2 node=2 ctr=196742 sepoch=124 seq=- rssi=-56 snr=9.80 up=1484 heap=180
+23:16:01.701  [HEARTBEAT] L2N2 CTR=196742 UP=1484s HEAP=180KB LORA=1 MIC=1 BATT=8740mV LVL=5  [BENCH]
+23:16:02.510  [SESS] L3N2 epoch 110 -> 111 (prior epoch kept for overlap)
+23:16:02.511  [RX2] type=hb  lane=3 node=2 ctr=196740 sepoch=111 seq=- rssi=-38 snr=10.00 up=1451 heap=180
+23:16:02.511  [HEARTBEAT] L3N2 CTR=196740 UP=1451s HEAP=180KB LORA=1 MIC=0 BATT=3052mV LVL=1  [BENCH]
+23:16:03.131  [RX2] type=hb  lane=2 node=1 ctr=393350 sepoch=98 seq=- rssi=-68 snr=10.00 up=1489 heap=180
+23:16:03.131  [HEARTBEAT] L2N1 CTR=393350 UP=1489s HEAP=180KB LORA=1 MIC=1 BATT=6986mV LVL=2  [BENCH]
+23:16:04.950  [SESS] L3N1 epoch 424 -> 425 (prior epoch kept for overlap)
+23:16:04.951  [RX2] type=hb  lane=3 node=1 ctr=458877 sepoch=425 seq=- rssi=-54 snr=9.80 up=1389 heap=180
+23:16:04.951  [HEARTBEAT] L3N1 CTR=458877 UP=1389s HEAP=180KB LORA=1 MIC=1 BATT=1747mV LVL=1  [BENCH]
+
+TEST 3 done.
+
+--- 20 s gap before next test ---
+
+======================================================================
+TEST 4 -- divergence / U-turn (S2-09)
+Vehicle turns away mid-approach. DIVERGE_CONFIRM_COUNT consecutive growing fixes are required before the ICU believes it -- one bad fix must NOT release the signal. Expect: track -> DIVERGED, then release.
+approx 75 s
+======================================================================
+23:16:26.982  [RX2] type=hb  lane=3 node=1 ctr=458879 sepoch=425 seq=- rssi=-55 snr=9.50 up=1411 heap=180
+23:16:26.982  [HEARTBEAT] L3N1 CTR=458879 UP=1411s HEAP=180KB LORA=1 MIC=1 BATT=1754mV LVL=1  [BENCH]
+23:16:27.062  >>> simevu 1 clear
+23:16:27.183  [SIMEVU] L1 simulated vehicle removed
+23:16:27.183  [EVU] no tracks
+23:16:27.386  [SESS] L1N2 epoch 158 -> 159 (prior epoch kept for overlap)
+23:16:27.387  [RX2] type=hb  lane=1 node=2 ctr=852104 sepoch=159 seq=- rssi=-60 snr=9.80 up=1511 heap=180
+23:16:27.387  [HEARTBEAT] L1N2 CTR=852104 UP=1511s HEAP=180KB LORA=1 MIC=1 BATT=6398mV LVL=1  [BENCH]
+23:16:30.063  >>> simevu 1 approach 400 40
+23:16:30.225  [SIMEVU] SIM_01 on L1: from 400m at 40 km/h heading 90 (lat 13.026100 lon 77.659308)
+23:16:30.226  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:16:30.226  [EVU] SIM_01 reported by L1N1 with the geofence NOT ENFORCED (bypass=0 pass=0) -- track marked reduced-trust for its lifetime
+23:16:30.226  [EVU] SIM_01 TRACK OPEN  lane=1 pri=2(registry) dist=400m hdg=90 spd=40 eta=41 relayed
+23:16:30.226  [EVU]
+23:16:30.226    SIM_01  ACTIVE    lane=1 pri=2 dist=400m spd=40 hdg=90 eta=41 EVU-RLY  *CLAIM MISMATCH*
+23:16:30.227  [DECISION] L1 ALERT PREPARE evidence=EVU_INDIRECT conf=1.00 eta=-1
+23:16:30.227  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:16:31.064  >>> simevu 1 run 6 2
+23:16:31.237  [SIMEVU] L1 running 6 steps at 2.0s intervals
+23:16:31.237  [EVU]
+23:16:31.237    SIM_01  ACTIVE    lane=1 pri=2 dist=400m spd=40 hdg=90 eta=41 EVU-RLY  *CLAIM MISMATCH*
+23:16:31.238  [SIMEVU] L1 step 2s -> 378m (approaching)
+23:16:31.238  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:16:31.843  [RX2] type=hb  lane=1 node=1 ctr=1507456 sepoch=291 seq=- rssi=-39 snr=11.20 up=1430 heap=180
+23:16:31.843  [HEARTBEAT] L1N1 CTR=1507456 UP=1430s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:16:33.066  [SIMEVU] L1 step 2s -> 356m (approaching)
+23:16:33.268  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:16:33.269  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:16:33.269  [SESS] L2N2 epoch 124 -> 125 (prior epoch kept for overlap)
+23:16:33.269  [RX2] type=hb  lane=2 node=2 ctr=196745 sepoch=125 seq=- rssi=-58 snr=9.80 up=1516 heap=180
+23:16:33.270  [HEARTBEAT] L2N2 CTR=196745 UP=1516s HEAP=180KB LORA=1 MIC=1 BATT=8735mV LVL=5  [BENCH]
+23:16:33.891  [RX2] type=hb  lane=2 node=1 ctr=393353 sepoch=99 seq=- rssi=-69 snr=9.50 up=1520 heap=180
+23:16:33.891  [HEARTBEAT] L2N1 CTR=393353 UP=1520s HEAP=180KB LORA=1 MIC=1 BATT=6973mV LVL=2  [BENCH]
+23:16:34.309  [RX2] type=hb  lane=3 node=2 ctr=196743 sepoch=111 seq=- rssi=-37 snr=10.00 up=1483 heap=180
+23:16:34.310  [HEARTBEAT] L3N2 CTR=196743 UP=1483s HEAP=180KB LORA=1 MIC=0 BATT=3058mV LVL=1  [BENCH]
+23:16:35.118  [SIMEVU] L1 step 2s -> 333m (approaching)
+23:16:35.119  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:16:36.145  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:16:37.158  [SIMEVU] L1 step 2s -> 311m (approaching)
+23:16:37.158  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:16:37.159  [RX2] type=hb  lane=3 node=1 ctr=458880 sepoch=425 seq=- rssi=-53 snr=10.00 up=1421 heap=180
+23:16:37.159  [HEARTBEAT] L3N1 CTR=458880 UP=1421s HEAP=180KB LORA=1 MIC=1 BATT=1751mV LVL=1  [BENCH]
+23:16:37.575  [RX2] type=hb  lane=1 node=2 ctr=852105 sepoch=159 seq=- rssi=-63 snr=9.50 up=1522 heap=180
+23:16:37.576  [HEARTBEAT] L1N2 CTR=852105 UP=1522s HEAP=180KB LORA=1 MIC=1 BATT=6409mV LVL=2  [BENCH]
+23:16:39.206  [SIMEVU] L1 step 2s -> 289m (approaching)
+23:16:39.206  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:16:39.206  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:16:41.239  [SIMEVU] L1 step 2s -> 267m (approaching)
+23:16:41.239  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:16:42.045  [RX2] type=hb  lane=1 node=1 ctr=1507457 sepoch=291 seq=- rssi=-39 snr=9.50 up=1440 heap=180
+23:16:42.046  [HEARTBEAT] L1N1 CTR=1507457 UP=1440s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:16:42.246  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:16:44.064  >>> simevu 1 diverge
+23:16:44.066  [RX2] type=hb  lane=2 node=2 ctr=196746 sepoch=125 seq=- rssi=-54 snr=8.50 up=1527 heap=180
+23:16:44.066  [HEARTBEAT] L2N2 CTR=196746 UP=1527s HEAP=180KB LORA=1 MIC=1 BATT=8732mV LVL=5  [BENCH]
+23:16:44.268  [SIMEVU] L1 U-TURN -- heading now 270, moving away. Divergence needs 3 consecutive growing fixes, so run 'step' at least 3 more times.
+23:16:44.269  [EVU]
+23:16:44.269    SIM_01  ACTIVE    lane=1 pri=2 dist=267m spd=40 hdg=90 eta=27 EVU-RLY  *CLAIM MISMATCH*
+23:16:45.066  >>> simevu 1 run 8 2
+23:16:45.090  [SIMEVU] L1 running 8 steps at 2.0s intervals
+23:16:45.091  [EVU]
+23:16:45.091    SIM_01  ACTIVE    lane=1 pri=2 dist=267m spd=40 hdg=90 eta=27 EVU-RLY  *CLAIM MISMATCH*
+23:16:45.091  [SIMEVU] L1 step 2s -> 289m (departing)
+23:16:45.091  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:16:45.294  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:-1
+23:16:45.296  [RX2] type=hb  lane=3 node=2 ctr=196744 sepoch=111 seq=- rssi=-37 snr=9.50 up=1494 heap=180
+23:16:45.296  [HEARTBEAT] L3N2 CTR=196744 UP=1494s HEAP=180KB LORA=1 MIC=0 BATT=3070mV LVL=1  [BENCH]
+23:16:47.130  [SIMEVU] L1 step 2s -> 311m (departing)
+23:16:47.131  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:16:48.152  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:-1
+23:16:48.556  [RX2] type=hb  lane=1 node=2 ctr=852106 sepoch=159 seq=- rssi=-63 snr=9.80 up=1532 heap=180
+23:16:48.557  [HEARTBEAT] L1N2 CTR=852106 UP=1532s HEAP=180KB LORA=1 MIC=1 BATT=6402mV LVL=2  [BENCH]
+23:16:48.557  [RX2] type=hb  lane=3 node=1 ctr=458881 sepoch=425 seq=- rssi=-54 snr=9.20 up=1432 heap=180
+23:16:48.557  [HEARTBEAT] L3N1 CTR=458881 UP=1432s HEAP=180KB LORA=1 MIC=1 BATT=1744mV LVL=1  [BENCH]
+23:16:49.163  [SIMEVU] L1 step 2s -> 333m (departing)
+23:16:49.164  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:16:49.164  [EVU] SIM_01 DIVERGED -- distance grew over 3 fixes (311m -> 333m)
+23:16:49.164  [DECISION] L1 releasing (DIVERGED)
+23:16:49.164  [ERC TX] RELEASE:LEFT:DIVERGED
+23:16:50.176  [HEALTH] rejects: ver=0 xsect=0 len=0 node=0 replay=0 mac=0 | dup=0 | mode=SINGLE-NODE-BENCH
+23:16:50.176  [HEALTH] session: revoked=0 nosession=0 epoch=0 nokey=0 overlap=0 | keys=87554f73 | revmask=0x00
+23:16:50.176  [ERC LINK] DOWN  ping=1319 pong=0 lost=1319 (0.0% return) seqmismatch=0  state=IDLE acked=0
+23:16:50.176  [ERC ACK ] operator=0 auto=0 legacy=0 | backstop_fired=0
+23:16:50.176  [PIPE] rx=alive beats=1318664 | w0=alive w1=alive | rxdrop=0 valdrop=0 logdrop=0 maxdepth=1 | per-node drop/max 0/1,0/1,0/1,0/1,0/1,0/1
+23:16:50.176  [PERF] n=17 us(min/mean/max) queue=20/23/27 wait=138/142/146 key=5/19964/115767 hmac=117/208/234 hand=14/54/309 TOTAL=379/20393/116417
+23:16:50.177  [GEOMETRY]
+23:16:50.177    approach 1 (LEFT): USABLE  sep=100m  ok
+23:16:50.177      N1  FAR     HEALTHY      dist=250m    hash=0x5E5837CE floor=105 live=1410 mic:OK
+23:16:50.177      N2  NEAR    HEALTHY      dist=150m    hash=0x7FD0287D floor=176 live=1501 mic:OK
+23:16:50.177    approach 2 (BOTTOM): USABLE  sep=100m  ok
+23:16:50.177      N1  FAR     HEALTHY      dist=260m    hash=0xE20A570B floor=116 live=1487 mic:OK
+23:16:50.177      N2  NEAR    HEALTHY      dist=160m    hash=0xD14422AB floor=171 live=1495 mic:OK
+23:16:50.177    approach 3 (RIGHT): USABLE  sep=100m  ok
+23:16:50.177      N1  FAR     HEALTHY      dist=270m    hash=0x12C3B55D floor=103 live=1402 mic:OK
+23:16:50.177      N2  NEAR    SUSPECT      dist=170m    hash=0xEBA33961 floor=245 live=1471 mic:FAIL
+23:16:50.177  [TRACKS] none active
+23:16:50.177  [EVU]
+23:16:50.177    SIM_01  DIVERGED  lane=1 pri=2 dist=333m spd=40 hdg=270 eta=-1 -  *CLAIM MISMATCH*
+23:16:50.177  [DECISION] active=none
+23:16:50.177  [SAFETY] wdt=armed  rf=-92dBm base=-98dBm (+5)  link_suspect=0
+23:16:50.177  [HEALTH] queue depth=0 active=0 | L1N1:hb=1,det=--,if2=98.3%(117/119) L1N2:hb=1,det=--,if2=98.3%(118/120) L2N1:hb=1,det=--,if2=95.0%(113/119) L2N2:hb=1,det=--,if2=92.4%(110/119) L3N1:hb=1,det=--,if2=92.4%(110/119) L3N2:hb=1,det=--,if2=95.9%(116/121)
+23:16:51.188  [SIMEVU] L1 step 2s -> 356m (departing)
+23:16:51.189  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:16:51.189  [EVU] SIM_01 DIVERGED -- distance grew over 4 fixes (333m -> 356m)
+23:16:53.224  [SIMEVU] L1 step 2s -> 378m (departing)
+23:16:53.224  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:16:53.224  [EVU] SIM_01 DIVERGED -- distance grew over 5 fixes (356m -> 378m)
+23:16:53.628  [SESS] L1N1 epoch 291 -> 292 (prior epoch kept for overlap)
+23:16:53.628  [RX2] type=hb  lane=1 node=1 ctr=1507458 sepoch=292 seq=- rssi=-40 snr=10.00 up=1452 heap=180
+23:16:53.629  [HEARTBEAT] L1N1 CTR=1507458 UP=1452s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:16:55.249  [SIMEVU] L1 step 2s -> 400m (departing)
+23:16:55.249  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:16:55.249  [EVU] SIM_01 DIVERGED -- distance grew over 6 fixes (378m -> 400m)
+23:16:55.250  [RX2] type=hb  lane=2 node=2 ctr=196747 sepoch=125 seq=- rssi=-58 snr=10.50 up=1538 heap=180
+23:16:55.250  [HEARTBEAT] L2N2 CTR=196747 UP=1538s HEAP=180KB LORA=1 MIC=1 BATT=8736mV LVL=5  [BENCH]
+23:16:55.465  [RX2] type=hb  lane=2 node=1 ctr=393355 sepoch=99 seq=- rssi=-70 snr=9.80 up=1541 heap=180
+23:16:55.465  [HEARTBEAT] L2N1 CTR=393355 UP=1541s HEAP=180KB LORA=1 MIC=1 BATT=6981mV LVL=2  [BENCH]
+23:16:56.490  [RX2] type=hb  lane=3 node=2 ctr=196745 sepoch=111 seq=- rssi=-38 snr=9.80 up=1505 heap=180
+23:16:56.491  [HEARTBEAT] L3N2 CTR=196745 UP=1505s HEAP=180KB LORA=1 MIC=0 BATT=3082mV LVL=1  [BENCH]
+23:16:57.110  [SIMEVU] L1 step 2s -> 422m (departing)
+23:16:57.111  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:16:57.111  [EVU] SIM_01 DIVERGED -- distance grew over 7 fixes (400m -> 422m)
+23:16:58.726  [RX2] type=hb  lane=3 node=1 ctr=458882 sepoch=425 seq=- rssi=-53 snr=9.20 up=1443 heap=180
+23:16:58.726  [HEARTBEAT] L3N1 CTR=458882 UP=1443s HEAP=180KB LORA=1 MIC=1 BATT=1743mV LVL=1  [BENCH]
+23:16:59.130  [SIMEVU] L1 step 2s -> 444m (departing)
+23:16:59.131  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:16:59.131  [EVU] SIM_01 DIVERGED -- distance grew over 8 fixes (422m -> 444m)
+23:16:59.737  [RX2] type=hb  lane=1 node=2 ctr=852107 sepoch=159 seq=- rssi=-62 snr=10.20 up=1544 heap=180
+23:16:59.737  [HEARTBEAT] L1N2 CTR=852107 UP=1544s HEAP=180KB LORA=1 MIC=1 BATT=6390mV LVL=1  [BENCH]
+23:17:04.378  [RX2] type=hb  lane=1 node=1 ctr=1507459 sepoch=292 seq=- rssi=-39 snr=10.00 up=1463 heap=180
+23:17:04.379  [HEARTBEAT] L1N1 CTR=1507459 UP=1463s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:17:06.414  [RX2] type=hb  lane=2 node=2 ctr=196748 sepoch=125 seq=- rssi=-56 snr=9.80 up=1549 heap=180
+23:17:06.414  [HEARTBEAT] L2N2 CTR=196748 UP=1549s HEAP=180KB LORA=1 MIC=1 BATT=8730mV LVL=5  [BENCH]
+23:17:08.032  [SESS] L3N2 epoch 111 -> 112 (prior epoch kept for overlap)
+23:17:08.033  [RX2] type=hb  lane=3 node=2 ctr=196746 sepoch=112 seq=- rssi=-38 snr=9.50 up=1516 heap=180
+23:17:08.033  [HEARTBEAT] L3N2 CTR=196746 UP=1516s HEAP=180KB LORA=1 MIC=0 BATT=3076mV LVL=1  [BENCH]
+23:17:10.051  [SESS] L3N1 epoch 425 -> 426 (prior epoch kept for overlap)
+23:17:10.052  [RX2] type=hb  lane=3 node=1 ctr=458883 sepoch=426 seq=- rssi=-53 snr=10.00 up=1454 heap=180
+23:17:10.052  [HEARTBEAT] L3N1 CTR=458883 UP=1454s HEAP=180KB LORA=1 MIC=1 BATT=1749mV LVL=1  [BENCH]
+23:17:10.863  [RX2] type=hb  lane=1 node=2 ctr=852108 sepoch=159 seq=- rssi=-63 snr=9.80 up=1555 heap=180
+23:17:10.864  [HEARTBEAT] L1N2 CTR=852108 UP=1555s HEAP=180KB LORA=1 MIC=1 BATT=6386mV LVL=1  [BENCH]
+23:17:15.505  [RX2] type=hb  lane=1 node=1 ctr=1507460 sepoch=292 seq=- rssi=-39 snr=9.80 up=1474 heap=180
+23:17:15.505  [HEARTBEAT] L1N1 CTR=1507460 UP=1474s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:17:18.546  [RX2] type=hb  lane=3 node=2 ctr=196747 sepoch=112 seq=- rssi=-38 snr=9.50 up=1527 heap=180
+23:17:18.547  [HEARTBEAT] L3N2 CTR=196747 UP=1527s HEAP=180KB LORA=1 MIC=0 BATT=3080mV LVL=1  [BENCH]
+23:17:20.165  [HEALTH] rejects: ver=0 xsect=0 len=0 node=0 replay=0 mac=0 | dup=0 | mode=SINGLE-NODE-BENCH
+23:17:20.165  [HEALTH] session: revoked=0 nosession=0 epoch=0 nokey=0 overlap=0 | keys=87554f73 | revmask=0x00
+23:17:20.166  [ERC LINK] DOWN  ping=1349 pong=0 lost=1349 (0.0% return) seqmismatch=0  state=IDLE acked=0
+23:17:20.166  [ERC ACK ] operator=0 auto=0 legacy=0 | backstop_fired=0
+23:17:20.166  [PIPE] rx=alive beats=1348651 | w0=alive w1=alive | rxdrop=0 valdrop=0 logdrop=0 maxdepth=1 | per-node drop/max 0/1,0/1,0/1,0/1,0/1,0/1
+23:17:20.167  [PERF] n=13 us(min/mean/max) queue=22/23/26 wait=137/140/144 key=12/26006/115174 hmac=130/244/616 hand=23/50/186 TOTAL=424/26465/115654
+23:17:20.167  [GEOMETRY]
+23:17:20.167    approach 1 (LEFT): USABLE  sep=100m  ok
+23:17:20.167      N1  FAR     HEALTHY      dist=250m    hash=0x5E5837CE floor=106 live=1443 mic:OK
+23:17:20.167      N2  NEAR    HEALTHY      dist=150m    hash=0x7FD0287D floor=175 live=1523 mic:OK
+23:17:20.167    approach 2 (BOTTOM): USABLE  sep=100m  ok
+23:17:20.168      N1  FAR     HEALTHY      dist=260m    hash=0xE20A570B floor=117 live=1508 mic:OK
+23:17:20.168      N2  NEAR    HEALTHY      dist=160m    hash=0xD14422AB floor=171 live=1517 mic:OK
+23:17:20.168    approach 3 (RIGHT): USABLE  sep=100m  ok
+23:17:20.168      N1  FAR     HEALTHY      dist=270m    hash=0x12C3B55D floor=104 live=1423 mic:OK
+23:17:20.168      N2  NEAR    SUSPECT      dist=170m    hash=0xEBA33961 floor=245 live=1504 mic:FAIL
+23:17:20.168  [TRACKS] none active
+23:17:20.168  [EVU]
+23:17:20.168    SIM_01  DIVERGED  lane=1 pri=2 dist=444m spd=40 hdg=270 eta=-1 -  *CLAIM MISMATCH*
+23:17:20.168  [DECISION] active=none
+23:17:20.168  [SAFETY] wdt=armed  rf=-92dBm base=-98dBm (+5)  link_suspect=0
+23:17:20.168  [HEALTH] queue depth=0 active=0 | L1N1:hb=1,det=--,if2=98.4%(120/122) L1N2:hb=1,det=--,if2=98.4%(120/122) L2N1:hb=1,det=--,if2=94.2%(114/121) L2N2:hb=1,det=--,if2=92.6%(112/121) L3N1:hb=1,det=--,if2=92.6%(112/121) L3N2:hb=1,det=--,if2=96.0%(119/124)
+23:17:20.991  [RX2] type=hb  lane=3 node=1 ctr=458884 sepoch=426 seq=- rssi=-53 snr=10.20 up=1465 heap=180
+23:17:20.992  [HEARTBEAT] L3N1 CTR=458884 UP=1465s HEAP=180KB LORA=1 MIC=1 BATT=1754mV LVL=1  [BENCH]
+23:17:21.396  [RX2] type=hb  lane=1 node=2 ctr=852109 sepoch=159 seq=- rssi=-64 snr=9.50 up=1565 heap=180
+23:17:21.396  [HEARTBEAT] L1N2 CTR=852109 UP=1565s HEAP=180KB LORA=1 MIC=1 BATT=6389mV LVL=1  [BENCH]
+23:17:26.059  [RX2] type=hb  lane=1 node=1 ctr=1507461 sepoch=292 seq=- rssi=-39 snr=9.50 up=1484 heap=180
+23:17:26.059  [HEARTBEAT] L1N1 CTR=1507461 UP=1484s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:17:28.729  [RX2] type=hb  lane=3 node=2 ctr=196748 sepoch=112 seq=- rssi=-33 snr=9.00 up=1537 heap=180
+23:17:28.729  [HEARTBEAT] L3N2 CTR=196748 UP=1537s HEAP=180KB LORA=1 MIC=0 BATT=3089mV LVL=1  [BENCH]
+23:17:31.182  [RX2] type=hb  lane=3 node=1 ctr=458885 sepoch=426 seq=- rssi=-53 snr=9.80 up=1475 heap=180
+23:17:31.182  [HEARTBEAT] L3N1 CTR=458885 UP=1475s HEAP=180KB LORA=1 MIC=1 BATT=1750mV LVL=1  [BENCH]
+23:17:33.401  [SESS] L1N2 epoch 159 -> 160 (prior epoch kept for overlap)
+23:17:33.401  [RX2] type=hb  lane=1 node=2 ctr=852110 sepoch=160 seq=- rssi=-60 snr=10.20 up=1577 heap=180
+23:17:33.401  [HEARTBEAT] L1N2 CTR=852110 UP=1577s HEAP=180KB LORA=1 MIC=1 BATT=6392mV LVL=1  [BENCH]
+23:17:35.439  [HEALTH] L2N1 HEALTHY -> SUSPECT
+23:17:35.440  [ERC TX] HEALTH:2:1:FAR:SUSPECT:260
+23:17:35.440  [ERC] pushed 1 health line(s) this cycle (total=16)
+23:17:36.261  [RX2] type=hb  lane=1 node=1 ctr=1507462 sepoch=292 seq=- rssi=-39 snr=10.00 up=1494 heap=180
+23:17:36.261  [HEARTBEAT] L1N1 CTR=1507462 UP=1494s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:17:37.067  >>> simevu 1 clear
+23:17:37.270  [SIMEVU] L1 simulated vehicle removed
+23:17:37.271  [EVU] no tracks
+23:17:40.095  [RX2] type=hb  lane=3 node=2 ctr=196749 sepoch=112 seq=- rssi=-32 snr=9.80 up=1549 heap=180
+23:17:40.096  [HEARTBEAT] L3N2 CTR=196749 UP=1549s HEAP=180KB LORA=1 MIC=0 BATT=3086mV LVL=1  [BENCH]
+23:17:41.308  [RX2] type=hb  lane=3 node=1 ctr=458886 sepoch=426 seq=- rssi=-53 snr=9.80 up=1485 heap=180
+23:17:41.309  [HEARTBEAT] L3N1 CTR=458886 UP=1485s HEAP=180KB LORA=1 MIC=1 BATT=1743mV LVL=1  [BENCH]
+
+TEST 4 done.
+
+--- 20 s gap before next test ---
+
+======================================================================
+TEST 5 -- implausible position jump (S2-05)
+A correctly SIGNED packet whose CONTENTS are impossible. Authentication must pass and the plausibility check must reject it anyway -- that distinction is the whole point. Expect: jump rejected, track stays at its last good position, and NORMAL stepping resumes afterwards.
+approx 72 s
+======================================================================
+23:18:04.981  [RX2] type=hb  lane=1 node=2 ctr=852113 sepoch=160 seq=- rssi=-64 snr=10.00 up=1609 heap=180
+23:18:04.982  [HEARTBEAT] L1N2 CTR=852113 UP=1609s HEAP=180KB LORA=1 MIC=1 BATT=6370mV LVL=1  [BENCH]
+23:18:05.668  >>> simevu 1 clear
+23:18:05.788  [SIMEVU] L1 simulated vehicle removed
+23:18:05.789  [EVU] no tracks
+23:18:06.394  [HEALTH] L2N2 SUSPECT -> FAILED
+23:18:06.394  [ERC TX] HEALTH:2:2:NEAR:FAILED:160
+23:18:06.394  [ERC] pushed 1 health line(s) this cycle (total=19)
+23:18:06.394  [NODE OFFLINE] L2N2  (heartbeat path silent; any live detections retained until they age out)
+23:18:07.821  [RX2] type=hb  lane=1 node=1 ctr=1507465 sepoch=293 seq=- rssi=-38 snr=9.50 up=1526 heap=180
+23:18:07.822  [HEARTBEAT] L1N1 CTR=1507465 UP=1526s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:18:08.669  >>> simevu 1 approach 400 40
+23:18:08.832  [SIMEVU] SIM_01 on L1: from 400m at 40 km/h heading 90 (lat 13.026100 lon 77.659308)
+23:18:08.832  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:18:08.832  [EVU] SIM_01 reported by L1N1 with the geofence NOT ENFORCED (bypass=0 pass=0) -- track marked reduced-trust for its lifetime
+23:18:08.832  [EVU] SIM_01 TRACK OPEN  lane=1 pri=2(registry) dist=400m hdg=90 spd=40 eta=41 relayed
+23:18:08.832  [EVU]
+23:18:08.832    SIM_01  ACTIVE    lane=1 pri=2 dist=400m spd=40 hdg=90 eta=41 EVU-RLY  *CLAIM MISMATCH*
+23:18:08.832  [DECISION] L1 ALERT PREPARE evidence=EVU_INDIRECT conf=1.00 eta=-1
+23:18:08.832  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:18:09.670  >>> simevu 1 run 6 2
+23:18:09.843  [SIMEVU] L1 running 6 steps at 2.0s intervals
+23:18:09.843  [EVU]
+23:18:09.844    SIM_01  ACTIVE    lane=1 pri=2 dist=400m spd=40 hdg=90 eta=41 EVU-RLY  *CLAIM MISMATCH*
+23:18:09.844  [SIMEVU] L1 step 2s -> 378m (approaching)
+23:18:09.844  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:18:11.863  [SIMEVU] L1 step 2s -> 356m (approaching)
+23:18:11.864  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:18:11.865  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:18:12.890  [RX2] type=hb  lane=3 node=1 ctr=458889 sepoch=427 seq=- rssi=-53 snr=9.50 up=1517 heap=180
+23:18:12.891  [HEARTBEAT] L3N1 CTR=458889 UP=1517s HEAP=180KB LORA=1 MIC=1 BATT=1752mV LVL=1  [BENCH]
+23:18:13.107  [RX2] type=hb  lane=3 node=2 ctr=196752 sepoch=113 seq=- rssi=-38 snr=10.00 up=1582 heap=180
+23:18:13.107  [HEARTBEAT] L3N2 CTR=196752 UP=1582s HEAP=180KB LORA=1 MIC=0 BATT=3077mV LVL=1  [BENCH]
+23:18:13.713  [SIMEVU] L1 step 2s -> 333m (approaching)
+23:18:13.714  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:18:14.725  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:18:15.760  [SIMEVU] L1 step 2s -> 311m (approaching)
+23:18:15.761  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:18:16.988  [RX2] type=hb  lane=1 node=2 ctr=852114 sepoch=160 seq=- rssi=-63 snr=9.80 up=1621 heap=180
+23:18:16.988  [HEARTBEAT] L1N2 CTR=852114 UP=1621s HEAP=180KB LORA=1 MIC=1 BATT=6383mV LVL=1  [BENCH]
+23:18:17.794  [SIMEVU] L1 step 2s -> 289m (approaching)
+23:18:17.794  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:18:17.794  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:18:17.998  [RX2] type=hb  lane=1 node=1 ctr=1507466 sepoch=293 seq=- rssi=-40 snr=9.50 up=1536 heap=180
+23:18:17.999  [HEARTBEAT] L1N1 CTR=1507466 UP=1536s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:18:19.829  [SIMEVU] L1 step 2s -> 267m (approaching)
+23:18:19.830  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:18:20.233  [HEALTH] rejects: ver=0 xsect=0 len=0 node=0 replay=0 mac=0 | dup=0 | mode=SINGLE-NODE-BENCH
+23:18:20.233  [HEALTH] session: revoked=0 nosession=0 epoch=0 nokey=0 overlap=0 | keys=87554f73 | revmask=0x00
+23:18:20.233  [ERC LINK] DOWN  ping=1409 pong=0 lost=1409 (0.0% return) seqmismatch=0  state=IDLE acked=0
+23:18:20.234  [ERC ACK ] operator=0 auto=0 legacy=0 | backstop_fired=0
+23:18:20.234  [PIPE] rx=alive beats=1408629 | w0=alive w1=alive | rxdrop=0 valdrop=0 logdrop=0 maxdepth=1 | per-node drop/max 0/1,0/1,0/1,0/1,0/1,0/1
+23:18:20.234  [PERF] n=12 us(min/mean/max) queue=21/24/29 wait=138/141/145 key=9/28310/114827 hmac=116/211/319 hand=14/32/47 TOTAL=395/28719/115194
+23:18:20.234  [GEOMETRY]
+23:18:20.234    approach 1 (LEFT): USABLE  sep=100m  ok
+23:18:20.234      N1  FAR     HEALTHY      dist=250m    hash=0x5E5837CE floor=108 live=1504 mic:OK
+23:18:20.234      N2  NEAR    HEALTHY      dist=150m    hash=0x7FD0287D floor=175 live=1588 mic:OK
+23:18:20.234    approach 2 (BOTTOM): USABLE  sep=100m  ok
+23:18:20.234      N1  FAR     FAILED       dist=260m    hash=0xE20A570B floor=117 live=1508 mic:OK
+23:18:20.234      N2  NEAR    FAILED       dist=160m    hash=0xD14422AB floor=171 live=1517 mic:OK
+23:18:20.234    approach 3 (RIGHT): USABLE  sep=100m  ok
+23:18:20.235      N1  FAR     HEALTHY      dist=270m    hash=0x12C3B55D floor=104 live=1485 mic:OK
+23:18:20.235      N2  NEAR    SUSPECT      dist=170m    hash=0xEBA33961 floor=245 live=1558 mic:FAIL
+23:18:20.235  [TRACKS] none active
+23:18:20.235  [EVU]
+23:18:20.235    SIM_01  ACTIVE    lane=1 pri=2 dist=267m spd=40 hdg=90 eta=27 EVU-RLY  *CLAIM MISMATCH*
+23:18:20.235  [DECISION] active=LEFT
+23:18:20.235    L1 PREPARE   EVU_INDIRECT         conf=1.00 eta=-1 score=18080273
+23:18:20.235  [SAFETY] wdt=armed  rf=-92dBm base=-98dBm (+5)  link_suspect=0
+23:18:20.235  [HEALTH] queue depth=0 active=0 | L1N1:hb=1,det=--,if2=98.4%(126/128) L1N2:hb=1,det=--,if2=98.4%(126/128) L2N1:hb=0,det=--,if2=94.2%(114/121) L2N2:hb=0,det=--,if2=92.6%(112/121) L3N1:hb=1,det=--,if2=92.9%(118/127) L3N2:hb=1,det=--,if2=96.1%(124/129)
+23:18:20.854  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:18:22.671  >>> simevu 1 teleport 3000
+23:18:22.694  [SIMEVU] L1 TELEPORT: claiming 3267m (really 267m). The packet is correctly signed; only its CONTENTS are impossible.
+23:18:22.694  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:18:22.694  [EVU] SIM_01 IMPLAUSIBLE: moved 3000m in 3001ms at reported 40 km/h (max 162m) -- position rejected
+23:18:22.694  [SIMEVU] L1 vehicle remains at 267m -- a rejected position is one it never moved to.
+23:18:22.695  [EVU]
+23:18:22.695    SIM_01  ACTIVE    lane=1 pri=2 dist=267m spd=40 hdg=90 eta=27 EVU-RLY  *CLAIM MISMATCH*
+23:18:23.904  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:18:24.106  [RX2] type=hb  lane=3 node=1 ctr=458890 sepoch=427 seq=- rssi=-54 snr=9.50 up=1528 heap=180
+23:18:24.107  [HEARTBEAT] L3N1 CTR=458890 UP=1528s HEAP=180KB LORA=1 MIC=1 BATT=1754mV LVL=1  [BENCH]
+23:18:24.672  >>> simevu 1 run 6 2
+23:18:24.712  [SIMEVU] L1 running 6 steps at 2.0s intervals
+23:18:24.712  [EVU]
+23:18:24.712    SIM_01  ACTIVE    lane=1 pri=2 dist=267m spd=40 hdg=90 eta=27 EVU-RLY  *CLAIM MISMATCH*
+23:18:24.712  [SIMEVU] L1 step 2s -> 244m (approaching)
+23:18:24.712  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:18:26.728  [SIMEVU] L1 step 2s -> 222m (approaching)
+23:18:26.728  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:18:26.728  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:18:28.359  [SESS] L1N2 epoch 160 -> 161 (prior epoch kept for overlap)
+23:18:28.359  [RX2] type=hb  lane=1 node=2 ctr=852115 sepoch=161 seq=- rssi=-60 snr=10.00 up=1632 heap=180
+23:18:28.360  [HEARTBEAT] L1N2 CTR=852115 UP=1632s HEAP=180KB LORA=1 MIC=1 BATT=6386mV LVL=1  [BENCH]
+23:18:28.763  [SIMEVU] L1 step 2s -> 200m (approaching)
+23:18:28.764  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:18:29.167  [RX2] type=hb  lane=1 node=1 ctr=1507467 sepoch=293 seq=- rssi=-39 snr=9.80 up=1547 heap=180
+23:18:29.167  [HEARTBEAT] L1N1 CTR=1507467 UP=1547s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:18:29.772  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:18:30.795  [SIMEVU] L1 step 2s -> 178m (approaching)
+23:18:30.795  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:18:32.818  [SIMEVU] L1 step 2s -> 156m (approaching)
+23:18:32.818  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:18:32.818  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:18:34.446  [RX2] type=hb  lane=3 node=2 ctr=196754 sepoch=113 seq=- rssi=-39 snr=9.00 up=1603 heap=180
+23:18:34.447  [HEARTBEAT] L3N2 CTR=196754 UP=1603s HEAP=180KB LORA=1 MIC=0 BATT=3068mV LVL=1  [BENCH]
+23:18:34.849  [SIMEVU] L1 step 2s -> 133m (approaching)
+23:18:34.850  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:18:35.252  [RX2] type=hb  lane=3 node=1 ctr=458891 sepoch=427 seq=- rssi=-53 snr=9.50 up=1539 heap=180
+23:18:35.253  [HEARTBEAT] L3N1 CTR=458891 UP=1539s HEAP=180KB LORA=1 MIC=1 BATT=1752mV LVL=1  [BENCH]
+23:18:35.859  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:18:38.890  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:18:39.496  [RX2] type=hb  lane=1 node=2 ctr=852116 sepoch=161 seq=- rssi=-62 snr=10.20 up=1643 heap=180
+23:18:39.496  [HEARTBEAT] L1N2 CTR=852116 UP=1643s HEAP=180KB LORA=1 MIC=1 BATT=6397mV LVL=1  [BENCH]
+23:18:40.128  [RX2] type=hb  lane=1 node=1 ctr=1507468 sepoch=293 seq=- rssi=-39 snr=9.50 up=1558 heap=180
+23:18:40.128  [HEARTBEAT] L1N1 CTR=1507468 UP=1558s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:18:41.743  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:18:44.797  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:18:45.606  [RX2] type=hb  lane=3 node=2 ctr=196755 sepoch=113 seq=- rssi=-38 snr=9.20 up=1614 heap=180
+23:18:45.607  [HEARTBEAT] L3N2 CTR=196755 UP=1614s HEAP=180KB LORA=1 MIC=0 BATT=3059mV LVL=1  [BENCH]
+23:18:45.808  [RX2] type=hb  lane=3 node=1 ctr=458892 sepoch=427 seq=- rssi=-54 snr=9.80 up=1550 heap=180
+23:18:45.809  [HEARTBEAT] L3N1 CTR=458892 UP=1550s HEAP=180KB LORA=1 MIC=1 BATT=1746mV LVL=1  [BENCH]
+23:18:46.833  [EVU] SIM_01 -> DEGRADED (no packet for 12001ms)
+23:18:46.833  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:13
+23:18:49.876  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:13
+23:18:50.280  [HEALTH] rejects: ver=0 xsect=0 len=0 node=0 replay=0 mac=0 | dup=0 | mode=SINGLE-NODE-BENCH
+23:18:50.280  [HEALTH] session: revoked=0 nosession=0 epoch=0 nokey=0 overlap=0 | keys=87554f73 | revmask=0x00
+23:18:50.280  [ERC LINK] DOWN  ping=1439 pong=0 lost=1439 (0.0% return) seqmismatch=0  state=IDLE acked=0
+23:18:50.280  [ERC ACK ] operator=0 auto=0 legacy=0 | backstop_fired=0
+23:18:50.281  [PIPE] rx=alive beats=1438619 | w0=alive w1=alive | rxdrop=0 valdrop=0 logdrop=0 maxdepth=1 | per-node drop/max 0/1,0/1,0/1,0/1,0/1,0/1
+23:18:50.281  [PERF] n=9 us(min/mean/max) queue=21/24/26 wait=139/144/162 key=12/13100/117794 hmac=199/247/499 hand=34/1284/11192 TOTAL=424/14801/118540
+23:18:50.281  [GEOMETRY]
+23:18:50.281    approach 1 (LEFT): USABLE  sep=100m  ok
+23:18:50.281      N1  FAR     HEALTHY      dist=250m    hash=0x5E5837CE floor=108 live=1526 mic:OK
+23:18:50.281      N2  NEAR    HEALTHY      dist=150m    hash=0x7FD0287D floor=176 live=1610 mic:OK
+23:18:50.281    approach 2 (BOTTOM): USABLE  sep=100m  ok
+23:18:50.281      N1  FAR     FAILED       dist=260m    hash=0xE20A570B floor=117 live=1508 mic:OK
+23:18:50.281      N2  NEAR    FAILED       dist=160m    hash=0xD14422AB floor=171 live=1517 mic:OK
+23:18:50.281    approach 3 (RIGHT): USABLE  sep=100m  ok
+23:18:50.281      N1  FAR     HEALTHY      dist=270m    hash=0x12C3B55D floor=107 live=1517 mic:OK
+23:18:50.281      N2  NEAR    SUSPECT      dist=170m    hash=0xEBA33961 floor=245 live=1590 mic:FAIL
+23:18:50.281  [TRACKS] none active
+23:18:50.281  [EVU]
+23:18:50.281    SIM_01  DEGRADED  lane=1 pri=2 dist=133m spd=40 hdg=90 eta=13 EVU-DEG  *CLAIM MISMATCH*
+23:18:50.281  [DECISION] active=LEFT
+23:18:50.282    L1 PREPARE   EVU_DEGRADED         conf=1.00 eta=13 score=18070286
+23:18:50.282  [SAFETY] wdt=armed  rf=-94dBm base=-98dBm (+4)  link_suspect=0
+23:18:50.282  [HEALTH] queue depth=0 active=0 | L1N1:hb=1,det=--,if2=98.5%(128/130) L1N2:hb=1,det=--,if2=98.5%(128/130) L2N1:hb=0,det=--,if2=94.2%(114/121) L2N2:hb=0,det=--,if2=92.6%(112/121) L3N1:hb=1,det=--,if2=93.1%(121/130) L3N2:hb=1,det=--,if2=95.5%(126/132)
+23:18:50.497  [RX2] type=hb  lane=1 node=2 ctr=852117 sepoch=161 seq=- rssi=-62 snr=9.80 up=1655 heap=180
+23:18:50.497  [HEARTBEAT] L1N2 CTR=852117 UP=1655s HEAP=180KB LORA=1 MIC=1 BATT=6383mV LVL=1  [BENCH]
+23:18:50.900  [SESS] L1N1 epoch 293 -> 294 (prior epoch kept for overlap)
+23:18:50.901  [RX2] type=hb  lane=1 node=1 ctr=1507469 sepoch=294 seq=- rssi=-39 snr=10.00 up=1569 heap=180
+23:18:50.901  [HEARTBEAT] L1N1 CTR=1507469 UP=1569s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:18:52.769  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:13
+23:18:55.801  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:13
+23:18:56.827  [RX2] type=hb  lane=3 node=1 ctr=458893 sepoch=427 seq=- rssi=-53 snr=10.20 up=1561 heap=180
+23:18:56.827  [HEARTBEAT] L3N1 CTR=458893 UP=1561s HEAP=180KB LORA=1 MIC=1 BATT=1751mV LVL=1  [BENCH]
+23:18:57.030  [RX2] type=hb  lane=3 node=2 ctr=196756 sepoch=113 seq=- rssi=-39 snr=9.20 up=1626 heap=180
+23:18:57.031  [HEARTBEAT] L3N2 CTR=196756 UP=1626s HEAP=180KB LORA=1 MIC=0 BATT=3051mV LVL=1  [BENCH]
+23:18:58.861  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:13
+23:19:01.102  [RX2] type=hb  lane=1 node=2 ctr=852118 sepoch=161 seq=- rssi=-61 snr=9.80 up=1665 heap=180
+23:19:01.102  [HEARTBEAT] L1N2 CTR=852118 UP=1665s HEAP=180KB LORA=1 MIC=1 BATT=6363mV LVL=1  [BENCH]
+23:19:01.913  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:13
+23:19:02.519  [RX2] type=hb  lane=1 node=1 ctr=1507470 sepoch=294 seq=- rssi=-39 snr=10.00 up=1581 heap=180
+23:19:02.520  [HEARTBEAT] L1N1 CTR=1507470 UP=1581s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:19:04.766  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:13
+23:19:07.631  [SESS] L2N2 epoch 125 -> 127 (prior epoch kept for overlap)
+23:19:07.632  [RX2] type=hb  lane=2 node=2 ctr=196759 sepoch=127 seq=- rssi=-57 snr=10.00 up=1670 heap=180
+23:19:07.632  [NODE ONLINE] L2N2  *** BENCH BUILD ***
+23:19:07.632  [HEARTBEAT] L2N2 CTR=196759 UP=1670s HEAP=180KB LORA=1 MIC=1 BATT=8743mV LVL=5  [BENCH]
+23:19:07.633  [HEALTH] L2N2 FAILED -> RECOVERING
+23:19:07.633  [ERC TX] HEALTH:2:2:NEAR:RECOVERING:160
+23:19:07.633  [ERC] pushed 1 health line(s) this cycle (total=20)
+23:19:07.633  [HEALTH] L2N2 RECOVERING -> HEALTHY
+23:19:07.633  [ERC TX] HEALTH:2:2:NEAR:HEALTHY:160
+23:19:07.633  [ERC] pushed 1 health line(s) this cycle (total=21)
+23:19:07.848  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:13
+23:19:08.469  [SESS] L3N2 epoch 113 -> 114 (prior epoch kept for overlap)
+23:19:08.470  [RX2] type=hb  lane=3 node=2 ctr=196757 sepoch=114 seq=- rssi=-34 snr=9.80 up=1637 heap=180
+23:19:08.470  [HEARTBEAT] L3N2 CTR=196757 UP=1637s HEAP=180KB LORA=1 MIC=0 BATT=3047mV LVL=1  [BENCH]
+23:19:09.075  [SESS] L3N1 epoch 427 -> 428 (prior epoch kept for overlap)
+23:19:09.075  [RX2] type=hb  lane=3 node=1 ctr=458894 sepoch=428 seq=- rssi=-54 snr=9.50 up=1573 heap=180
+23:19:09.076  [HEARTBEAT] L3N1 CTR=458894 UP=1573s HEAP=180KB LORA=1 MIC=1 BATT=1757mV LVL=1  [BENCH]
+23:19:10.905  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:13
+23:19:12.674  >>> simevu 1 clear
+23:19:12.735  [SIMEVU] L1 simulated vehicle removed
+23:19:12.735  [EVU] no tracks
+23:19:12.735  [DECISION] L1 releasing (EXPIRED)
+23:19:12.735  [ERC TX] RELEASE:LEFT:EXPIRED
+23:19:12.937  [RX2] type=hb  lane=1 node=2 ctr=852119 sepoch=161 seq=- rssi=-62 snr=9.80 up=1677 heap=180
+23:19:12.937  [HEARTBEAT] L1N2 CTR=852119 UP=1677s HEAP=180KB LORA=1 MIC=1 BATT=6366mV LVL=1  [BENCH]
+23:19:13.948  [RX2] type=hb  lane=1 node=1 ctr=1507471 sepoch=294 seq=- rssi=-39 snr=9.80 up=1592 heap=180
+23:19:13.949  [HEARTBEAT] L1N1 CTR=1507471 UP=1592s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:19:18.621  [RX2] type=hb  lane=2 node=2 ctr=196760 sepoch=127 seq=- rssi=-57 snr=9.80 up=1681 heap=180
+23:19:18.621  [HEARTBEAT] L2N2 CTR=196760 UP=1681s HEAP=180KB LORA=1 MIC=1 BATT=8737mV LVL=5  [BENCH]
+23:19:19.027  [RX2] type=hb  lane=3 node=1 ctr=458895 sepoch=428 seq=- rssi=-54 snr=9.00 up=1583 heap=180
+23:19:19.027  [HEARTBEAT] L3N1 CTR=458895 UP=1583s HEAP=180KB LORA=1 MIC=1 BATT=1756mV LVL=1  [BENCH]
+23:19:19.431  [RX2] type=hb  lane=3 node=2 ctr=196758 sepoch=114 seq=- rssi=-38 snr=9.80 up=1648 heap=180
+23:19:19.431  [HEARTBEAT] L3N2 CTR=196758 UP=1648s HEAP=180KB LORA=1 MIC=0 BATT=3035mV LVL=1  [BENCH]
+23:19:19.837  [SESS] L2N1 epoch 99 -> 101 (prior epoch kept for overlap)
+23:19:19.837  [RX2] type=hb  lane=2 node=1 ctr=393368 sepoch=101 seq=- rssi=-69 snr=9.20 up=1685 heap=180
+23:19:19.837  [NODE ONLINE] L2N1  *** BENCH BUILD ***
+23:19:19.837  [HEARTBEAT] L2N1 CTR=393368 UP=1685s HEAP=180KB LORA=1 MIC=1 BATT=6970mV LVL=2  [BENCH]
+23:19:19.837  [HEALTH] L2N1 FAILED -> RECOVERING
+23:19:19.837  [ERC TX] HEALTH:2:1:FAR:RECOVERING:260
+23:19:19.837  [ERC] pushed 1 health line(s) this cycle (total=22)
+23:19:19.837  [HEALTH] L2N1 RECOVERING -> HEALTHY
+23:19:19.837  [ERC TX] HEALTH:2:1:FAR:HEALTHY:260
+23:19:19.837  [ERC] pushed 1 health line(s) this cycle (total=23)
+
+TEST 5 done.
+
+--- 20 s gap before next test ---
+
+======================================================================
+TEST 6 -- speed floor -- vehicle stops mid-approach
+Stopped in traffic. ETA must not run to infinity or bounce; V_FLOOR should hold it to something an officer can read. README section 8 records ETA-from-instantaneous-speed bouncing on the console as a real past defect.
+approx 90 s
+======================================================================
+23:19:40.655  [RX2] type=hb  lane=3 node=1 ctr=458897 sepoch=428 seq=- rssi=-54 snr=9.20 up=1605 heap=180
+23:19:40.655  [HEARTBEAT] L3N1 CTR=458897 UP=1605s HEAP=180KB LORA=1 MIC=1 BATT=1743mV LVL=1  [BENCH]
+23:19:41.264  [RX2] type=hb  lane=3 node=2 ctr=196760 sepoch=114 seq=- rssi=-38 snr=9.50 up=1670 heap=180
+23:19:41.264  [HEARTBEAT] L3N2 CTR=196760 UP=1670s HEAP=180KB LORA=1 MIC=0 BATT=3025mV LVL=1  [BENCH]
+23:19:41.344  >>> simevu 1 clear
+23:19:41.465  [SIMEVU] L1 simulated vehicle removed
+23:19:41.466  [EVU] no tracks
+23:19:42.278  [SESS] L2N2 epoch 127 -> 128 (prior epoch kept for overlap)
+23:19:42.278  [RX2] type=hb  lane=2 node=2 ctr=196762 sepoch=128 seq=- rssi=-57 snr=9.50 up=1705 heap=180
+23:19:42.278  [HEARTBEAT] L2N2 CTR=196762 UP=1705s HEAP=180KB LORA=1 MIC=1 BATT=8733mV LVL=5  [BENCH]
+23:19:43.088  [RX2] type=hb  lane=2 node=1 ctr=393370 sepoch=102 seq=- rssi=-67 snr=10.00 up=1709 heap=180
+23:19:43.088  [HEARTBEAT] L2N1 CTR=393370 UP=1709s HEAP=180KB LORA=1 MIC=1 BATT=6978mV LVL=2  [BENCH]
+23:19:44.345  >>> simevu 1 approach 400 40
+23:19:44.510  [SIMEVU] SIM_01 on L1: from 400m at 40 km/h heading 90 (lat 13.026100 lon 77.659308)
+23:19:44.511  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:19:44.511  [EVU] SIM_01 reported by L1N1 with the geofence NOT ENFORCED (bypass=0 pass=0) -- track marked reduced-trust for its lifetime
+23:19:44.511  [EVU] SIM_01 TRACK OPEN  lane=1 pri=2(registry) dist=400m hdg=90 spd=40 eta=41 relayed
+23:19:44.511  [EVU]
+23:19:44.511    SIM_01  ACTIVE    lane=1 pri=2 dist=400m spd=40 hdg=90 eta=41 EVU-RLY  *CLAIM MISMATCH*
+23:19:44.511  [DECISION] L1 ALERT PREPARE evidence=EVU_INDIRECT conf=1.00 eta=-1
+23:19:44.511  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:19:45.346  >>> simevu 1 run 6 2
+23:19:45.523  [SIMEVU] L1 running 6 steps at 2.0s intervals
+23:19:45.523  [EVU]
+23:19:45.524    SIM_01  ACTIVE    lane=1 pri=2 dist=400m spd=40 hdg=90 eta=41 EVU-RLY  *CLAIM MISMATCH*
+23:19:45.524  [SIMEVU] L1 step 2s -> 378m (approaching)
+23:19:45.524  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:19:46.347  [RX2] type=hb  lane=1 node=1 ctr=1507474 sepoch=294 seq=- rssi=-40 snr=9.80 up=1625 heap=180
+23:19:46.348  [HEARTBEAT] L1N1 CTR=1507474 UP=1625s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:19:47.358  [SIMEVU] L1 step 2s -> 356m (approaching)
+23:19:47.359  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:19:47.560  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:19:47.561  [RX2] type=hb  lane=1 node=2 ctr=852122 sepoch=162 seq=- rssi=-63 snr=9.20 up=1711 heap=180
+23:19:47.561  [HEARTBEAT] L1N2 CTR=852122 UP=1711s HEAP=180KB LORA=1 MIC=1 BATT=6367mV LVL=1  [BENCH]
+23:19:49.410  [SIMEVU] L1 step 2s -> 333m (approaching)
+23:19:49.411  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:19:50.218  [HEALTH] rejects: ver=0 xsect=0 len=0 node=0 replay=0 mac=0 | dup=0 | mode=SINGLE-NODE-BENCH
+23:19:50.219  [HEALTH] session: revoked=0 nosession=0 epoch=0 nokey=0 overlap=0 | keys=87554f73 | revmask=0x00
+23:19:50.220  [ERC LINK] DOWN  ping=1499 pong=0 lost=1499 (0.0% return) seqmismatch=0  state=IDLE acked=0
+23:19:50.220  [ERC ACK ] operator=0 auto=0 legacy=0 | backstop_fired=0
+23:19:50.220  [PIPE] rx=alive beats=1498594 | w0=alive w1=alive | rxdrop=0 valdrop=0 logdrop=0 maxdepth=1 | per-node drop/max 0/1,0/1,0/1,0/1,0/1,0/1
+23:19:50.220  [PERF] n=11 us(min/mean/max) queue=20/23/26 wait=136/140/146 key=7/30580/112938 hmac=118/196/231 hand=22/979/10401 TOTAL=376/31920/113436
+23:19:50.221  [GEOMETRY]
+23:19:50.221    approach 1 (LEFT): USABLE  sep=100m  ok
+23:19:50.221      N1  FAR     HEALTHY      dist=250m    hash=0x5E5837CE floor=107 live=1591 mic:OK
+23:19:50.221      N2  NEAR    HEALTHY      dist=150m    hash=0x7FD0287D floor=176 live=1677 mic:OK
+23:19:50.221    approach 2 (BOTTOM): USABLE  sep=100m  ok
+23:19:50.222      N1  FAR     HEALTHY      dist=260m    hash=0xE20A570B floor=119 live=1673 mic:OK
+23:19:50.222      N2  NEAR    HEALTHY      dist=160m    hash=0xD14422AB floor=171 live=1670 mic:OK
+23:19:50.222    approach 3 (RIGHT): USABLE  sep=100m  ok
+23:19:50.222      N1  FAR     HEALTHY      dist=270m    hash=0x12C3B55D floor=106 live=1571 mic:OK
+23:19:50.222      N2  NEAR    SUSPECT      dist=170m    hash=0xEBA33961 floor=245 live=1645 mic:FAIL
+23:19:50.222  [TRACKS] none active
+23:19:50.222  [EVU]
+23:19:50.222    SIM_01  ACTIVE    lane=1 pri=2 dist=333m spd=40 hdg=90 eta=34 EVU-RLY  *CLAIM MISMATCH*
+23:19:50.223  [DECISION] active=LEFT
+23:19:50.223    L1 PREPARE   EVU_INDIRECT         conf=1.00 eta=-1 score=18080266
+23:19:50.223  [SAFETY] wdt=armed  rf=-94dBm base=-98dBm (+3)  link_suspect=0
+23:19:50.223  [HEALTH] queue depth=0 active=0 | L1N1:hb=1,det=--,if2=97.8%(133/136) L1N2:hb=1,det=--,if2=97.8%(133/136) L2N1:hb=1,det=--,if2=86.0%(117/136) L2N2:hb=1,det=--,if2=85.2%(115/135) L3N1:hb=1,det=--,if2=93.3%(126/135) L3N2:hb=1,det=--,if2=95.6%(131/137)
+23:19:50.436  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:19:51.448  [SIMEVU] L1 step 2s -> 311m (approaching)
+23:19:51.448  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:19:51.651  [RX2] type=hb  lane=3 node=1 ctr=458898 sepoch=428 seq=- rssi=-54 snr=9.20 up=1615 heap=180
+23:19:51.652  [HEARTBEAT] L3N1 CTR=458898 UP=1615s HEAP=180KB LORA=1 MIC=1 BATT=1748mV LVL=1  [BENCH]
+23:19:52.474  [RX2] type=hb  lane=3 node=2 ctr=196761 sepoch=114 seq=- rssi=-38 snr=9.20 up=1681 heap=180
+23:19:52.474  [HEARTBEAT] L3N2 CTR=196761 UP=1681s HEAP=180KB LORA=1 MIC=0 BATT=3030mV LVL=1  [BENCH]
+23:19:53.282  [RX2] type=hb  lane=2 node=2 ctr=196763 sepoch=128 seq=- rssi=-58 snr=9.80 up=1716 heap=180
+23:19:53.282  [HEARTBEAT] L2N2 CTR=196763 UP=1716s HEAP=180KB LORA=1 MIC=1 BATT=8740mV LVL=5  [BENCH]
+23:19:53.498  [SIMEVU] L1 step 2s -> 289m (approaching)
+23:19:53.499  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:19:53.499  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:19:54.310  [RX2] type=hb  lane=2 node=1 ctr=393371 sepoch=102 seq=- rssi=-68 snr=9.80 up=1720 heap=180
+23:19:54.310  [HEARTBEAT] L2N1 CTR=393371 UP=1720s HEAP=180KB LORA=1 MIC=1 BATT=6971mV LVL=2  [BENCH]
+23:19:55.523  [SIMEVU] L1 step 2s -> 267m (approaching)
+23:19:55.523  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:19:56.535  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:19:57.748  [SESS] L1N1 epoch 294 -> 295 (prior epoch kept for overlap)
+23:19:57.748  [RX2] type=hb  lane=1 node=1 ctr=1507475 sepoch=295 seq=- rssi=-38 snr=9.80 up=1636 heap=180
+23:19:57.749  [HEARTBEAT] L1N1 CTR=1507475 UP=1636s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:19:58.347  >>> simevu 1 speed 0
+23:19:58.355  [SIMEVU] L1 speed now 0 km/h at 267m. The rolling mean takes a few fixes to follow, which is the point -- run 'step' or 'run' to feed it.
+23:19:58.355  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:19:58.356  [EVU]
+23:19:58.356    SIM_01  ACTIVE    lane=1 pri=2 dist=267m spd=0 hdg=90 eta=36 EVU-RLY  *CLAIM MISMATCH*
+23:19:58.760  [RX2] type=hb  lane=1 node=2 ctr=852123 sepoch=162 seq=- rssi=-63 snr=9.50 up=1723 heap=180
+23:19:58.760  [HEARTBEAT] L1N2 CTR=852123 UP=1723s HEAP=180KB LORA=1 MIC=1 BATT=6361mV LVL=1  [BENCH]
+23:19:59.348  >>> simevu 1 run 8 2
+23:19:59.379  [SIMEVU] L1 running 8 steps at 2.0s intervals
+23:19:59.380  [EVU]
+23:19:59.380    SIM_01  ACTIVE    lane=1 pri=2 dist=267m spd=0 hdg=90 eta=36 EVU-RLY  *CLAIM MISMATCH*
+23:19:59.380  [SIMEVU] L1 step 2s -> 267m (approaching)
+23:19:59.380  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:19:59.581  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:20:01.404  [SIMEVU] L1 step 2s -> 267m (approaching)
+23:20:01.405  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:20:02.416  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:20:03.021  [SESS] L3N1 epoch 428 -> 429 (prior epoch kept for overlap)
+23:20:03.022  [RX2] type=hb  lane=3 node=1 ctr=458899 sepoch=429 seq=- rssi=-53 snr=9.20 up=1627 heap=180
+23:20:03.022  [HEARTBEAT] L3N1 CTR=458899 UP=1627s HEAP=180KB LORA=1 MIC=1 BATT=1752mV LVL=1  [BENCH]
+23:20:03.427  [SIMEVU] L1 step 2s -> 267m (approaching)
+23:20:03.427  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:20:03.643  [SESS] L3N2 epoch 114 -> 115 (prior epoch kept for overlap)
+23:20:03.643  [RX2] type=hb  lane=3 node=2 ctr=196762 sepoch=115 seq=- rssi=-38 snr=11.80 up=1692 heap=180
+23:20:03.644  [HEARTBEAT] L3N2 CTR=196762 UP=1692s HEAP=180KB LORA=1 MIC=0 BATT=3036mV LVL=1  [BENCH]
+23:20:04.469  [RX2] type=hb  lane=2 node=2 ctr=196764 sepoch=128 seq=- rssi=-56 snr=9.80 up=1727 heap=180
+23:20:04.470  [HEARTBEAT] L2N2 CTR=196764 UP=1727s HEAP=180KB LORA=1 MIC=1 BATT=8728mV LVL=5  [BENCH]
+23:20:05.478  [RX2] type=hb  lane=2 node=1 ctr=393372 sepoch=102 seq=- rssi=-69 snr=9.50 up=1731 heap=180
+23:20:05.478  [HEARTBEAT] L2N1 CTR=393372 UP=1731s HEAP=180KB LORA=1 MIC=1 BATT=6966mV LVL=2  [BENCH]
+23:20:05.479  [SIMEVU] L1 step 2s -> 267m (approaching)
+23:20:05.479  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:20:05.479  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:20:07.502  [SIMEVU] L1 step 2s -> 267m (approaching)
+23:20:07.502  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:20:08.514  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:20:08.918  [RX2] type=hb  lane=1 node=1 ctr=1507476 sepoch=295 seq=- rssi=-38 snr=9.80 up=1647 heap=180
+23:20:08.918  [HEARTBEAT] L1N1 CTR=1507476 UP=1647s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:20:09.539  [SIMEVU] L1 step 2s -> 267m (approaching)
+23:20:09.539  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:20:09.754  [RX2] type=hb  lane=1 node=2 ctr=852124 sepoch=162 seq=- rssi=-61 snr=11.00 up=1734 heap=180
+23:20:09.754  [HEARTBEAT] L1N2 CTR=852124 UP=1734s HEAP=180KB LORA=1 MIC=1 BATT=6362mV LVL=1  [BENCH]
+23:20:11.372  [SIMEVU] L1 step 2s -> 267m (approaching)
+23:20:11.372  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:20:11.588  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:20:13.404  [SIMEVU] L1 step 2s -> 267m (approaching)
+23:20:13.405  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:20:14.418  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:20:14.822  [RX2] type=hb  lane=3 node=2 ctr=196763 sepoch=115 seq=- rssi=-37 snr=9.50 up=1703 heap=180
+23:20:14.823  [HEARTBEAT] L3N2 CTR=196763 UP=1703s HEAP=180KB LORA=1 MIC=0 BATT=3045mV LVL=1  [BENCH]
+23:20:15.630  [RX2] type=hb  lane=2 node=2 ctr=196765 sepoch=128 seq=- rssi=-56 snr=9.50 up=1738 heap=180
+23:20:15.630  [HEARTBEAT] L2N2 CTR=196765 UP=1738s HEAP=180KB LORA=1 MIC=1 BATT=8724mV LVL=5  [BENCH]
+23:20:16.641  [RX2] type=hb  lane=2 node=1 ctr=393373 sepoch=102 seq=- rssi=-74 snr=9.50 up=1742 heap=180
+23:20:16.641  [HEARTBEAT] L2N1 CTR=393373 UP=1742s HEAP=180KB LORA=1 MIC=1 BATT=6963mV LVL=2  [BENCH]
+23:20:17.454  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:20:19.895  [RX2] type=hb  lane=1 node=1 ctr=1507477 sepoch=295 seq=- rssi=-39 snr=10.00 up=1658 heap=180
+23:20:19.895  [HEARTBEAT] L1N1 CTR=1507477 UP=1658s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:20:20.097  [HEALTH] rejects: ver=0 xsect=0 len=0 node=0 replay=0 mac=0 | dup=0 | mode=SINGLE-NODE-BENCH
+23:20:20.098  [HEALTH] session: revoked=0 nosession=0 epoch=0 nokey=0 overlap=0 | keys=87554f73 | revmask=0x00
+23:20:20.098  [ERC LINK] DOWN  ping=1529 pong=0 lost=1529 (0.0% return) seqmismatch=0  state=IDLE acked=0
+23:20:20.098  [ERC ACK ] operator=0 auto=0 legacy=0 | backstop_fired=0
+23:20:20.098  [PIPE] rx=alive beats=1528578 | w0=alive w1=alive | rxdrop=0 valdrop=0 logdrop=0 maxdepth=1 | per-node drop/max 0/1,0/1,0/1,0/1,0/1,0/1
+23:20:20.098  [PERF] n=16 us(min/mean/max) queue=21/24/30 wait=139/143/147 key=13/21823/118781 hmac=128/222/257 hand=15/80/378 TOTAL=396/22293/119445
+23:20:20.099  [GEOMETRY]
+23:20:20.099    approach 1 (LEFT): USABLE  sep=100m  ok
+23:20:20.099      N1  FAR     HEALTHY      dist=250m    hash=0x5E5837CE floor=105 live=1624 mic:OK
+23:20:20.099      N2  NEAR    HEALTHY      dist=150m    hash=0x7FD0287D floor=175 live=1699 mic:OK
+23:20:20.099    approach 2 (BOTTOM): USABLE  sep=100m  ok
+23:20:20.099      N1  FAR     HEALTHY      dist=260m    hash=0xE20A570B floor=118 live=1706 mic:OK
+23:20:20.099      N2  NEAR    HEALTHY      dist=160m    hash=0xD14422AB floor=171 live=1703 mic:OK
+23:20:20.099    approach 3 (RIGHT): USABLE  sep=100m  ok
+23:20:20.099      N1  FAR     HEALTHY      dist=270m    hash=0x12C3B55D floor=104 live=1593 mic:OK
+23:20:20.099      N2  NEAR    SUSPECT      dist=170m    hash=0xEBA33961 floor=245 live=1678 mic:FAIL
+23:20:20.099  [TRACKS] none active
+23:20:20.099  [EVU]
+23:20:20.099    SIM_01  ACTIVE    lane=1 pri=2 dist=267m spd=0 hdg=90 eta=-1 EVU-RLY  *CLAIM MISMATCH*
+23:20:20.099  [DECISION] active=LEFT
+23:20:20.099    L1 PREPARE   EVU_INDIRECT         conf=1.00 eta=-1 score=18080273
+23:20:20.099  [SAFETY] wdt=armed  rf=-94dBm base=-98dBm (+4)  link_suspect=0
+23:20:20.099  [HEALTH] queue depth=0 active=0 | L1N1:hb=1,det=--,if2=97.8%(136/139) L1N2:hb=1,det=--,if2=97.8%(135/138) L2N1:hb=1,det=--,if2=86.3%(120/139) L2N2:hb=1,det=--,if2=85.5%(118/138) L3N1:hb=1,det=--,if2=93.4%(128/137) L3N2:hb=1,det=--,if2=95.7%(134/140)
+23:20:20.504  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:20:21.114  [RX2] type=hb  lane=1 node=2 ctr=852125 sepoch=162 seq=- rssi=-65 snr=9.20 up=1745 heap=180
+23:20:21.114  [HEARTBEAT] L1N2 CTR=852125 UP=1745s HEAP=180KB LORA=1 MIC=1 BATT=6379mV LVL=1  [BENCH]
+23:20:23.552  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:20:25.376  [EVU] SIM_01 -> DEGRADED (no packet for 12001ms)
+23:20:25.580  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:-1
+23:20:25.985  [RX2] type=hb  lane=3 node=2 ctr=196764 sepoch=115 seq=- rssi=-38 snr=9.50 up=1714 heap=180
+23:20:25.985  [HEARTBEAT] L3N2 CTR=196764 UP=1714s HEAP=180KB LORA=1 MIC=0 BATT=3034mV LVL=1  [BENCH]
+23:20:26.998  [SESS] L2N2 epoch 128 -> 129 (prior epoch kept for overlap)
+23:20:26.998  [RX2] type=hb  lane=2 node=2 ctr=196766 sepoch=129 seq=- rssi=-58 snr=9.50 up=1749 heap=180
+23:20:26.998  [HEARTBEAT] L2N2 CTR=196766 UP=1749s HEAP=180KB LORA=1 MIC=1 BATT=8722mV LVL=5  [BENCH]
+23:20:27.811  [SESS] L2N1 epoch 102 -> 103 (prior epoch kept for overlap)
+23:20:27.811  [RX2] type=hb  lane=2 node=1 ctr=393374 sepoch=103 seq=- rssi=-73 snr=9.50 up=1754 heap=180
+23:20:27.811  [HEARTBEAT] L2N1 CTR=393374 UP=1754s HEAP=180KB LORA=1 MIC=1 BATT=6969mV LVL=2  [BENCH]
+23:20:28.419  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:-1
+23:20:30.461  [RX2] type=hb  lane=1 node=1 ctr=1507478 sepoch=295 seq=- rssi=-39 snr=9.80 up=1669 heap=180
+23:20:30.461  [HEARTBEAT] L1N1 CTR=1507478 UP=1669s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:20:31.470  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:-1
+23:20:32.275  [SESS] L1N2 epoch 162 -> 163 (prior epoch kept for overlap)
+23:20:32.276  [RX2] type=hb  lane=1 node=2 ctr=852126 sepoch=163 seq=- rssi=-65 snr=10.20 up=1756 heap=180
+23:20:32.276  [HEARTBEAT] L1N2 CTR=852126 UP=1756s HEAP=180KB LORA=1 MIC=1 BATT=6384mV LVL=1  [BENCH]
+23:20:34.514  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:-1
+23:20:37.541  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:-1
+23:20:37.947  [RX2] type=hb  lane=2 node=2 ctr=196767 sepoch=129 seq=- rssi=-56 snr=10.00 up=1761 heap=180
+23:20:37.947  [HEARTBEAT] L2N2 CTR=196767 UP=1761s HEAP=180KB LORA=1 MIC=1 BATT=8721mV LVL=5  [BENCH]
+23:20:38.956  [RX2] type=hb  lane=2 node=1 ctr=393375 sepoch=103 seq=- rssi=-70 snr=9.80 up=1765 heap=180
+23:20:38.957  [HEARTBEAT] L2N1 CTR=393375 UP=1765s HEAP=180KB LORA=1 MIC=1 BATT=6973mV LVL=2  [BENCH]
+23:20:40.582  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:-1
+23:20:41.404  [RX2] type=hb  lane=1 node=1 ctr=1507479 sepoch=295 seq=- rssi=-39 snr=9.80 up=1680 heap=180
+23:20:41.405  [HEARTBEAT] L1N1 CTR=1507479 UP=1680s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:20:43.019  [HEALTH] L3N1 HEALTHY -> SUSPECT
+23:20:43.019  [ERC TX] HEALTH:3:1:FAR:SUSPECT:270
+23:20:43.019  [ERC] pushed 1 health line(s) this cycle (total=24)
+23:20:43.423  [RX2] type=hb  lane=1 node=2 ctr=852127 sepoch=163 seq=- rssi=-63 snr=10.00 up=1767 heap=180
+23:20:43.423  [HEARTBEAT] L1N2 CTR=852127 UP=1767s HEAP=180KB LORA=1 MIC=1 BATT=6387mV LVL=1  [BENCH]
+23:20:43.424  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:-1
+23:20:46.467  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:-1
+23:20:47.272  [RX2] type=hb  lane=3 node=2 ctr=196766 sepoch=115 seq=- rssi=-38 snr=10.00 up=1736 heap=180
+23:20:47.273  [HEARTBEAT] L3N2 CTR=196766 UP=1736s HEAP=180KB LORA=1 MIC=0 BATT=3015mV LVL=1  [BENCH]
+23:20:47.474  [RX2] type=hb  lane=3 node=1 ctr=458903 sepoch=429 seq=- rssi=-53 snr=9.20 up=1671 heap=180
+23:20:47.474  [HEARTBEAT] L3N1 CTR=458903 UP=1671s HEAP=180KB LORA=1 MIC=1 BATT=1745mV LVL=1  [BENCH]
+23:20:47.475  [HEALTH] L3N1 SUSPECT -> HEALTHY
+23:20:47.689  [ERC TX] HEALTH:3:1:FAR:HEALTHY:270
+23:20:47.690  [ERC] pushed 1 health line(s) this cycle (total=25)
+23:20:49.105  [RX2] type=hb  lane=2 node=2 ctr=196768 sepoch=129 seq=- rssi=-57 snr=9.80 up=1772 heap=180
+23:20:49.105  [HEARTBEAT] L2N2 CTR=196768 UP=1772s HEAP=180KB LORA=1 MIC=1 BATT=8722mV LVL=5  [BENCH]
+23:20:49.508  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:-1
+23:20:50.112  [RX2] type=hb  lane=2 node=1 ctr=393376 sepoch=103 seq=- rssi=-69 snr=10.00 up=1776 heap=180
+23:20:50.113  [HEARTBEAT] L2N1 CTR=393376 UP=1776s HEAP=180KB LORA=1 MIC=1 BATT=6972mV LVL=2  [BENCH]
+23:20:50.113  [HEALTH] rejects: ver=0 xsect=0 len=0 node=0 replay=0 mac=0 | dup=0 | mode=SINGLE-NODE-BENCH
+23:20:50.113  [HEALTH] session: revoked=0 nosession=0 epoch=0 nokey=0 overlap=0 | keys=87554f73 | revmask=0x00
+23:20:50.114  [ERC LINK] DOWN  ping=1559 pong=0 lost=1559 (0.0% return) seqmismatch=0  state=IDLE acked=0
+23:20:50.114  [ERC ACK ] operator=0 auto=0 legacy=0 | backstop_fired=0
+23:20:50.114  [PIPE] rx=alive beats=1558564 | w0=alive w1=alive | rxdrop=0 valdrop=0 logdrop=0 maxdepth=1 | per-node drop/max 0/1,0/1,0/1,0/1,0/1,0/1
+23:20:50.114  [PERF] n=14 us(min/mean/max) queue=23/24/28 wait=139/142/149 key=12/24594/115928 hmac=158/259/749 hand=19/55/248 TOTAL=422/25077/116502
+23:20:50.115  [GEOMETRY]
+23:20:50.115    approach 1 (LEFT): USABLE  sep=100m  ok
+23:20:50.115      N1  FAR     HEALTHY      dist=250m    hash=0x5E5837CE floor=105 live=1645 mic:OK
+23:20:50.115      N2  NEAR    HEALTHY      dist=150m    hash=0x7FD0287D floor=175 live=1732 mic:OK
+23:20:50.115    approach 2 (BOTTOM): USABLE  sep=100m  ok
+23:20:50.116      N1  FAR     HEALTHY      dist=260m    hash=0xE20A570B floor=117 live=1739 mic:OK
+23:20:50.116      N2  NEAR    HEALTHY      dist=160m    hash=0xD14422AB floor=171 live=1736 mic:OK
+23:20:50.116    approach 3 (RIGHT): USABLE  sep=100m  ok
+23:20:50.116      N1  FAR     HEALTHY      dist=270m    hash=0x12C3B55D floor=102 live=1637 mic:OK
+23:20:50.116      N2  NEAR    SUSPECT      dist=170m    hash=0xEBA33961 floor=245 live=1710 mic:FAIL
+23:20:50.116  [TRACKS] none active
+23:20:50.116  [EVU]
+23:20:50.117    SIM_01  DEGRADED  lane=1 pri=2 dist=267m spd=0 hdg=90 eta=-1 EVU-DEG  *CLAIM MISMATCH*
+23:20:50.117  [DECISION] active=LEFT
+23:20:50.117    L1 PREPARE   EVU_DEGRADED         conf=1.00 eta=-1 score=18070273
+23:20:50.117  [SAFETY] wdt=armed  rf=-94dBm base=-98dBm (+4)  link_suspect=0
+23:20:50.117  [HEALTH] queue depth=0 active=0 | L1N1:hb=1,det=--,if2=97.9%(138/141) L1N2:hb=1,det=--,if2=97.9%(138/141) L2N1:hb=1,det=--,if2=86.6%(123/142) L2N2:hb=1,det=--,if2=85.8%(121/141) L3N1:hb=1,det=--,if2=91.5%(129/141) L3N2:hb=1,det=--,if2=95.1%(136/143)
+23:20:51.350  >>> simevu 1 speed 40
+23:20:51.545  [SIMEVU] L1 speed now 40 km/h at 267m. The rolling mean takes a few fixes to follow, which is the point -- run 'step' or 'run' to feed it.
+23:20:51.546  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:20:51.546  [EVU]
+23:20:51.546    SIM_01  ACTIVE    lane=1 pri=2 dist=267m spd=40 hdg=90 eta=110 EVU-RLY  *CLAIM MISMATCH*
+23:20:51.546  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:20:52.351  >>> simevu 1 run 6 2
+23:20:52.354  [SIMEVU] L1 running 6 steps at 2.0s intervals
+23:20:52.354  [EVU]
+23:20:52.355    SIM_01  ACTIVE    lane=1 pri=2 dist=267m spd=40 hdg=90 eta=110 EVU-RLY  *CLAIM MISMATCH*
+23:20:52.558  [SIMEVU] L1 step 2s -> 244m (approaching)
+23:20:52.558  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:20:52.773  [SESS] L1N1 epoch 295 -> 296 (prior epoch kept for overlap)
+23:20:52.774  [RX2] type=hb  lane=1 node=1 ctr=1507480 sepoch=296 seq=- rssi=-39 snr=11.80 up=1691 heap=180
+23:20:52.774  [HEARTBEAT] L1N1 CTR=1507480 UP=1691s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:20:54.394  [SIMEVU] L1 step 2s -> 222m (approaching)
+23:20:54.395  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:20:54.597  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:20:54.597  [RX2] type=hb  lane=1 node=2 ctr=852128 sepoch=163 seq=- rssi=-64 snr=9.50 up=1779 heap=180
+23:20:54.597  [HEARTBEAT] L1N2 CTR=852128 UP=1779s HEAP=180KB LORA=1 MIC=1 BATT=6372mV LVL=1  [BENCH]
+23:20:56.417  [SIMEVU] L1 step 2s -> 200m (approaching)
+23:20:56.417  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:20:57.433  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:20:58.240  [RX2] type=hb  lane=3 node=2 ctr=196767 sepoch=115 seq=- rssi=-37 snr=9.80 up=1747 heap=180
+23:20:58.241  [HEARTBEAT] L3N2 CTR=196767 UP=1747s HEAP=180KB LORA=1 MIC=0 BATT=3010mV LVL=1  [BENCH]
+23:20:58.442  [SIMEVU] L1 step 2s -> 178m (approaching)
+23:20:58.442  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:20:59.049  [RX2] type=hb  lane=3 node=1 ctr=458904 sepoch=429 seq=- rssi=-55 snr=9.50 up=1683 heap=180
+23:20:59.049  [HEARTBEAT] L3N1 CTR=458904 UP=1683s HEAP=180KB LORA=1 MIC=1 BATT=1750mV LVL=1  [BENCH]
+23:21:00.262  [RX2] type=hb  lane=2 node=2 ctr=196769 sepoch=129 seq=- rssi=-56 snr=9.80 up=1783 heap=180
+23:21:00.263  [HEARTBEAT] L2N2 CTR=196769 UP=1783s HEAP=180KB LORA=1 MIC=1 BATT=8717mV LVL=5  [BENCH]
+23:21:00.465  [SIMEVU] L1 step 2s -> 156m (approaching)
+23:21:00.465  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:21:00.466  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:21:01.274  [RX2] type=hb  lane=2 node=1 ctr=393377 sepoch=103 seq=- rssi=-71 snr=9.80 up=1787 heap=180
+23:21:01.275  [HEARTBEAT] L2N1 CTR=393377 UP=1787s HEAP=180KB LORA=1 MIC=1 BATT=6966mV LVL=2  [BENCH]
+23:21:02.485  [SIMEVU] L1 step 2s -> 133m (approaching)
+23:21:02.486  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:21:03.499  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:21:04.107  [RX2] type=hb  lane=1 node=1 ctr=1507481 sepoch=296 seq=- rssi=-39 snr=9.50 up=1702 heap=180
+23:21:04.107  [HEARTBEAT] L1N1 CTR=1507481 UP=1702s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:21:05.729  [RX2] type=hb  lane=1 node=2 ctr=852129 sepoch=163 seq=- rssi=-63 snr=9.80 up=1790 heap=180
+23:21:05.729  [HEARTBEAT] L1N2 CTR=852129 UP=1790s HEAP=180KB LORA=1 MIC=1 BATT=6361mV LVL=1  [BENCH]
+23:21:06.353  >>> simevu 1 clear
+23:21:06.543  [SIMEVU] L1 simulated vehicle removed
+23:21:06.544  [EVU] no tracks
+23:21:06.544  [DECISION] L1 releasing (EXPIRED)
+23:21:06.544  [ERC TX] RELEASE:LEFT:EXPIRED
+23:21:09.581  [SESS] L3N2 epoch 115 -> 116 (prior epoch kept for overlap)
+23:21:09.582  [RX2] type=hb  lane=3 node=2 ctr=196768 sepoch=116 seq=- rssi=-37 snr=9.50 up=1758 heap=180
+23:21:09.582  [HEARTBEAT] L3N2 CTR=196768 UP=1758s HEAP=180KB LORA=1 MIC=0 BATT=3016mV LVL=1  [BENCH]
+23:21:10.794  [RX2] type=hb  lane=2 node=2 ctr=196770 sepoch=129 seq=- rssi=-57 snr=9.80 up=1793 heap=180
+23:21:10.795  [HEARTBEAT] L2N2 CTR=196770 UP=1793s HEAP=180KB LORA=1 MIC=1 BATT=8724mV LVL=5  [BENCH]
+23:21:10.998  [SESS] L3N1 epoch 429 -> 430 (prior epoch kept for overlap)
+23:21:10.999  [RX2] type=hb  lane=3 node=1 ctr=458905 sepoch=430 seq=- rssi=-54 snr=9.50 up=1695 heap=180
+23:21:10.999  [HEARTBEAT] L3N1 CTR=458905 UP=1695s HEAP=180KB LORA=1 MIC=1 BATT=1752mV LVL=1  [BENCH]
+23:21:11.804  [RX2] type=hb  lane=2 node=1 ctr=393378 sepoch=103 seq=- rssi=-71 snr=9.80 up=1798 heap=180
+23:21:11.805  [HEARTBEAT] L2N1 CTR=393378 UP=1798s HEAP=180KB LORA=1 MIC=1 BATT=6961mV LVL=2  [BENCH]
+
+TEST 6 done.
+
+--- 20 s gap before next test ---
+
+======================================================================
+TEST 7 -- emergency flag cleared mid-approach (S2-08)
+Crew switches the lights off -- no longer an emergency run. The demand must drop promptly rather than ride out the hold timer. Then flag back on: it must re-acquire.
+approx 80 s
+======================================================================
+23:21:34.037  [SESS] L2N2 epoch 129 -> 130 (prior epoch kept for overlap)
+23:21:34.038  [RX2] type=hb  lane=2 node=2 ctr=196772 sepoch=130 seq=- rssi=-54 snr=8.50 up=1816 heap=180
+23:21:34.038  [HEARTBEAT] L2N2 CTR=196772 UP=1816s HEAP=180KB LORA=1 MIC=1 BATT=8727mV LVL=5  [BENCH]
+23:21:34.926  >>> simevu 1 clear
+23:21:35.060  [SIMEVU] L1 simulated vehicle removed
+23:21:35.061  [EVU] no tracks
+23:21:37.926  >>> simevu 1 approach 400 40
+23:21:38.087  [SIMEVU] SIM_01 on L1: from 400m at 40 km/h heading 90 (lat 13.026100 lon 77.659308)
+23:21:38.087  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:21:38.088  [EVU] SIM_01 reported by L1N1 with the geofence NOT ENFORCED (bypass=0 pass=0) -- track marked reduced-trust for its lifetime
+23:21:38.088  [EVU] SIM_01 TRACK OPEN  lane=1 pri=2(registry) dist=400m hdg=90 spd=40 eta=41 relayed
+23:21:38.088  [EVU]
+23:21:38.089    SIM_01  ACTIVE    lane=1 pri=2 dist=400m spd=40 hdg=90 eta=41 EVU-RLY  *CLAIM MISMATCH*
+23:21:38.089  [DECISION] L1 ALERT PREPARE evidence=EVU_INDIRECT conf=1.00 eta=-1
+23:21:38.090  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:21:38.506  [RX2] type=hb  lane=1 node=1 ctr=1507484 sepoch=296 seq=- rssi=-39 snr=9.80 up=1737 heap=180
+23:21:38.507  [HEARTBEAT] L1N1 CTR=1507484 UP=1737s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:21:38.927  >>> simevu 1 run 6 2
+23:21:39.113  [SIMEVU] L1 running 6 steps at 2.0s intervals
+23:21:39.114  [EVU]
+23:21:39.114    SIM_01  ACTIVE    lane=1 pri=2 dist=400m spd=40 hdg=90 eta=41 EVU-RLY  *CLAIM MISMATCH*
+23:21:39.114  [SIMEVU] L1 step 2s -> 378m (approaching)
+23:21:39.115  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:21:39.315  [RX2] type=hb  lane=1 node=2 ctr=852132 sepoch=164 seq=- rssi=-62 snr=10.50 up=1823 heap=180
+23:21:39.316  [HEARTBEAT] L1N2 CTR=852132 UP=1823s HEAP=180KB LORA=1 MIC=1 BATT=6373mV LVL=1  [BENCH]
+23:21:40.948  [SIMEVU] L1 step 2s -> 356m (approaching)
+23:21:40.949  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:21:41.151  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:21:42.996  [RX2] type=hb  lane=3 node=2 ctr=196771 sepoch=116 seq=- rssi=-38 snr=9.50 up=1791 heap=180
+23:21:42.996  [HEARTBEAT] L3N2 CTR=196771 UP=1791s HEAP=180KB LORA=1 MIC=0 BATT=3024mV LVL=1  [BENCH]
+23:21:42.996  [SIMEVU] L1 step 2s -> 333m (approaching)
+23:21:42.996  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:21:44.005  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:21:44.609  [RX2] type=hb  lane=3 node=1 ctr=458908 sepoch=430 seq=- rssi=-53 snr=9.20 up=1728 heap=180
+23:21:44.610  [HEARTBEAT] L3N1 CTR=458908 UP=1728s HEAP=180KB LORA=1 MIC=1 BATT=1742mV LVL=1  [BENCH]
+23:21:45.016  [SIMEVU] L1 step 2s -> 311m (approaching)
+23:21:45.016  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:21:45.016  [RX2] type=hb  lane=2 node=2 ctr=196773 sepoch=130 seq=- rssi=-53 snr=10.20 up=1828 heap=180
+23:21:45.017  [HEARTBEAT] L2N2 CTR=196773 UP=1828s HEAP=180KB LORA=1 MIC=1 BATT=8744mV LVL=5  [BENCH]
+23:21:45.217  [SESS] L2N1 epoch 103 -> 104 (prior epoch kept for overlap)
+23:21:45.217  [RX2] type=hb  lane=2 node=1 ctr=393381 sepoch=104 seq=- rssi=-67 snr=10.00 up=1831 heap=180
+23:21:45.218  [HEARTBEAT] L2N1 CTR=393381 UP=1831s HEAP=180KB LORA=1 MIC=1 BATT=6970mV LVL=2  [BENCH]
+23:21:47.036  [SIMEVU] L1 step 2s -> 289m (approaching)
+23:21:47.036  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:21:47.036  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:21:49.075  [SIMEVU] L1 step 2s -> 267m (approaching)
+23:21:49.076  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:21:49.682  [SESS] L1N1 epoch 296 -> 297 (prior epoch kept for overlap)
+23:21:49.682  [RX2] type=hb  lane=1 node=1 ctr=1507485 sepoch=297 seq=- rssi=-39 snr=9.50 up=1748 heap=180
+23:21:49.683  [HEARTBEAT] L1N1 CTR=1507485 UP=1748s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:21:50.101  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:21:50.102  [HEALTH] rejects: ver=0 xsect=0 len=0 node=0 replay=0 mac=0 | dup=0 | mode=SINGLE-NODE-BENCH
+23:21:50.102  [HEALTH] session: revoked=0 nosession=0 epoch=0 nokey=0 overlap=0 | keys=87554f73 | revmask=0x00
+23:21:50.102  [ERC LINK] DOWN  ping=1619 pong=0 lost=1619 (0.0% return) seqmismatch=0  state=IDLE acked=0
+23:21:50.102  [ERC ACK ] operator=0 auto=0 legacy=0 | backstop_fired=0
+23:21:50.103  [PIPE] rx=alive beats=1618535 | w0=alive w1=alive | rxdrop=0 valdrop=0 logdrop=0 maxdepth=1 | per-node drop/max 0/1,0/1,0/1,0/1,0/1,0/1
+23:21:50.103  [PERF] n=14 us(min/mean/max) queue=18/23/26 wait=137/142/150 key=7/32762/119156 hmac=106/204/244 hand=15/1504/11167 TOTAL=373/34637/122660
+23:21:50.103  [GEOMETRY]
+23:21:50.103    approach 1 (LEFT): USABLE  sep=100m  ok
+23:21:50.103      N1  FAR     HEALTHY      dist=250m    hash=0x5E5837CE floor=107 live=1712 mic:OK
+23:21:50.103      N2  NEAR    HEALTHY      dist=150m    hash=0x7FD0287D floor=176 live=1787 mic:OK
+23:21:50.104    approach 2 (BOTTOM): USABLE  sep=100m  ok
+23:21:50.104      N1  FAR     HEALTHY      dist=260m    hash=0xE20A570B floor=117 live=1793 mic:OK
+23:21:50.104      N2  NEAR    HEALTHY      dist=160m    hash=0xD14422AB floor=172 live=1791 mic:OK
+23:21:50.104    approach 3 (RIGHT): USABLE  sep=100m  ok
+23:21:50.104      N1  FAR     HEALTHY      dist=270m    hash=0x12C3B55D floor=103 live=1693 mic:OK
+23:21:50.104      N2  NEAR    SUSPECT      dist=170m    hash=0xEBA33961 floor=245 live=1765 mic:FAIL
+23:21:50.104  [TRACKS] none active
+23:21:50.104  [EVU]
+23:21:50.105    SIM_01  ACTIVE    lane=1 pri=2 dist=267m spd=40 hdg=90 eta=27 EVU-RLY  *CLAIM MISMATCH*
+23:21:50.105  [DECISION] active=LEFT
+23:21:50.105    L1 PREPARE   EVU_INDIRECT         conf=1.00 eta=-1 score=18080273
+23:21:50.105  [SAFETY] wdt=armed  rf=-93dBm base=-98dBm (+5)  link_suspect=0
+23:21:50.105  [HEALTH] queue depth=0 active=0 | L1N1:hb=1,det=--,if2=98.0%(144/147) L1N2:hb=1,det=--,if2=97.9%(143/146) L2N1:hb=1,det=--,if2=85.7%(126/147) L2N2:hb=1,det=--,if2=86.3%(126/146) L3N1:hb=1,det=--,if2=91.8%(134/146) L3N2:hb=1,det=--,if2=95.3%(141/148)
+23:21:50.520  [RX2] type=hb  lane=1 node=2 ctr=852133 sepoch=164 seq=- rssi=-63 snr=9.20 up=1834 heap=180
+23:21:50.520  [HEARTBEAT] L1N2 CTR=852133 UP=1834s HEAP=180KB LORA=1 MIC=1 BATT=6365mV LVL=1  [BENCH]
+23:21:51.928  >>> simevu 1 off
+23:21:51.937  [SIMEVU] L1 emergency flag OFF
+23:21:51.937  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:21:51.938  [EVU] SIM_01 EMERGENCY FLAG CLEARED -- explicit release
+23:21:51.938  [EVU]
+23:21:51.938    SIM_01  COMPLETED lane=1 pri=2 dist=267m spd=40 hdg=90 eta=27 -  *CLAIM MISMATCH*
+23:21:51.939  [DECISION] L1 releasing (FLAG_OFF)
+23:21:52.154  [ERC TX] RELEASE:LEFT:FLAG_OFF
+23:21:52.930  >>> simevu 1 run 4 2
+23:21:52.978  [SIMEVU] L1 running 4 steps at 2.0s intervals
+23:21:52.978  [EVU]
+23:21:52.978    SIM_01  COMPLETED lane=1 pri=2 dist=267m spd=40 hdg=90 eta=27 -  *CLAIM MISMATCH*
+23:21:52.978  [SIMEVU] L1 step 2s -> 244m (approaching)
+23:21:52.978  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:21:54.613  [RX2] type=hb  lane=3 node=2 ctr=196772 sepoch=116 seq=- rssi=-38 snr=9.20 up=1803 heap=180
+23:21:54.613  [HEARTBEAT] L3N2 CTR=196772 UP=1803s HEAP=180KB LORA=1 MIC=0 BATT=3013mV LVL=1  [BENCH]
+23:21:55.020  [SIMEVU] L1 step 2s -> 222m (approaching)
+23:21:55.020  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:21:56.238  [RX2] type=hb  lane=2 node=2 ctr=196774 sepoch=130 seq=- rssi=-58 snr=9.50 up=1839 heap=180
+23:21:56.238  [HEARTBEAT] L2N2 CTR=196774 UP=1839s HEAP=180KB LORA=1 MIC=1 BATT=8748mV LVL=5  [BENCH]
+23:21:57.045  [SIMEVU] L1 step 2s -> 200m (approaching)
+23:21:57.045  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:21:59.061  [SIMEVU] L1 step 2s -> 178m (approaching)
+23:21:59.062  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:22:00.876  [RX2] type=hb  lane=1 node=1 ctr=1507486 sepoch=297 seq=- rssi=-40 snr=9.50 up=1759 heap=180
+23:22:00.876  [HEARTBEAT] L1N1 CTR=1507486 UP=1759s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:22:01.688  [RX2] type=hb  lane=1 node=2 ctr=852134 sepoch=164 seq=- rssi=-63 snr=9.00 up=1846 heap=180
+23:22:01.689  [HEARTBEAT] L1N2 CTR=852134 UP=1846s HEAP=180KB LORA=1 MIC=1 BATT=6348mV LVL=1  [BENCH]
+23:22:04.931  >>> simevu 1 on
+23:22:05.118  [SIMEVU] L1 emergency flag ON
+23:22:05.118  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:22:05.119  [EVU]
+23:22:05.119    SIM_01  ACTIVE    lane=1 pri=2 dist=178m spd=40 hdg=90 eta=18 EVU-RLY  *CLAIM MISMATCH*
+23:22:05.321  [SESS] L3N2 epoch 116 -> 117 (prior epoch kept for overlap)
+23:22:05.321  [RX2] type=hb  lane=3 node=2 ctr=196773 sepoch=117 seq=- rssi=-38 snr=9.50 up=1814 heap=180
+23:22:05.322  [HEARTBEAT] L3N2 CTR=196773 UP=1814s HEAP=180KB LORA=1 MIC=0 BATT=3006mV LVL=1  [BENCH]
+23:22:05.933  >>> simevu 1 run 4 2
+23:22:05.940  [SIMEVU] L1 running 4 steps at 2.0s intervals
+23:22:05.940  [EVU]
+23:22:05.940    SIM_01  ACTIVE    lane=1 pri=2 dist=178m spd=40 hdg=90 eta=18 EVU-RLY  *CLAIM MISMATCH*
+23:22:05.940  [SIMEVU] L1 step 2s -> 156m (approaching)
+23:22:05.940  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:22:06.952  [SESS] L3N1 epoch 430 -> 431 (prior epoch kept for overlap)
+23:22:06.952  [RX2] type=hb  lane=3 node=1 ctr=458910 sepoch=431 seq=- rssi=-51 snr=8.50 up=1751 heap=180
+23:22:06.953  [HEARTBEAT] L3N1 CTR=458910 UP=1751s HEAP=180KB LORA=1 MIC=1 BATT=1752mV LVL=1  [BENCH]
+23:22:07.559  [RX2] type=hb  lane=2 node=2 ctr=196775 sepoch=130 seq=- rssi=-58 snr=9.80 up=1850 heap=180
+23:22:07.560  [HEARTBEAT] L2N2 CTR=196775 UP=1850s HEAP=180KB LORA=1 MIC=1 BATT=8736mV LVL=5  [BENCH]
+23:22:07.962  [SIMEVU] L1 step 2s -> 133m (approaching)
+23:22:07.963  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:22:09.997  [SIMEVU] L1 step 2s -> 111m (approaching)
+23:22:09.998  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:22:12.036  [RX2] type=hb  lane=1 node=1 ctr=1507487 sepoch=297 seq=- rssi=-39 snr=9.50 up=1770 heap=180
+23:22:12.036  [HEARTBEAT] L1N1 CTR=1507487 UP=1770s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:22:12.037  [DECISION] L1 ALERT PREPARE evidence=EVU_INDIRECT conf=1.00 eta=-1
+23:22:12.037  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:22:12.037  [SIMEVU] L1 step 2s -> 89m (approaching)
+23:22:12.037  [EVU] *** SIM_01 CLAIMS priority 9, REGISTRY SAYS 2 -- registry wins ***
+23:22:12.841  [RX2] type=hb  lane=1 node=2 ctr=852135 sepoch=164 seq=- rssi=-63 snr=7.00 up=1857 heap=180
+23:22:12.841  [HEARTBEAT] L1N2 CTR=852135 UP=1857s HEAP=180KB LORA=1 MIC=1 BATT=6348mV LVL=1  [BENCH]
+23:22:15.073  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:22:15.476  [RX2] type=hb  lane=3 node=2 ctr=196774 sepoch=117 seq=- rssi=-38 snr=9.50 up=1824 heap=180
+23:22:15.477  [HEARTBEAT] L3N2 CTR=196774 UP=1824s HEAP=180KB LORA=1 MIC=0 BATT=3008mV LVL=1  [BENCH]
+23:22:18.106  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:22:18.107  [RX2] type=hb  lane=3 node=1 ctr=458911 sepoch=431 seq=- rssi=-53 snr=9.80 up=1762 heap=180
+23:22:18.107  [HEARTBEAT] L3N1 CTR=458911 UP=1762s HEAP=180KB LORA=1 MIC=1 BATT=1751mV LVL=1  [BENCH]
+23:22:18.510  [RX2] type=hb  lane=2 node=2 ctr=196776 sepoch=130 seq=- rssi=-58 snr=9.20 up=1861 heap=180
+23:22:18.510  [HEARTBEAT] L2N2 CTR=196776 UP=1861s HEAP=180KB LORA=1 MIC=1 BATT=8731mV LVL=5  [BENCH]
+23:22:18.726  [RX2] type=hb  lane=2 node=1 ctr=393384 sepoch=104 seq=- rssi=-69 snr=9.20 up=1865 heap=180
+23:22:18.727  [HEARTBEAT] L2N1 CTR=393384 UP=1865s HEAP=180KB LORA=1 MIC=1 BATT=6967mV LVL=2  [BENCH]
+23:22:20.154  [HEALTH] rejects: ver=0 xsect=0 len=0 node=0 replay=0 mac=0 | dup=0 | mode=SINGLE-NODE-BENCH
+23:22:20.154  [HEALTH] session: revoked=0 nosession=0 epoch=0 nokey=0 overlap=0 | keys=87554f73 | revmask=0x00
+23:22:20.155  [ERC LINK] DOWN  ping=1649 pong=0 lost=1649 (0.0% return) seqmismatch=0  state=IDLE acked=0
+23:22:20.155  [ERC ACK ] operator=0 auto=0 legacy=0 | backstop_fired=0
+23:22:20.155  [PIPE] rx=alive beats=1648520 | w0=alive w1=alive | rxdrop=0 valdrop=0 logdrop=0 maxdepth=1 | per-node drop/max 0/1,0/1,0/1,0/1,0/1,0/1
+23:22:20.156  [PERF] n=14 us(min/mean/max) queue=22/24/28 wait=141/145/151 key=12/16238/114120 hmac=141/213/233 hand=15/63/239 TOTAL=421/16684/114705
+23:22:20.156  [GEOMETRY]
+23:22:20.156    approach 1 (LEFT): USABLE  sep=100m  ok
+23:22:20.157      N1  FAR     HEALTHY      dist=250m    hash=0x5E5837CE floor=106 live=1734 mic:OK
+23:22:20.157      N2  NEAR    HEALTHY      dist=150m    hash=0x7FD0287D floor=178 live=1820 mic:OK
+23:22:20.157    approach 2 (BOTTOM): USABLE  sep=100m  ok
+23:22:20.158      N1  FAR     HEALTHY      dist=260m    hash=0xE20A570B floor=118 live=1826 mic:OK
+23:22:20.158      N2  NEAR    HEALTHY      dist=160m    hash=0xD14422AB floor=173 live=1824 mic:OK
+23:22:20.158    approach 3 (RIGHT): USABLE  sep=100m  ok
+23:22:20.158      N1  FAR     HEALTHY      dist=270m    hash=0x12C3B55D floor=104 live=1726 mic:OK
+23:22:20.158      N2  NEAR    SUSPECT      dist=170m    hash=0xEBA33961 floor=245 live=1797 mic:FAIL
+23:22:20.158  [TRACKS] none active
+23:22:20.158  [EVU]
+23:22:20.158    SIM_01  ACTIVE    lane=1 pri=2 dist=89m spd=40 hdg=90 eta=9 EVU-RLY  *CLAIM MISMATCH*
+23:22:20.158  [DECISION] active=LEFT
+23:22:20.158    L1 PREPARE   EVU_INDIRECT         conf=1.00 eta=-1 score=18080291
+23:22:20.158  [SAFETY] wdt=armed  rf=-92dBm base=-98dBm (+6)  link_suspect=0
+23:22:20.158  [HEALTH] queue depth=0 active=0 | L1N1:hb=1,det=--,if2=98.0%(146/149) L1N2:hb=1,det=--,if2=98.0%(146/149) L2N1:hb=1,det=--,if2=84.7%(127/150) L2N2:hb=1,det=--,if2=86.6%(129/149) L3N1:hb=1,det=--,if2=91.3%(136/149) L3N2:hb=1,det=--,if2=95.4%(144/151)
+23:22:20.979  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:22:23.209  [RX2] type=hb  lane=1 node=1 ctr=1507488 sepoch=297 seq=- rssi=-39 snr=10.00 up=1781 heap=180
+23:22:23.209  [HEARTBEAT] L1N1 CTR=1507488 UP=1781s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:22:24.019  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_INDIRECT:-1
+23:22:24.019  [EVU] SIM_01 -> DEGRADED (no packet for 12004ms)
+23:22:24.020  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:9
+23:22:24.020  [RX2] type=hb  lane=1 node=2 ctr=852136 sepoch=165 seq=- rssi=-62 snr=9.80 up=1868 heap=180
+23:22:24.020  [HEARTBEAT] L1N2 CTR=852136 UP=1868s HEAP=180KB LORA=1 MIC=1 BATT=6352mV LVL=1  [BENCH]
+23:22:24.020  [SESS] L1N2 epoch 164 -> 165 (prior epoch kept for overlap)
+23:22:26.039  [RX2] type=hb  lane=3 node=2 ctr=196775 sepoch=117 seq=- rssi=-37 snr=9.80 up=1835 heap=180
+23:22:26.039  [HEARTBEAT] L3N2 CTR=196775 UP=1835s HEAP=180KB LORA=1 MIC=0 BATT=3016mV LVL=1  [BENCH]
+23:22:27.061  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:9
+23:22:29.282  [RX2] type=hb  lane=3 node=1 ctr=458912 sepoch=431 seq=- rssi=-54 snr=9.50 up=1773 heap=180
+23:22:29.283  [HEARTBEAT] L3N1 CTR=458912 UP=1773s HEAP=180KB LORA=1 MIC=1 BATT=1745mV LVL=1  [BENCH]
+23:22:30.091  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:9
+23:22:30.910  [SESS] L2N2 epoch 130 -> 131 (prior epoch kept for overlap)
+23:22:30.910  [RX2] type=hb  lane=2 node=2 ctr=196777 sepoch=131 seq=- rssi=-58 snr=9.80 up=1873 heap=180
+23:22:30.911  [HEARTBEAT] L2N2 CTR=196777 UP=1873s HEAP=180KB LORA=1 MIC=1 BATT=8725mV LVL=5  [BENCH]
+23:22:31.112  [SESS] L2N1 epoch 104 -> 105 (prior epoch kept for overlap)
+23:22:31.113  [RX2] type=hb  lane=2 node=1 ctr=393385 sepoch=105 seq=- rssi=-69 snr=10.20 up=1877 heap=180
+23:22:31.113  [HEARTBEAT] L2N1 CTR=393385 UP=1877s HEAP=180KB LORA=1 MIC=1 BATT=6971mV LVL=2  [BENCH]
+23:22:33.130  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:9
+23:22:34.339  [RX2] type=hb  lane=1 node=1 ctr=1507489 sepoch=297 seq=- rssi=-39 snr=9.50 up=1792 heap=180
+23:22:34.340  [HEARTBEAT] L1N1 CTR=1507489 UP=1792s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:22:36.166  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:9
+23:22:36.166  [RX2] type=hb  lane=1 node=2 ctr=852137 sepoch=165 seq=- rssi=-63 snr=10.20 up=1880 heap=180
+23:22:36.167  [HEARTBEAT] L1N2 CTR=852137 UP=1880s HEAP=180KB LORA=1 MIC=1 BATT=6357mV LVL=1  [BENCH]
+23:22:37.585  [RX2] type=hb  lane=3 node=2 ctr=196776 sepoch=117 seq=- rssi=-39 snr=9.50 up=1846 heap=180
+23:22:37.585  [HEARTBEAT] L3N2 CTR=196776 UP=1846s HEAP=180KB LORA=1 MIC=0 BATT=3020mV LVL=1  [BENCH]
+23:22:39.210  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:9
+23:22:42.063  [RX2] type=hb  lane=2 node=2 ctr=196778 sepoch=131 seq=- rssi=-59 snr=9.50 up=1885 heap=180
+23:22:42.064  [HEARTBEAT] L2N2 CTR=196778 UP=1885s HEAP=180KB LORA=1 MIC=1 BATT=8732mV LVL=5  [BENCH]
+23:22:42.064  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:9
+23:22:42.268  [RX2] type=hb  lane=2 node=1 ctr=393386 sepoch=105 seq=- rssi=-68 snr=10.00 up=1888 heap=180
+23:22:42.268  [HEARTBEAT] L2N1 CTR=393386 UP=1888s HEAP=180KB LORA=1 MIC=1 BATT=6968mV LVL=2  [BENCH]
+23:22:44.908  [RX2] type=hb  lane=1 node=1 ctr=1507490 sepoch=297 seq=- rssi=-39 snr=9.80 up=1803 heap=180
+23:22:44.909  [HEARTBEAT] L1N1 CTR=1507490 UP=1803s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+23:22:45.112  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:9
+23:22:47.338  [RX2] type=hb  lane=1 node=2 ctr=852138 sepoch=165 seq=- rssi=-64 snr=9.00 up=1891 heap=180
+23:22:47.338  [HEARTBEAT] L1N2 CTR=852138 UP=1891s HEAP=180KB LORA=1 MIC=1 BATT=6367mV LVL=1  [BENCH]
+23:22:48.163  [ERC TX] ALERT:LEFT:PREPARE:2:EVU_DEGRADED:9
+23:22:49.173  [RX2] type=hb  lane=3 node=2 ctr=196777 sepoch=117 seq=- rssi=-38 snr=10.00 up=1858 heap=180
+23:22:49.173  [HEARTBEAT] L3N2 CTR=196777 UP=1858s HEAP=180KB LORA=1 MIC=0 BATT=3019mV LVL=1  [BENCH]
+23:22:49.935  >>> simevu 1 clear
+23:22:49.980  [SIMEVU] L1 simulated vehicle removed
+23:22:49.981  [EVU] no tracks
+23:22:49.981  [DECISION] L1 releasing (EXPIRED)
+23:22:49.981  [ERC TX] RELEASE:LEFT:EXPIRED
+23:22:50.181  [HEALTH] rejects: ver=0 xsect=0 len=0 node=0 replay=0 mac=0 | dup=0 | mode=SINGLE-NODE-BENCH
+23:22:50.182  [HEALTH] session: revoked=0 nosession=0 epoch=0 nokey=0 overlap=0 | keys=87554f73 | revmask=0x00
+23:22:50.182  [ERC LINK] DOWN  ping=1679 pong=0 lost=1679 (0.0% return) seqmismatch=0  state=IDLE acked=0
+23:22:50.183  [ERC ACK ] operator=0 auto=0 legacy=0 | backstop_fired=0
+23:22:50.183  [PIPE] rx=alive beats=1678506 | w0=alive w1=alive | rxdrop=0 valdrop=0 logdrop=0 maxdepth=1 | per-node drop/max 0/1,0/1,0/1,0/1,0/1,0/1
+23:22:50.183  [PERF] n=14 us(min/mean/max) queue=23/24/29 wait=141/145/167 key=12/24812/118370 hmac=108/219/254 hand=21/2377/22688 TOTAL=429/27579/141334
+23:22:50.183  [GEOMETRY]
+23:22:50.184    approach 1 (LEFT): USABLE  sep=100m  ok
+23:22:50.184      N1  FAR     HEALTHY      dist=250m    hash=0x5E5837CE floor=106 live=1766 mic:OK
+23:22:50.184      N2  NEAR    HEALTHY      dist=150m    hash=0x7FD0287D floor=178 live=1854 mic:OK
+23:22:50.184    approach 2 (BOTTOM): USABLE  sep=100m  ok
+23:22:50.184      N1  FAR     HEALTHY      dist=260m    hash=0xE20A570B floor=118 live=1849 mic:OK
+23:22:50.184      N2  NEAR    HEALTHY      dist=160m    hash=0xD14422AB floor=174 live=1847 mic:OK
+23:22:50.184    approach 3 (RIGHT): USABLE  sep=100m  ok
+23:22:50.185      N1  FAR     HEALTHY      dist=270m    hash=0x12C3B55D floor=103 live=1737 mic:OK
+23:22:50.185      N2  NEAR    SUSPECT      dist=170m    hash=0xEBA33961 floor=245 live=1830 mic:FAIL
+23:22:50.185  [TRACKS] none active
+23:22:50.185  [EVU] no tracks
+23:22:50.185  [DECISION] active=none
+23:22:50.185  [SAFETY] wdt=armed  rf=-91dBm base=-98dBm (+7)  link_suspect=0
+23:22:50.185  [HEALTH] queue depth=0 active=0 | L1N1:hb=1,det=--,if2=98.0%(149/152) L1N2:hb=1,det=--,if2=98.0%(149/152) L2N1:hb=1,det=--,if2=84.9%(129/152) L2N2:hb=1,det=--,if2=86.8%(131/151) L3N1:hb=1,det=--,if2=91.3%(137/150) L3N2:hb=1,det=--,if2=95.5%(147/154)
+23:22:51.610  [RX2] type=hb  lane=3 node=1 ctr=458914 sepoch=431 seq=- rssi=-53 snr=9.20 up=1795 heap=180
+23:22:51.611  [HEARTBEAT] L3N1 CTR=458914 UP=1795s HEAP=180KB LORA=1 MIC=1 BATT=1745mV LVL=1  [BENCH]
+23:22:52.214  [RX2] type=hb  lane=2 node=2 ctr=196779 sepoch=131 seq=- rssi=-57 snr=10.20 up=1895 heap=180
+23:22:52.214  [HEARTBEAT] L2N2 CTR=196779 UP=1895s HEAP=180KB LORA=1 MIC=1 BATT=8719mV LVL=5  [BENCH]
+23:22:52.417  [RX2] type=hb  lane=2 node=1 ctr=393387 sepoch=105 seq=- rssi=-68 snr=10.00 up=1898 heap=180
+23:22:52.417  [HEARTBEAT] L2N1 CTR=393387 UP=1898s HEAP=180KB LORA=1 MIC=1 BATT=6964mV LVL=2  [BENCH]
+23:22:56.857  [SESS] L1N1 epoch 297 -> 298 (prior epoch kept for overlap)
+23:22:56.858  [RX2] type=hb  lane=1 node=1 ctr=1507491 sepoch=298 seq=- rssi=-39 snr=9.80 up=1815 heap=180
+23:22:56.858  [HEARTBEAT] L1N1 CTR=1507491 UP=1815s HEAP=180KB LORA=1 MIC=1 BATT=n/a LVL=-  [BENCH]
+
+TEST 7 done.
